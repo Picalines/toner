@@ -1,5 +1,5 @@
-import { z } from 'zod'
 import { loadEnvConfig } from '@next/env'
+import { z } from 'zod'
 
 const envSchema = z.object({
 	DB_HOST: z.string().min(1),

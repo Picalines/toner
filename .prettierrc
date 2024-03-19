@@ -6,5 +6,10 @@
 	"trailingComma": "all",
 	"bracketSpacing": true,
 	"bracketSameLine": false,
-	"arrowParens": "avoid"
+	"arrowParens": "avoid",
+
+	"plugins": ["@trivago/prettier-plugin-sort-imports"],
+
+	"importOrderSeparation": true,
+	"importOrderSortSpecifiers": true
 }
