@@ -11,6 +11,8 @@ const pgClient = new Client({
 	database: serverEnv.DB_DATABASE,
 })
 
+pgClient.connect()
+
 export const database = drizzle(pgClient, { schema })
 
 export { schema as databaseSchema }
