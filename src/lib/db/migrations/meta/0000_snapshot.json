@@ -1,11 +1,11 @@
 {
-  "id": "cf9b95ab-b6d3-4fb4-9e4d-89f92438095a",
+  "id": "0d38b6ad-867d-40a1-af5e-00a79f8f2c5f",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "version": "5",
   "dialect": "pg",
   "tables": {
-    "authors": {
-      "name": "authors",
+    "author": {
+      "name": "author",
       "schema": "",
       "columns": {
         "user_id": {
@@ -17,10 +17,10 @@
       },
       "indexes": {},
       "foreignKeys": {
-        "authors_user_id_users_id_fk": {
-          "name": "authors_user_id_users_id_fk",
-          "tableFrom": "authors",
-          "tableTo": "users",
+        "author_user_id_user_id_fk": {
+          "name": "author_user_id_user_id_fk",
+          "tableFrom": "author",
+          "tableTo": "user",
           "columnsFrom": [
             "user_id"
           ],
@@ -34,38 +34,8 @@
       "compositePrimaryKeys": {},
       "uniqueConstraints": {}
     },
-    "listeners": {
-      "name": "listeners",
-      "schema": "",
-      "columns": {
-        "user_id": {
-          "name": "user_id",
-          "type": "integer",
-          "primaryKey": true,
-          "notNull": true
-        }
-      },
-      "indexes": {},
-      "foreignKeys": {
-        "listeners_user_id_users_id_fk": {
-          "name": "listeners_user_id_users_id_fk",
-          "tableFrom": "listeners",
-          "tableTo": "users",
-          "columnsFrom": [
-            "user_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "cascade",
-          "onUpdate": "no action"
-        }
-      },
-      "compositePrimaryKeys": {},
-      "uniqueConstraints": {}
-    },
-    "listens": {
-      "name": "listens",
+    "listen": {
+      "name": "listen",
       "schema": "",
       "columns": {
         "listener_id": {
@@ -90,10 +60,10 @@
       },
       "indexes": {},
       "foreignKeys": {
-        "listens_listener_id_listeners_user_id_fk": {
-          "name": "listens_listener_id_listeners_user_id_fk",
-          "tableFrom": "listens",
-          "tableTo": "listeners",
+        "listen_listener_id_listener_user_id_fk": {
+          "name": "listen_listener_id_listener_user_id_fk",
+          "tableFrom": "listen",
+          "tableTo": "listener",
           "columnsFrom": [
             "listener_id"
           ],
@@ -103,10 +73,10 @@
           "onDelete": "cascade",
           "onUpdate": "no action"
         },
-        "listens_publication_id_track_publications_id_fk": {
-          "name": "listens_publication_id_track_publications_id_fk",
-          "tableFrom": "listens",
-          "tableTo": "track_publications",
+        "listen_publication_id_track_publication_id_fk": {
+          "name": "listen_publication_id_track_publication_id_fk",
+          "tableFrom": "listen",
+          "tableTo": "track_publication",
           "columnsFrom": [
             "publication_id"
           ],
@@ -118,8 +88,8 @@
         }
       },
       "compositePrimaryKeys": {
-        "listens_listener_id_publication_id_pk": {
-          "name": "listens_listener_id_publication_id_pk",
+        "listen_listener_id_publication_id_pk": {
+          "name": "listen_listener_id_publication_id_pk",
           "columns": [
             "listener_id",
             "publication_id"
@@ -128,8 +98,38 @@
       },
       "uniqueConstraints": {}
     },
-    "node_connections": {
-      "name": "node_connections",
+    "listener": {
+      "name": "listener",
+      "schema": "",
+      "columns": {
+        "user_id": {
+          "name": "user_id",
+          "type": "integer",
+          "primaryKey": true,
+          "notNull": true
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "listener_user_id_user_id_fk": {
+          "name": "listener_user_id_user_id_fk",
+          "tableFrom": "listener",
+          "tableTo": "user",
+          "columnsFrom": [
+            "user_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {}
+    },
+    "node_connection": {
+      "name": "node_connection",
       "schema": "",
       "columns": {
         "id": {
@@ -159,10 +159,10 @@
       },
       "indexes": {},
       "foreignKeys": {
-        "node_connections_project_id_track_projects_id_fk": {
-          "name": "node_connections_project_id_track_projects_id_fk",
-          "tableFrom": "node_connections",
-          "tableTo": "track_projects",
+        "node_connection_project_id_track_project_id_fk": {
+          "name": "node_connection_project_id_track_project_id_fk",
+          "tableFrom": "node_connection",
+          "tableTo": "track_project",
           "columnsFrom": [
             "project_id"
           ],
@@ -172,10 +172,10 @@
           "onDelete": "cascade",
           "onUpdate": "no action"
         },
-        "node_connections_sender_id_node_sockets_id_fk": {
-          "name": "node_connections_sender_id_node_sockets_id_fk",
-          "tableFrom": "node_connections",
-          "tableTo": "node_sockets",
+        "node_connection_sender_id_node_socket_id_fk": {
+          "name": "node_connection_sender_id_node_socket_id_fk",
+          "tableFrom": "node_connection",
+          "tableTo": "node_socket",
           "columnsFrom": [
             "sender_id"
           ],
@@ -185,10 +185,10 @@
           "onDelete": "cascade",
           "onUpdate": "no action"
         },
-        "node_connections_receiver_id_node_sockets_id_fk": {
-          "name": "node_connections_receiver_id_node_sockets_id_fk",
-          "tableFrom": "node_connections",
-          "tableTo": "node_sockets",
+        "node_connection_receiver_id_node_socket_id_fk": {
+          "name": "node_connection_receiver_id_node_socket_id_fk",
+          "tableFrom": "node_connection",
+          "tableTo": "node_socket",
           "columnsFrom": [
             "receiver_id"
           ],
@@ -202,8 +202,8 @@
       "compositePrimaryKeys": {},
       "uniqueConstraints": {}
     },
-    "node_sockets": {
-      "name": "node_sockets",
+    "node_socket": {
+      "name": "node_socket",
       "schema": "",
       "columns": {
         "id": {
@@ -233,10 +233,10 @@
       },
       "indexes": {},
       "foreignKeys": {
-        "node_sockets_node_id_nodes_id_fk": {
-          "name": "node_sockets_node_id_nodes_id_fk",
-          "tableFrom": "node_sockets",
-          "tableTo": "nodes",
+        "node_socket_node_id_node_id_fk": {
+          "name": "node_socket_node_id_node_id_fk",
+          "tableFrom": "node_socket",
+          "tableTo": "node",
           "columnsFrom": [
             "node_id"
           ],
@@ -250,8 +250,8 @@
       "compositePrimaryKeys": {},
       "uniqueConstraints": {}
     },
-    "nodes": {
-      "name": "nodes",
+    "node": {
+      "name": "node",
       "schema": "",
       "columns": {
         "id": {
@@ -281,10 +281,10 @@
       },
       "indexes": {},
       "foreignKeys": {
-        "nodes_project_id_track_projects_id_fk": {
-          "name": "nodes_project_id_track_projects_id_fk",
-          "tableFrom": "nodes",
-          "tableTo": "track_projects",
+        "node_project_id_track_project_id_fk": {
+          "name": "node_project_id_track_project_id_fk",
+          "tableFrom": "node",
+          "tableTo": "track_project",
           "columnsFrom": [
             "project_id"
           ],
@@ -298,8 +298,8 @@
       "compositePrimaryKeys": {},
       "uniqueConstraints": {}
     },
-    "note_layers": {
-      "name": "note_layers",
+    "note_layer": {
+      "name": "note_layer",
       "schema": "",
       "columns": {
         "id": {
@@ -323,10 +323,10 @@
       },
       "indexes": {},
       "foreignKeys": {
-        "note_layers_project_id_track_projects_id_fk": {
-          "name": "note_layers_project_id_track_projects_id_fk",
-          "tableFrom": "note_layers",
-          "tableTo": "track_projects",
+        "note_layer_project_id_track_project_id_fk": {
+          "name": "note_layer_project_id_track_project_id_fk",
+          "tableFrom": "note_layer",
+          "tableTo": "track_project",
           "columnsFrom": [
             "project_id"
           ],
@@ -340,8 +340,8 @@
       "compositePrimaryKeys": {},
       "uniqueConstraints": {}
     },
-    "notes": {
-      "name": "notes",
+    "note": {
+      "name": "note",
       "schema": "",
       "columns": {
         "id": {
@@ -383,10 +383,10 @@
       },
       "indexes": {},
       "foreignKeys": {
-        "notes_layer_id_note_layers_id_fk": {
-          "name": "notes_layer_id_note_layers_id_fk",
-          "tableFrom": "notes",
-          "tableTo": "note_layers",
+        "note_layer_id_note_layer_id_fk": {
+          "name": "note_layer_id_note_layer_id_fk",
+          "tableFrom": "note",
+          "tableTo": "note_layer",
           "columnsFrom": [
             "layer_id"
           ],
@@ -396,10 +396,10 @@
           "onDelete": "cascade",
           "onUpdate": "no action"
         },
-        "notes_instrumentNode_id_nodes_id_fk": {
-          "name": "notes_instrumentNode_id_nodes_id_fk",
-          "tableFrom": "notes",
-          "tableTo": "nodes",
+        "note_instrumentNode_id_node_id_fk": {
+          "name": "note_instrumentNode_id_node_id_fk",
+          "tableFrom": "note",
+          "tableTo": "node",
           "columnsFrom": [
             "instrumentNode_id"
           ],
@@ -413,8 +413,8 @@
       "compositePrimaryKeys": {},
       "uniqueConstraints": {}
     },
-    "reactions": {
-      "name": "reactions",
+    "reaction": {
+      "name": "reaction",
       "schema": "",
       "columns": {
         "listener_id": {
@@ -445,10 +445,10 @@
       },
       "indexes": {},
       "foreignKeys": {
-        "reactions_listener_id_listeners_user_id_fk": {
-          "name": "reactions_listener_id_listeners_user_id_fk",
-          "tableFrom": "reactions",
-          "tableTo": "listeners",
+        "reaction_listener_id_listener_user_id_fk": {
+          "name": "reaction_listener_id_listener_user_id_fk",
+          "tableFrom": "reaction",
+          "tableTo": "listener",
           "columnsFrom": [
             "listener_id"
           ],
@@ -458,10 +458,10 @@
           "onDelete": "cascade",
           "onUpdate": "no action"
         },
-        "reactions_publication_id_track_publications_id_fk": {
-          "name": "reactions_publication_id_track_publications_id_fk",
-          "tableFrom": "reactions",
-          "tableTo": "track_publications",
+        "reaction_publication_id_track_publication_id_fk": {
+          "name": "reaction_publication_id_track_publication_id_fk",
+          "tableFrom": "reaction",
+          "tableTo": "track_publication",
           "columnsFrom": [
             "publication_id"
           ],
@@ -473,8 +473,8 @@
         }
       },
       "compositePrimaryKeys": {
-        "reactions_listener_id_publication_id_pk": {
-          "name": "reactions_listener_id_publication_id_pk",
+        "reaction_listener_id_publication_id_pk": {
+          "name": "reaction_listener_id_publication_id_pk",
           "columns": [
             "listener_id",
             "publication_id"
@@ -483,8 +483,8 @@
       },
       "uniqueConstraints": {}
     },
-    "subscriptions": {
-      "name": "subscriptions",
+    "subscription": {
+      "name": "subscription",
       "schema": "",
       "columns": {
         "listener_id": {
@@ -509,10 +509,10 @@
       },
       "indexes": {},
       "foreignKeys": {
-        "subscriptions_listener_id_listeners_user_id_fk": {
-          "name": "subscriptions_listener_id_listeners_user_id_fk",
-          "tableFrom": "subscriptions",
-          "tableTo": "listeners",
+        "subscription_listener_id_listener_user_id_fk": {
+          "name": "subscription_listener_id_listener_user_id_fk",
+          "tableFrom": "subscription",
+          "tableTo": "listener",
           "columnsFrom": [
             "listener_id"
           ],
@@ -522,10 +522,10 @@
           "onDelete": "cascade",
           "onUpdate": "no action"
         },
-        "subscriptions_author_id_authors_user_id_fk": {
-          "name": "subscriptions_author_id_authors_user_id_fk",
-          "tableFrom": "subscriptions",
-          "tableTo": "authors",
+        "subscription_author_id_author_user_id_fk": {
+          "name": "subscription_author_id_author_user_id_fk",
+          "tableFrom": "subscription",
+          "tableTo": "author",
           "columnsFrom": [
             "author_id"
           ],
@@ -537,8 +537,8 @@
         }
       },
       "compositePrimaryKeys": {
-        "subscriptions_listener_id_author_id_pk": {
-          "name": "subscriptions_listener_id_author_id_pk",
+        "subscription_listener_id_author_id_pk": {
+          "name": "subscription_listener_id_author_id_pk",
           "columns": [
             "listener_id",
             "author_id"
@@ -547,8 +547,8 @@
       },
       "uniqueConstraints": {}
     },
-    "track_projects": {
-      "name": "track_projects",
+    "track_project": {
+      "name": "track_project",
       "schema": "",
       "columns": {
         "id": {
@@ -586,10 +586,10 @@
       },
       "indexes": {},
       "foreignKeys": {
-        "track_projects_author_id_authors_user_id_fk": {
-          "name": "track_projects_author_id_authors_user_id_fk",
-          "tableFrom": "track_projects",
-          "tableTo": "authors",
+        "track_project_author_id_author_user_id_fk": {
+          "name": "track_project_author_id_author_user_id_fk",
+          "tableFrom": "track_project",
+          "tableTo": "author",
           "columnsFrom": [
             "author_id"
           ],
@@ -603,8 +603,8 @@
       "compositePrimaryKeys": {},
       "uniqueConstraints": {}
     },
-    "track_publications": {
-      "name": "track_publications",
+    "track_publication": {
+      "name": "track_publication",
       "schema": "",
       "columns": {
         "id": {
@@ -648,10 +648,10 @@
       },
       "indexes": {},
       "foreignKeys": {
-        "track_publications_author_id_authors_user_id_fk": {
-          "name": "track_publications_author_id_authors_user_id_fk",
-          "tableFrom": "track_publications",
-          "tableTo": "authors",
+        "track_publication_author_id_author_user_id_fk": {
+          "name": "track_publication_author_id_author_user_id_fk",
+          "tableFrom": "track_publication",
+          "tableTo": "author",
           "columnsFrom": [
             "author_id"
           ],
@@ -661,10 +661,10 @@
           "onDelete": "cascade",
           "onUpdate": "no action"
         },
-        "track_publications_project_id_track_projects_id_fk": {
-          "name": "track_publications_project_id_track_projects_id_fk",
-          "tableFrom": "track_publications",
-          "tableTo": "track_projects",
+        "track_publication_project_id_track_project_id_fk": {
+          "name": "track_publication_project_id_track_project_id_fk",
+          "tableFrom": "track_publication",
+          "tableTo": "track_project",
           "columnsFrom": [
             "project_id"
           ],
@@ -678,8 +678,8 @@
       "compositePrimaryKeys": {},
       "uniqueConstraints": {}
     },
-    "users": {
-      "name": "users",
+    "user": {
+      "name": "user",
       "schema": "",
       "columns": {
         "id": {
