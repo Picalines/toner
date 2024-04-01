@@ -13,7 +13,8 @@ import {
 
 export const userTable = pgTable('user', {
 	id: serial('id').primaryKey(),
-	login: varchar('login', { length: 32 }).notNull(),
+	login: varchar('login', { length: 32 }).notNull().unique(),
+	passwordHash: text('hashed_password').notNull(),
 	displayName: varchar('display_name', { length: 64 }).notNull(),
 	createdAt: timestamp('created_at').notNull().defaultNow(),
 })
