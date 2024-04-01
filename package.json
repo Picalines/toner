@@ -9,7 +9,7 @@
 		"lint": "next lint",
 		"format": "prettier . --write",
 		"db:migrations:generate": "drizzle-kit generate:pg",
-		"db:migrations:migrate": "tsx ./src/lib/db/migrate.ts",
+		"db:migrations:migrate": "tsx ./lib/db/migrate.ts",
 		"db:drizzle-studio": "npx drizzle-kit studio"
 	},
 	"dependencies": {

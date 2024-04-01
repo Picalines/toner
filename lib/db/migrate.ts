@@ -1,8 +1,8 @@
 import { serverEnv } from '../env'
+import config from '@/drizzle.config'
 import { drizzle } from 'drizzle-orm/node-postgres'
 import { migrate } from 'drizzle-orm/node-postgres/migrator'
 import { Pool } from 'pg'
-import config from '~/drizzle.config'
 
 async function main() {
 	console.log('migration started')
