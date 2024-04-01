@@ -8,8 +8,9 @@
 		"start": "next start",
 		"lint": "next lint",
 		"format": "prettier . --write",
-		"migrations:generate": "drizzle-kit generate:pg",
-		"migrations:migrate": "tsx ./src/lib/db/migrate.ts"
+		"db:migrations:generate": "drizzle-kit generate:pg",
+		"db:migrations:migrate": "tsx ./src/lib/db/migrate.ts",
+		"db:drizzle-studio": "npx drizzle-kit studio"
 	},
 	"dependencies": {
 		"@lucia-auth/adapter-drizzle": "^1.0.7",
