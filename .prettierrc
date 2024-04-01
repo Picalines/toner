@@ -10,6 +10,13 @@
 
 	"plugins": ["@trivago/prettier-plugin-sort-imports"],
 
-	"importOrderSeparation": true,
-	"importOrderSortSpecifiers": true
+	"importOrderSeparation": false,
+	"importOrderSortSpecifiers": true,
+	"importOrder": [
+		"<THIRD_PARTY_MODULES>",
+		"^@/lib/.*$",
+		"^@/components/.*$",
+		"^@/.*$",
+		"^\\./.*$"
+	]
 }

@@ -1,8 +1,8 @@
 'use client'
 
-import { signup } from './actions'
-import { Button } from '@/components/ui/button'
 import { useFormState } from 'react-dom'
+import { Button } from '@/components/ui/button'
+import { signup } from './actions'
 
 export default function LoginPage() {
 	const [formState, signupAction] = useFormState(signup, {

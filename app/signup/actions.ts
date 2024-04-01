@@ -1,11 +1,11 @@
 'use server'
 
-import { lucia, scrypt } from '@/lib/auth'
-import { authorTable, database, listenerTable, userTable } from '@/lib/db'
 import { eq } from 'drizzle-orm'
 import { cookies } from 'next/headers'
 import { redirect } from 'next/navigation'
 import { z } from 'zod'
+import { lucia, scrypt } from '@/lib/auth'
+import { authorTable, database, listenerTable, userTable } from '@/lib/db'
 
 type SignupFormState = { errorMessages: string[] }
 
