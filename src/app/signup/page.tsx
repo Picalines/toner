@@ -2,6 +2,7 @@
 
 import { signup } from './actions'
 import { useFormState } from 'react-dom'
+import { Button } from '~/components/ui/button'
 
 export default function LoginPage() {
 	const [formState, signupAction] = useFormState(signup, {
@@ -48,16 +49,13 @@ export default function LoginPage() {
 					</div>
 					<ul>
 						{formState.errorMessages.map((message, i) => (
-							<li key={i} className="text-red-500">{message}</li>
+							<li key={i} className="text-red-500">
+								{message}
+							</li>
 						))}
 					</ul>
 					<div className="flex items-center justify-between">
-						<button
-							className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
-							type="submit"
-						>
-							Sign Up
-						</button>
+						<Button type="submit">Sign up</Button>
 					</div>
 				</form>
 			</div>
