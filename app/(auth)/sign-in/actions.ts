@@ -2,13 +2,13 @@
 
 import { eq } from 'drizzle-orm'
 import { cookies } from 'next/headers'
-import { redirect } from 'next/navigation'
 import { lucia, scrypt } from '@/lib/auth'
 import { accountTable, database } from '@/lib/db'
 import { SignInFormData, signInFormSchema } from './schemas'
 
 export type SignInActionResult = {
 	errors: { field: keyof SignInFormData; message: string }[]
+	redirectUrl?: string
 }
 
 const authenticationError: SignInActionResult = {
@@ -20,7 +20,7 @@ const authenticationError: SignInActionResult = {
 
 export const signIn = async (
 	formData: SignInFormData,
-): Promise<SignInActionResult | undefined> => {
+): Promise<SignInActionResult> => {
 	const validationResult = signInFormSchema.safeParse(formData)
 
 	if (!validationResult.success) {
@@ -62,5 +62,8 @@ export const signIn = async (
 		sessionCookie.attributes,
 	)
 
-	redirect('/account')
+	return {
+		errors: [],
+		redirectUrl: '/account',
+	}
 }

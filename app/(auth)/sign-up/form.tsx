@@ -2,6 +2,7 @@
 
 import { zodResolver } from '@hookform/resolvers/zod'
 import { Loader2 } from 'lucide-react'
+import { useRouter } from 'next/navigation'
 import { useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { Button } from '@/components/ui/button'
@@ -25,6 +26,7 @@ import { signup } from './actions'
 import { SignupFormData, signupFormSchema } from './schemas'
 
 export default function SignUpForm() {
+	const { push: navigate } = useRouter()
 	const [isPending, setPending] = useState(false)
 
 	const form = useForm<SignupFormData>({
@@ -36,15 +38,20 @@ export default function SignUpForm() {
 	})
 
 	const onSubmit = form.handleSubmit(async formData => {
-		try {
-			setPending(true)
-			const { errors } = (await signup(formData)) ?? { errors: [] }
-			for (const { field, message } of errors) {
-				form.setError(field, { message })
-			}
-		} finally {
-			setPending(false)
+		setPending(true)
+
+		const { errors, redirectUrl } = await signup(formData)
+
+		if (redirectUrl) {
+			navigate(redirectUrl)
+			return
 		}
+
+		for (const { field, message } of errors) {
+			form.setError(field, { message })
+		}
+
+		setPending(false)
 	})
 
 	return (

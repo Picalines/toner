@@ -2,18 +2,18 @@
 
 import { eq } from 'drizzle-orm'
 import { cookies } from 'next/headers'
-import { redirect } from 'next/navigation'
 import { lucia, scrypt } from '@/lib/auth'
 import { accountTable, authorTable, database, listenerTable } from '@/lib/db'
 import { SignupFormData, signupFormSchema } from './schemas'
 
 export type SignupActionResult = {
 	errors: { field: keyof SignupFormData; message: string }[]
+	redirectUrl?: string
 }
 
 export const signup = async (
 	formData: SignupFormData,
-): Promise<SignupActionResult | undefined> => {
+): Promise<SignupActionResult> => {
 	const validationResult = signupFormSchema.safeParse(formData)
 
 	if (!validationResult.success) {
@@ -74,5 +74,8 @@ export const signup = async (
 		sessionCookie.attributes,
 	)
 
-	redirect('/account')
+	return {
+		errors: [],
+		redirectUrl: '/account',
+	}
 }
