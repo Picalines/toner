@@ -1,11 +1,12 @@
-import { lucia } from '.'
 import { Cookie, Session, User } from 'lucia'
 import { cookies } from 'next/headers'
 import { redirect } from 'next/navigation'
+import { cache } from 'react'
+import { lucia } from '.'
 
 export type UserAuth = { user: User; session: Session }
 
-export const authenticate = async (): Promise<UserAuth | null> => {
+export const authenticate = cache(async (): Promise<UserAuth | null> => {
 	const sessionId = cookies().get(lucia.sessionCookieName)?.value ?? null
 	if (!sessionId) {
 		return null
@@ -33,7 +34,7 @@ export const authenticate = async (): Promise<UserAuth | null> => {
 	} catch {}
 
 	return user && session ? { user, session } : null
-}
+})
 
 export const authenticateOrRedirect = async (
 	redirectPath: string,
