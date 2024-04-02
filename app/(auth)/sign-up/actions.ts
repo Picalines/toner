@@ -3,41 +3,25 @@
 import { eq } from 'drizzle-orm'
 import { cookies } from 'next/headers'
 import { redirect } from 'next/navigation'
-import { z } from 'zod'
 import { lucia, scrypt } from '@/lib/auth'
 import { authorTable, database, listenerTable, userTable } from '@/lib/db'
+import { SignupFormData, signupFormSchema } from './schemas'
 
-type SignupFormState = { errorMessages: string[] }
-
-const signupFormSchema = z.object({
-	login: z
-		.string()
-		.min(5, 'login must contain at least 5 characters')
-		.max(32, 'login must contain at most 32 characters')
-		.regex(
-			/^[a-z0-9_]+$/,
-			'login must consist of only lowercase a-z characters, digits or an underscore',
-		),
-	password: z
-		.string()
-		.min(6, 'password must contain at least 6 characters')
-		.max(100, 'password must contain at most 255 characters'),
-})
+export type SignupActionResult = {
+	errors: { field: keyof SignupFormData; message: string }[]
+}
 
 export const signup = async (
-	_: SignupFormState,
-	formData: FormData,
-): Promise<SignupFormState> => {
-	const validationResult = signupFormSchema.safeParse({
-		login: formData.get('login'),
-		password: formData.get('password'),
-	})
+	formData: SignupFormData,
+): Promise<SignupActionResult> => {
+	const validationResult = signupFormSchema.safeParse(formData)
 
 	if (!validationResult.success) {
 		return {
-			errorMessages: validationResult.error.issues.map(
-				issue => issue.message,
-			),
+			errors: validationResult.error.issues.map(issue => ({
+				field: issue.path[0] as keyof SignupFormData,
+				message: issue.message,
+			})),
 		}
 	}
 
@@ -72,7 +56,12 @@ export const signup = async (
 
 	if (insertedUserId === null) {
 		return {
-			errorMessages: [`user '${login}' already exists`],
+			errors: [
+				{
+					field: 'login',
+					message: `user '${login}' already exists`,
+				},
+			],
 		}
 	}
 
