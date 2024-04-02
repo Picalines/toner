@@ -5,7 +5,7 @@ import { Lucia, Scrypt } from 'lucia'
 const adapter = new DrizzlePostgreSQLAdapter(
 	database,
 	databaseSchema.sessionTable,
-	databaseSchema.userTable,
+	databaseSchema.accountTable,
 )
 
 export const lucia = new Lucia(adapter, {

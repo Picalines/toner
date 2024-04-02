@@ -32,7 +32,7 @@ export const accoutRelations = relations(accountTable, ({ one }) => ({
 
 export const sessionTable = pgTable('session', {
 	id: text('id').primaryKey(),
-	accountId: integer('account_id')
+	userId: integer('user_id')
 		.notNull()
 		.references(() => accountTable.id),
 	expiresAt: timestamp('expires_at', {
