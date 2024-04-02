@@ -1,4 +1,5 @@
 import { authenticateOrRedirect } from '@/lib/auth'
+import SignOutForm from './SignOutForm'
 
 export default async function AccountPage() {
 	const {
@@ -8,6 +9,7 @@ export default async function AccountPage() {
 	return (
 		<div>
 			logged in as {login} (#{userId})!
+			<SignOutForm />
 		</div>
 	)
 }
