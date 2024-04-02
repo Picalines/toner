@@ -11,7 +11,7 @@ import {
 	varchar,
 } from 'drizzle-orm/pg-core'
 
-export const userTable = pgTable('user', {
+export const accountTable = pgTable('account', {
 	id: serial('id').primaryKey(),
 	login: varchar('login', { length: 32 }).notNull().unique(),
 	passwordHash: text('hashed_password').notNull(),
@@ -19,22 +19,22 @@ export const userTable = pgTable('user', {
 	createdAt: timestamp('created_at').notNull().defaultNow(),
 })
 
-export const userRelations = relations(userTable, ({ one }) => ({
+export const accoutRelations = relations(accountTable, ({ one }) => ({
 	author: one(authorTable, {
-		fields: [userTable.id],
-		references: [authorTable.userId],
+		fields: [accountTable.id],
+		references: [authorTable.accountId],
 	}),
 	listener: one(listenerTable, {
-		fields: [userTable.id],
-		references: [listenerTable.userId],
+		fields: [accountTable.id],
+		references: [listenerTable.accountId],
 	}),
 }))
 
 export const sessionTable = pgTable('session', {
 	id: text('id').primaryKey(),
-	userId: integer('user_id')
+	accountId: integer('account_id')
 		.notNull()
-		.references(() => userTable.id),
+		.references(() => accountTable.id),
 	expiresAt: timestamp('expires_at', {
 		withTimezone: true,
 		mode: 'date',
@@ -42,30 +42,30 @@ export const sessionTable = pgTable('session', {
 })
 
 export const authorTable = pgTable('author', {
-	userId: integer('user_id')
+	accountId: integer('account_id')
 		.primaryKey()
-		.references(() => userTable.id, { onDelete: 'cascade' }),
+		.references(() => accountTable.id, { onDelete: 'cascade' }),
 })
 
 export const authorRelations = relations(authorTable, ({ one, many }) => ({
-	user: one(userTable, {
-		fields: [authorTable.userId],
-		references: [userTable.id],
+	user: one(accountTable, {
+		fields: [authorTable.accountId],
+		references: [accountTable.id],
 	}),
 	trackProjects: many(trackProjectTable),
 	trackPublications: many(trackPublicationTable),
 }))
 
 export const listenerTable = pgTable('listener', {
-	userId: integer('user_id')
+	accountId: integer('account_id')
 		.primaryKey()
-		.references(() => userTable.id, { onDelete: 'cascade' }),
+		.references(() => accountTable.id, { onDelete: 'cascade' }),
 })
 
 export const listenerRelations = relations(listenerTable, ({ one, many }) => ({
-	user: one(userTable, {
-		fields: [listenerTable.userId],
-		references: [userTable.id],
+	user: one(accountTable, {
+		fields: [listenerTable.accountId],
+		references: [accountTable.id],
 	}),
 	listens: many(listenTable),
 	subscriptions: many(subscriptionTable),
@@ -77,10 +77,10 @@ export const subscriptionTable = pgTable(
 	{
 		listenerId: integer('listener_id')
 			.notNull()
-			.references(() => listenerTable.userId, { onDelete: 'cascade' }),
+			.references(() => listenerTable.accountId, { onDelete: 'cascade' }),
 		authorId: integer('author_id')
 			.notNull()
-			.references(() => authorTable.userId, { onDelete: 'cascade' }),
+			.references(() => authorTable.accountId, { onDelete: 'cascade' }),
 		createdAt: timestamp('created_at').notNull().defaultNow(),
 	},
 	table => ({
@@ -93,11 +93,11 @@ export const subscriptionRelations = relations(
 	({ one }) => ({
 		listener: one(listenerTable, {
 			fields: [subscriptionTable.listenerId],
-			references: [listenerTable.userId],
+			references: [listenerTable.accountId],
 		}),
 		author: one(authorTable, {
 			fields: [subscriptionTable.authorId],
-			references: [authorTable.userId],
+			references: [authorTable.accountId],
 		}),
 	}),
 )
@@ -108,7 +108,7 @@ export const trackPublicationTable = pgTable('track_publication', {
 	id: serial('id').primaryKey(),
 	authorId: integer('author_id')
 		.notNull()
-		.references(() => authorTable.userId, { onDelete: 'cascade' }),
+		.references(() => authorTable.accountId, { onDelete: 'cascade' }),
 	projectId: integer('project_id')
 		.notNull()
 		.references(() => trackProjectTable.id, { onDelete: 'cascade' }),
@@ -122,7 +122,7 @@ export const trackPublicationRelations = relations(
 	({ one, many }) => ({
 		author: one(authorTable, {
 			fields: [trackPublicationTable.authorId],
-			references: [authorTable.userId],
+			references: [authorTable.accountId],
 		}),
 		project: one(trackProjectTable, {
 			fields: [trackPublicationTable.projectId],
@@ -137,7 +137,7 @@ export const listenTable = pgTable(
 	{
 		listenerId: integer('listener_id')
 			.notNull()
-			.references(() => listenerTable.userId, { onDelete: 'cascade' }),
+			.references(() => listenerTable.accountId, { onDelete: 'cascade' }),
 		publicationId: integer('publication_id')
 			.notNull()
 			.references(() => trackPublicationTable.id, {
@@ -155,7 +155,7 @@ export const listenTable = pgTable(
 export const listenRelations = relations(listenTable, ({ one }) => ({
 	listener: one(listenerTable, {
 		fields: [listenTable.listenerId],
-		references: [listenerTable.userId],
+		references: [listenerTable.accountId],
 	}),
 	publication: one(trackPublicationTable, {
 		fields: [listenTable.publicationId],
@@ -175,7 +175,7 @@ export const reactionTable = pgTable(
 	{
 		listenerId: integer('listener_id')
 			.notNull()
-			.references(() => listenerTable.userId, { onDelete: 'cascade' }),
+			.references(() => listenerTable.accountId, { onDelete: 'cascade' }),
 		publicationId: integer('publication_id')
 			.notNull()
 			.references(() => trackPublicationTable.id, {
@@ -194,7 +194,7 @@ export const reactionTable = pgTable(
 export const reactionRelations = relations(reactionTable, ({ one }) => ({
 	listener: one(listenerTable, {
 		fields: [reactionTable.listenerId],
-		references: [listenerTable.userId],
+		references: [listenerTable.accountId],
 	}),
 	publication: one(trackPublicationTable, {
 		fields: [reactionTable.publicationId],
@@ -208,7 +208,7 @@ export const trackProjectTable = pgTable('track_project', {
 	id: serial('id').primaryKey(),
 	authorId: integer('author_id')
 		.notNull()
-		.references(() => authorTable.userId, { onDelete: 'cascade' }),
+		.references(() => authorTable.accountId, { onDelete: 'cascade' }),
 	name: varchar('name', { length: 64 }).notNull(),
 	description: text('description').notNull().default(''),
 	createdAt: timestamp('created_at').notNull().defaultNow(),
@@ -219,7 +219,7 @@ export const trackProjectRelations = relations(
 	({ one, many }) => ({
 		author: one(authorTable, {
 			fields: [trackProjectTable.authorId],
-			references: [authorTable.userId],
+			references: [authorTable.accountId],
 		}),
 		noteLayers: many(noteLayerTable),
 		nodes: many(nodeTable),
