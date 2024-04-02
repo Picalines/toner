@@ -22,6 +22,8 @@ export const lucia = new Lucia(adapter, {
 
 export const scrypt = new Scrypt()
 
+export * from './authenticate'
+
 declare module 'lucia' {
 	interface Register {
 		Lucia: typeof lucia

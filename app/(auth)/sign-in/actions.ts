@@ -62,5 +62,5 @@ export const signIn = async (
 		sessionCookie.attributes,
 	)
 
-	redirect('/')
+	redirect('/account')
 }

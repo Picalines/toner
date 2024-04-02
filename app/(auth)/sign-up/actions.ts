@@ -74,5 +74,5 @@ export const signup = async (
 		sessionCookie.attributes,
 	)
 
-	redirect('/')
+	redirect('/account')
 }
