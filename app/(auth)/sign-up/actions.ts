@@ -13,7 +13,7 @@ export type SignupActionResult = {
 
 export const signup = async (
 	formData: SignupFormData,
-): Promise<SignupActionResult> => {
+): Promise<SignupActionResult | undefined> => {
 	const validationResult = signupFormSchema.safeParse(formData)
 
 	if (!validationResult.success) {

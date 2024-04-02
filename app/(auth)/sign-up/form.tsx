@@ -38,7 +38,7 @@ export default function SignUpForm() {
 	const onSubmit = form.handleSubmit(async formData => {
 		try {
 			setPending(true)
-			const { errors } = await signup(formData)
+			const { errors } = (await signup(formData)) ?? { errors: [] }
 			for (const { field, message } of errors) {
 				form.setError(field, { message })
 			}
