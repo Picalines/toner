@@ -3,8 +3,8 @@ import { authenticate } from '@/lib/auth'
 import SignInForm from './form'
 
 export default async function SignInPage() {
-	const { user } = await authenticate()
-	if (user) {
+	const auth = await authenticate()
+	if (auth) {
 		redirect('/account')
 	}
 

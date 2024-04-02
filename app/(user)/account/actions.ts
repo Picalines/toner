@@ -5,7 +5,7 @@ import { redirect } from 'next/navigation'
 import { authenticate, lucia } from '@/lib/auth'
 
 export const signOut = async () => {
-	const { session } = await authenticate()
+	const { session } = (await authenticate()) ?? { session: null }
 
 	if (session) {
 		await lucia.invalidateSession(session.id)

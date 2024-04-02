@@ -4,7 +4,7 @@ import SignOutForm from './SignOutForm'
 export default async function AccountPage() {
 	const {
 		user: { id: userId, login },
-	} = await authenticateOrRedirect()
+	} = await authenticateOrRedirect('/sign-in')
 
 	return (
 		<div>

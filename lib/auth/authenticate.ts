@@ -3,22 +3,18 @@ import { Cookie, Session, User } from 'lucia'
 import { cookies } from 'next/headers'
 import { redirect } from 'next/navigation'
 
-export const authenticate = async (): Promise<
-	{ user: User; session: Session } | { user: null; session: null }
-> => {
+export type UserAuth = { user: User; session: Session }
+
+export const authenticate = async (): Promise<UserAuth | null> => {
 	const sessionId = cookies().get(lucia.sessionCookieName)?.value ?? null
 	if (!sessionId) {
-		return {
-			user: null,
-			session: null,
-		}
+		return null
 	}
 
-	const validationResult = await lucia.validateSession(sessionId)
+	const { user, session } = await lucia.validateSession(sessionId)
 
 	// next.js throws when you attempt to set cookie when rendering page
 	try {
-		const { session } = validationResult
 		let sessionCookie: Cookie | undefined = undefined
 
 		if (session?.fresh === true) {
@@ -36,13 +32,15 @@ export const authenticate = async (): Promise<
 		}
 	} catch {}
 
-	return validationResult
+	return user && session ? { user, session } : null
 }
 
-export const authenticateOrRedirect = async (redirectPath = '/sign-in') => {
+export const authenticateOrRedirect = async (
+	redirectPath: string,
+): Promise<UserAuth> => {
 	const auth = await authenticate()
 
-	if (!auth.user) {
+	if (!auth?.user) {
 		redirect(redirectPath)
 	}
 
