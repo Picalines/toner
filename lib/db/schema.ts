@@ -19,7 +19,7 @@ export const accountTable = pgTable('account', {
 	createdAt: timestamp('created_at').notNull().defaultNow(),
 })
 
-export const accoutRelations = relations(accountTable, ({ one }) => ({
+export const accountRelations = relations(accountTable, ({ one }) => ({
 	author: one(authorTable, {
 		fields: [accountTable.id],
 		references: [authorTable.accountId],
