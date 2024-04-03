@@ -1,19 +1,25 @@
-import { serverEnv } from '../env'
 import { drizzle } from 'drizzle-orm/node-postgres'
-import { Client } from 'pg'
+import { Client as PostgresClient } from 'pg'
+import { serverEnv } from '../env'
 import * as schema from './schema'
 
-const pgClient = new Client({
-	host: serverEnv.DB_HOST,
-	port: serverEnv.DB_PORT,
-	user: serverEnv.DB_USER,
-	password: serverEnv.DB_PASWORD,
-	database: serverEnv.DB_DATABASE,
-})
+declare module global {
+	let postgresSqlClient: PostgresClient | undefined
+}
 
-pgClient.connect()
+if (!global.postgresSqlClient) {
+	global.postgresSqlClient = new PostgresClient({
+		host: serverEnv.DB_HOST,
+		port: serverEnv.DB_PORT,
+		user: serverEnv.DB_USER,
+		password: serverEnv.DB_PASWORD,
+		database: serverEnv.DB_DATABASE,
+	})
 
-export const database = drizzle(pgClient, { schema })
+	global.postgresSqlClient.connect()
+}
+
+export const database = drizzle(global.postgresSqlClient, { schema })
 
 export { schema as databaseSchema }
 export * from './schema'
