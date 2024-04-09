@@ -5,6 +5,8 @@ import Link from 'next/link'
 import ThemeToggle from '@/components/theme-toggle'
 import { buttonVariants } from '@/components/ui/button'
 
+const projectName = 'toner'
+
 const projectNameVariants = {
 	hidden: { opacity: 0, y: -1 },
 	shown: { opacity: 1, y: 0 },
@@ -28,9 +30,7 @@ export default function LandingPage() {
 				/>
 			</div>
 			<div className="h-[80vh] relative">
-				<motion.div
-					className="flex flex-row items-center space-x-0.5 absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 scale-[5]"
-				>
+				<motion.div className="flex flex-row items-center space-x-0.5 absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 scale-[5]">
 					<AnimatedProjectLogo width={24} height={24} />
 					<motion.span
 						className="text-lg font-bold"
@@ -38,9 +38,9 @@ export default function LandingPage() {
 						initial="hidden"
 						animate="shown"
 						transition={{ staggerChildren: 0.05 }}
-						aria-label="toner"
+						aria-label={projectName}
 					>
-						{[...'toner'].map((char, index) => (
+						{[...projectName].map((char, index) => (
 							<motion.span
 								key={index}
 								variants={projectNameVariants}
