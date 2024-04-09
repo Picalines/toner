@@ -1,6 +1,6 @@
-import { database, databaseSchema } from '../db'
 import { DrizzlePostgreSQLAdapter } from '@lucia-auth/adapter-drizzle'
 import { Lucia, Scrypt } from 'lucia'
+import { database, databaseSchema } from '../db'
 
 const adapter = new DrizzlePostgreSQLAdapter(
 	database,
