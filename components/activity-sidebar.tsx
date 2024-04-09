@@ -32,7 +32,7 @@ export default function ActivitySidebar() {
 	return (
 		<aside className="h-full w-min max-w-[300px] border-r-2 p-2 space-y-2 flex flex-col">
 			<Link
-				href="/"
+				href="/landing"
 				className={cn(
 					buttonVariants({ variant: 'ghost' }),
 					'flex flex-row justify-center items-center gap-x-2',

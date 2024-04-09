@@ -1,15 +1,8 @@
-import Link from 'next/link'
-import { buttonVariants } from '@/components/ui/button'
+import { RedirectType, redirect } from 'next/navigation'
+import { authenticate } from '@/lib/auth'
 
-export default function Home() {
-	return (
-		<main className="w-full">
-			<Link
-				href="/sign-in"
-				className={buttonVariants({ variant: 'default' })}
-			>
-				Sign In
-			</Link>
-		</main>
-	)
+export default async function Home() {
+	const signedIn = (await authenticate()) !== null
+
+	redirect(signedIn ? '/account' : '/landing', RedirectType.replace)
 }

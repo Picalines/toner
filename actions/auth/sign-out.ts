@@ -18,5 +18,5 @@ export const signOut = async () => {
 		)
 	}
 
-	redirect('/sign-in')
+	redirect('/landing')
 }
