@@ -3,7 +3,6 @@ import {
 	DoorOpen,
 	Heart,
 	ListMusic,
-	LogOut,
 	PencilRuler,
 	RadioTower,
 	Search,
@@ -14,9 +13,9 @@ import { Suspense } from 'react'
 import { authenticate } from '@/lib/auth'
 import { cn } from '@/lib/utils'
 import ProjectLogo from '@/components/icons/projectLogo'
-import { Button, buttonVariants } from '@/components/ui/button'
+import { buttonVariants } from '@/components/ui/button'
 import { Separator } from '@/components/ui/separator'
-import { signOut } from '@/actions/auth/sign-out'
+import ThemeToggle from './theme-toggle'
 
 const buttonConfig = {
 	variant: 'ghost',
@@ -31,7 +30,7 @@ const linkClassName = cn(
 
 export default function ActivitySidebar() {
 	return (
-		<aside className="h-full w-[200px] border-r-2 p-2 space-y-2 flex flex-col">
+		<aside className="h-full w-min max-w-[300px] border-r-2 p-2 space-y-2 flex flex-col">
 			<Link
 				href="/"
 				className={cn(
@@ -81,6 +80,7 @@ export default function ActivitySidebar() {
 			<Suspense>
 				<AuthSidebarSection />
 			</Suspense>
+			<ThemeToggle {...buttonConfig} className={linkClassName} />
 		</aside>
 	)
 }
@@ -88,33 +88,19 @@ export default function ActivitySidebar() {
 async function AuthSidebarSection() {
 	const signedIn = (await authenticate()) !== null
 
-	if (signedIn) {
-		return (
-			<section>
+	return (
+		<section>
+			{signedIn ? (
 				<Link href="/account" className={linkClassName}>
 					<User />
 					<span>Account</span>
 				</Link>
-				<form action={signOut}>
-					<Button
-						{...buttonConfig}
-						type="submit"
-						className={linkClassName}
-					>
-						<LogOut />
-						<span>Sign Out</span>
-					</Button>
-				</form>
-			</section>
-		)
-	}
-
-	return (
-		<section>
-			<Link href="/sign-in" className={linkClassName}>
-				<DoorOpen />
-				<span>Sign In</span>
-			</Link>
+			) : (
+				<Link href="/sign-in" className={linkClassName}>
+					<DoorOpen />
+					<span>Sign In</span>
+				</Link>
+			)}
 		</section>
 	)
 }
