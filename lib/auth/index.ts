@@ -17,6 +17,7 @@ export const lucia = new Lucia(adapter, {
 	},
 	getUserAttributes: attributes => ({
 		login: attributes.login,
+		displayName: attributes.displayName,
 	}),
 })
 
@@ -30,6 +31,7 @@ declare module 'lucia' {
 		UserId: number
 		DatabaseUserAttributes: {
 			login: string
+			displayName: string
 		}
 	}
 }
