@@ -3,7 +3,6 @@
 import { zodResolver } from '@hookform/resolvers/zod'
 import { Loader2 } from 'lucide-react'
 import { useRouter } from 'next/navigation'
-import { useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { Button } from '@/components/ui/button'
 import {
@@ -27,7 +26,6 @@ import { SignInFormData, signInFormSchema } from './schemas'
 
 export default function SignInForm() {
 	const { push: navigate } = useRouter()
-	const [isPending, setPending] = useState(false)
 
 	const form = useForm<SignInFormData>({
 		resolver: zodResolver(signInFormSchema),
@@ -37,9 +35,13 @@ export default function SignInForm() {
 		},
 	})
 
-	const onSubmit = form.handleSubmit(async formData => {
-		setPending(true)
+	const {
+		formState: { isSubmitting, isSubmitSuccessful },
+	} = form
 
+	const isInputDisabled = isSubmitting || isSubmitSuccessful
+
+	const onSubmit = form.handleSubmit(async formData => {
 		const { errors, redirectUrl } = await signIn(formData)
 
 		if (redirectUrl) {
@@ -50,8 +52,6 @@ export default function SignInForm() {
 		for (const { field, message } of errors) {
 			form.setError(field, { message })
 		}
-
-		setPending(false)
 	})
 
 	return (
@@ -71,7 +71,7 @@ export default function SignInForm() {
 										<FormLabel>Login</FormLabel>
 										<FormControl>
 											<Input
-												disabled={isPending}
+												disabled={isInputDisabled}
 												placeholder="login"
 												{...field}
 											/>
@@ -89,7 +89,7 @@ export default function SignInForm() {
 										<FormControl>
 											<Input
 												type="password"
-												disabled={isPending}
+												disabled={isInputDisabled}
 												placeholder="password"
 												{...field}
 											/>
@@ -103,10 +103,10 @@ export default function SignInForm() {
 					<CardFooter>
 						<Button
 							type="submit"
-							disabled={isPending}
+							disabled={isInputDisabled}
 							className="w-full"
 						>
-							{isPending && (
+							{isInputDisabled && (
 								<Loader2 className="mr-2 h-4 w-4 animate-spin" />
 							)}
 							Sing in
