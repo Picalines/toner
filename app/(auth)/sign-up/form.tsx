@@ -98,6 +98,24 @@ export default function SignUpForm() {
 									</FormItem>
 								)}
 							/>
+							<FormField
+								control={form.control}
+								name="confirmPassword"
+								render={({ field }) => (
+									<FormItem className="space-y-1">
+										<FormLabel>Confirm</FormLabel>
+										<FormControl>
+											<Input
+												type="confirmPassword"
+												disabled={isInputDisabled}
+												placeholder="password"
+												{...field}
+											/>
+										</FormControl>
+										<FormMessage />
+									</FormItem>
+								)}
+							/>
 						</div>
 					</CardContent>
 					<CardFooter>
