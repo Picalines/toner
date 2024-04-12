@@ -16,7 +16,7 @@ export default async function SignInPage() {
 			<div className="w-80 flex flex-col items-center justify-center gap-4">
 				<SignInForm className="w-full" />
 				<div
-					className="flex flex-row items-center justify-center gap-4 w-9/12 text-muted"
+					className="flex flex-row items-center justify-center gap-4 w-9/12 text-gray-600"
 					aria-hidden
 				>
 					<Separator className="flex-1" />
