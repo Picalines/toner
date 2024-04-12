@@ -3,6 +3,7 @@
 import { zodResolver } from '@hookform/resolvers/zod'
 import { Loader2 } from 'lucide-react'
 import { useRouter } from 'next/navigation'
+import { ComponentProps } from 'react'
 import { useForm } from 'react-hook-form'
 import { Button } from '@/components/ui/button'
 import {
@@ -24,7 +25,7 @@ import { Input } from '@/components/ui/input'
 import { signup } from './actions'
 import { SignupFormData, signupFormSchema } from './schemas'
 
-export default function SignUpForm() {
+export default function SignUpForm(cardProps: ComponentProps<typeof Card>) {
 	const { push: navigate } = useRouter()
 
 	const form = useForm<SignupFormData>({
@@ -56,7 +57,7 @@ export default function SignUpForm() {
 
 	return (
 		<Form {...form}>
-			<Card>
+			<Card {...cardProps}>
 				<form onSubmit={onSubmit}>
 					<CardHeader>
 						<CardTitle>Sign up</CardTitle>
