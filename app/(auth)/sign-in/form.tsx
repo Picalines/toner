@@ -59,7 +59,7 @@ export default function SignInForm() {
 			<Card>
 				<form onSubmit={onSubmit}>
 					<CardHeader>
-						<CardTitle>Sign In</CardTitle>
+						<CardTitle>Sign in</CardTitle>
 					</CardHeader>
 					<CardContent>
 						<div className="space-y-2">

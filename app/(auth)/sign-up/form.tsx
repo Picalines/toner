@@ -59,7 +59,7 @@ export default function SignUpForm() {
 			<Card>
 				<form onSubmit={onSubmit}>
 					<CardHeader>
-						<CardTitle>Create an Accout</CardTitle>
+						<CardTitle>Sign up</CardTitle>
 					</CardHeader>
 					<CardContent>
 						<div className="space-y-2">
