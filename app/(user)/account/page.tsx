@@ -1,9 +1,7 @@
-import { LogOut, Pencil } from 'lucide-react'
-import { ComponentProps } from 'react'
+import { Pencil } from 'lucide-react'
 import { authenticateOrRedirect } from '@/lib/auth'
 import { Button } from '@/components/ui/button'
 import UserAvatar from '@/components/user-avatar'
-import { signOut } from '@/actions/auth/sign-out'
 
 export default async function AccountPage() {
 	const {
@@ -29,18 +27,6 @@ export default async function AccountPage() {
 					<span>Edit Profile</span>
 				</Button>
 			</div>
-			<SignOut className="absolute right-4 bottom-4" />
 		</div>
-	)
-}
-
-function SignOut(formProps: ComponentProps<'form'>) {
-	return (
-		<form {...formProps} action={signOut}>
-			<Button type="submit" variant="outline" className="space-x-2">
-				<LogOut />
-				<span>Sign Out</span>
-			</Button>
-		</form>
 	)
 }
