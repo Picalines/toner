@@ -3,19 +3,22 @@ import {
 	DoorOpen,
 	Heart,
 	ListMusic,
+	LogOut,
 	PencilRuler,
 	RadioTower,
 	Search,
 	User,
 } from 'lucide-react'
 import Link from 'next/link'
-import { Suspense } from 'react'
+import { ComponentProps, Suspense } from 'react'
 import { authenticate } from '@/lib/auth'
 import { cn } from '@/lib/utils'
 import ProjectLogo from '@/components/icons/project-logo'
-import { buttonVariants } from '@/components/ui/button'
+import { Button, buttonVariants } from '@/components/ui/button'
 import { Separator } from '@/components/ui/separator'
+import { signOut } from '@/actions/auth/sign-out'
 import ThemeToggle from './theme-toggle'
+import { Tooltip, TooltipContent, TooltipTrigger } from './ui/tooltip'
 
 const buttonConfig = {
 	variant: 'ghost',
@@ -77,10 +80,12 @@ export default function ActivitySidebar() {
 				</Link>
 			</section>
 			<div className="flex-grow"></div>
-			<Suspense>
-				<AuthSidebarSection />
-			</Suspense>
-			<ThemeToggle {...buttonConfig} className={linkClassName} />
+			<section>
+				<Suspense>
+					<AuthSidebarSection />
+				</Suspense>
+				<ThemeToggle {...buttonConfig} className={linkClassName} />
+			</section>
 		</aside>
 	)
 }
@@ -88,19 +93,41 @@ export default function ActivitySidebar() {
 async function AuthSidebarSection() {
 	const signedIn = (await authenticate()) !== null
 
-	return (
-		<section>
-			{signedIn ? (
+	return signedIn ? (
+		<Tooltip delayDuration={0}>
+			<TooltipTrigger asChild>
 				<Link href="/account" className={linkClassName}>
 					<User />
 					<span>Account</span>
 				</Link>
-			) : (
-				<Link href="/sign-in" className={linkClassName}>
-					<DoorOpen />
-					<span>Sign In</span>
-				</Link>
-			)}
-		</section>
+			</TooltipTrigger>
+			<TooltipContent
+				side="right"
+				sideOffset={18}
+				className="border-none p-0"
+			>
+				<SignOut />
+			</TooltipContent>
+		</Tooltip>
+	) : (
+		<Link href="/sign-in" className={linkClassName}>
+			<DoorOpen />
+			<span>Sign In</span>
+		</Link>
+	)
+}
+
+function SignOut(formProps: ComponentProps<'form'>) {
+	return (
+		<form
+			{...formProps}
+			action={signOut}
+			title="Sign out"
+			aria-label="sign out"
+		>
+			<Button type="submit" variant="outline" className="p-2">
+				<LogOut />
+			</Button>
+		</form>
 	)
 }
