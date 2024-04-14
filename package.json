@@ -10,7 +10,8 @@
 		"format": "prettier . --write",
 		"db:codegen": "drizzle-kit generate:pg",
 		"db:migrate": "tsx ./lib/db/migrate.ts",
-		"db:drizzle-studio": "npx drizzle-kit studio"
+		"db:drizzle-studio": "npx drizzle-kit studio",
+		"prepare": "husky"
 	},
 	"dependencies": {
 		"@hookform/resolvers": "^3.3.4",
