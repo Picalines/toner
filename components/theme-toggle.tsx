@@ -2,7 +2,7 @@
 
 import { Moon, Sun } from 'lucide-react'
 import { useTheme } from 'next-themes'
-import { useEffect, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import { capitalize, cn } from '@/lib/utils'
 import { Button, ButtonProps } from './ui/button'
 import { Skeleton } from './ui/skeleton'
@@ -19,11 +19,11 @@ export default function ThemeToggle({
 	const { setTheme, theme } = useTheme()
 	const [isMounted, setIsMounted] = useState(false)
 
-	useEffect(() => setIsMounted(true))
-
-	const toggleTheme = () => {
+	const toggleTheme = useCallback(() => {
 		setTheme(theme == 'dark' ? 'light' : 'dark')
-	}
+	}, [theme, setTheme])
+
+	useEffect(() => setIsMounted(true), [])
 
 	return (
 		<Button
@@ -41,7 +41,7 @@ export default function ThemeToggle({
 			)}
 			{toggleVariant == 'all' ? (
 				isMounted ? (
-					<span>{capitalize(theme ?? '')}</span>
+					<span>{capitalize(theme ?? 'light')}</span>
 				) : (
 					<Skeleton className="h-4 w-full" />
 				)
