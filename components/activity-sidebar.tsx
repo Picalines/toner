@@ -49,14 +49,14 @@ export default function ActivitySidebar({
 			{...asideProps}
 			className={cn(
 				className,
-				'h-full w-min max-w-[300px] border-r-2 p-2 gap-2 flex flex-col',
+				'flex h-full w-min max-w-[300px] flex-col gap-2 border-r-2 p-2',
 			)}
 		>
 			<Link
 				href="/landing"
 				className={cn(
 					buttonVariants({ variant: 'ghost' }),
-					'flex flex-row justify-center items-center gap-x-2',
+					'flex flex-row items-center justify-center gap-x-2',
 				)}
 			>
 				<ProjectLogo width={24} height={24} />

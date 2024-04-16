@@ -15,7 +15,7 @@ const projectNameVariants = {
 export default function LandingPage() {
 	return (
 		<main className="w-full">
-			<div className="sticky top-0 bg-background p-2 border-b flex">
+			<div className="sticky top-0 flex border-b bg-background p-2">
 				<Link
 					href="/sign-in"
 					className={buttonVariants({ variant: 'outline' })}
@@ -29,8 +29,8 @@ export default function LandingPage() {
 					className="p-2"
 				/>
 			</div>
-			<div className="h-[80vh] relative">
-				<motion.div className="flex flex-row items-center space-x-0.5 absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 scale-[5]">
+			<div className="relative h-[80vh]">
+				<motion.div className="absolute left-1/2 top-1/2 flex -translate-x-1/2 -translate-y-1/2 scale-[5] flex-row items-center space-x-0.5">
 					<AnimatedProjectLogo width={24} height={24} />
 					<motion.span
 						className="text-lg font-bold"

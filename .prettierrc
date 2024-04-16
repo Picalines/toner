@@ -8,7 +8,10 @@
 	"bracketSameLine": false,
 	"arrowParens": "avoid",
 
-	"plugins": ["@trivago/prettier-plugin-sort-imports"],
+	"plugins": [
+		"@trivago/prettier-plugin-sort-imports",
+		"prettier-plugin-tailwindcss"
+	],
 
 	"importOrderSeparation": false,
 	"importOrderSortSpecifiers": true,

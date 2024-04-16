@@ -12,11 +12,11 @@ export default async function SignInPage() {
 	}
 
 	return (
-		<div className="w-full h-svh flex items-center justify-center">
-			<div className="w-80 flex flex-col items-center justify-center gap-4">
+		<div className="flex h-svh w-full items-center justify-center">
+			<div className="flex w-80 flex-col items-center justify-center gap-4">
 				<SignInForm className="w-full" />
 				<div
-					className="flex flex-row items-center justify-center gap-4 w-9/12 text-gray-600"
+					className="flex w-9/12 flex-row items-center justify-center gap-4 text-gray-600"
 					aria-hidden
 				>
 					<Separator className="flex-1" />
