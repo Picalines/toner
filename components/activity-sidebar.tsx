@@ -1,16 +1,14 @@
 import {
-	DiscAlbum,
-	DoorOpen,
-	Heart,
-	ListMusic,
-	LogOut,
-	PencilRuler,
-	RadioTower,
-	Search,
-	User,
+	DoorOpenIcon,
+	HeartIcon,
+	ListMusicIcon,
+	LogOutIcon,
+	RadioTowerIcon,
+	SearchIcon,
+	UserIcon,
 } from 'lucide-react'
 import Link from 'next/link'
-import { ReactNode, Suspense } from 'react'
+import { ComponentProps, PropsWithChildren, Suspense } from 'react'
 import { authenticate } from '@/lib/auth'
 import { cn } from '@/lib/utils'
 import ProjectLogo from '@/components/icons/project-logo'
@@ -42,9 +40,18 @@ const linkClassName = cn(
 	'cursor-pointer',
 )
 
-export default function ActivitySidebar() {
+export default function ActivitySidebar({
+	className,
+	...asideProps
+}: ComponentProps<'aside'>) {
 	return (
-		<aside className="h-full w-min max-w-[300px] border-r-2 p-2 space-y-2 flex flex-col">
+		<aside
+			{...asideProps}
+			className={cn(
+				className,
+				'h-full w-min max-w-[300px] border-r-2 p-2 gap-2 flex flex-col',
+			)}
+		>
 			<Link
 				href="/landing"
 				className={cn(
@@ -56,47 +63,27 @@ export default function ActivitySidebar() {
 				<span className="text-lg font-semibold">toner</span>
 			</Link>
 			<Separator />
-			<section>
-				<h2 className="mb-2 px-2 text-lg font-semibold tracking-tight">
-					Listen
-				</h2>
-				<Link href="/browse" className={linkClassName}>
-					<RadioTower />
-					<span>Browse</span>
-				</Link>
-				<Link href="/subscriptions" className={linkClassName}>
-					<Heart />
-					<span>Subscriptions</span>
-				</Link>
-				<Link href="/library" className={linkClassName}>
-					<ListMusic />
-					<span>Library</span>
-				</Link>
-				<Link href="/search" className={linkClassName}>
-					<Search />
-					<span>Search</span>
-				</Link>
-			</section>
-			<section>
-				<h2 className="mb-2 px-2 text-lg font-semibold tracking-tight">
-					Create
-				</h2>
-				<Link href="/projects" className={linkClassName}>
-					<PencilRuler />
-					<span>Projects</span>
-				</Link>
-				<Link href="/publications" className={linkClassName}>
-					<DiscAlbum />
-					<span>Publications</span>
-				</Link>
-			</section>
+			<Link href="/browse" className={linkClassName}>
+				<RadioTowerIcon />
+				<span>Browse</span>
+			</Link>
+			<Link href="/subscriptions" className={linkClassName}>
+				<HeartIcon />
+				<span>Subscriptions</span>
+			</Link>
+			<Link href="/library" className={linkClassName}>
+				<ListMusicIcon />
+				<span>Library</span>
+			</Link>
+			<Link href="/search" className={linkClassName}>
+				<SearchIcon />
+				<span>Search</span>
+			</Link>
 			<div className="flex-grow"></div>
-			<section>
-				<Suspense>
-					<AuthSidebarSection />
-				</Suspense>
-				<ThemeToggle {...buttonConfig} className={linkClassName} />
-			</section>
+			<Suspense>
+				<AuthSidebarSection />
+			</Suspense>
+			<ThemeToggle {...buttonConfig} className={linkClassName} />
 		</aside>
 	)
 }
@@ -107,19 +94,19 @@ async function AuthSidebarSection() {
 	return signedIn ? (
 		<SignOutTooltip>
 			<Link href="/account" className={linkClassName}>
-				<User />
+				<UserIcon />
 				<span>Account</span>
 			</Link>
 		</SignOutTooltip>
 	) : (
 		<Link href="/sign-in" className={linkClassName}>
-			<DoorOpen />
+			<DoorOpenIcon />
 			<span>Sign In</span>
 		</Link>
 	)
 }
 
-function SignOutTooltip({ children }: { children: ReactNode }) {
+function SignOutTooltip({ children }: PropsWithChildren) {
 	return (
 		<AlertDialog>
 			<Tooltip delayDuration={0}>
@@ -136,7 +123,7 @@ function SignOutTooltip({ children }: { children: ReactNode }) {
 							className="p-2"
 							aria-label="sign out"
 						>
-							<LogOut />
+							<LogOutIcon />
 						</Button>
 					</AlertDialogTrigger>
 				</TooltipContent>
