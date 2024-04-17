@@ -1,7 +1,11 @@
 import { User } from 'lucia'
-import { EllipsisIcon, KeyRoundIcon, UserIcon } from 'lucide-react'
+import { EllipsisIcon, KeyRoundIcon, LogOutIcon, UserIcon } from 'lucide-react'
 import Link from 'next/link'
 import { authenticateOrRedirect } from '@/lib/auth'
+import { cn } from '@/lib/utils'
+import SignOutDialog, {
+	SignOutDialogTrigger,
+} from '@/components/sign-out-dialog'
 import { Button, buttonVariants } from '@/components/ui/button'
 import {
 	Popover,
@@ -23,6 +27,13 @@ export default async function AccountPage() {
 }
 
 function PageHeader({ login, displayName }: User) {
+	const linkClassName = cn(
+		buttonVariants({
+			variant: 'ghost',
+		}),
+		'flex w-full justify-start gap-2',
+	)
+
 	return (
 		<div className="flex flex-row items-center p-2">
 			<div className="flex flex-row items-center gap-2">
@@ -42,6 +53,7 @@ function PageHeader({ login, displayName }: User) {
 				</span>
 			</div>
 			<div className="flex-grow" />
+			{/* TODO: refactor with dropdown menu */}
 			<Popover>
 				<PopoverTrigger asChild>
 					<Button variant="outline" className="p-2">
@@ -49,26 +61,22 @@ function PageHeader({ login, displayName }: User) {
 					</Button>
 				</PopoverTrigger>
 				<PopoverContent className="w-min p-2">
-					<Link
-						href="/account/profile"
-						className={buttonVariants({
-							variant: 'ghost',
-							className: 'w-full space-x-2',
-						})}
-					>
+					<Link href="/account/profile" className={linkClassName}>
 						<UserIcon />
 						<span>Edit Profile</span>
 					</Link>
-					<Link
-						href="/account/password"
-						className={buttonVariants({
-							variant: 'ghost',
-							className: 'w-full space-x-2',
-						})}
-					>
+					<Link href="/account/password" className={linkClassName}>
 						<KeyRoundIcon />
 						<span>Change Password</span>
 					</Link>
+					<SignOutDialog>
+						<SignOutDialogTrigger asChild>
+							<Button variant="ghost" className={linkClassName}>
+								<LogOutIcon />
+								<span>Sign out</span>
+							</Button>
+						</SignOutDialogTrigger>
+					</SignOutDialog>
 				</PopoverContent>
 			</Popover>
 		</div>
