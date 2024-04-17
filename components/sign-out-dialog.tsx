@@ -28,7 +28,9 @@ export default function SignOutDialog({ children }: PropsWithChildren) {
 					<AlertDialogCancel>Cancel</AlertDialogCancel>
 					<AlertDialogAction asChild className="p-0">
 						<form action={signOut}>
-							<Button variant="destructive">Sign out</Button>
+							<Button variant="destructive" className="w-full">
+								Sign out
+							</Button>
 						</form>
 					</AlertDialogAction>
 				</AlertDialogFooter>
