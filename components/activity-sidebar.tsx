@@ -14,19 +14,8 @@ import { cn } from '@/lib/utils'
 import ProjectLogo from '@/components/icons/project-logo'
 import { Button, buttonVariants } from '@/components/ui/button'
 import { Separator } from '@/components/ui/separator'
-import { signOut } from '@/actions/auth/sign-out'
+import SignOutDialog, { SignOutDialogTrigger } from './sign-out-dialog'
 import ThemeToggle from './theme-toggle'
-import {
-	AlertDialog,
-	AlertDialogAction,
-	AlertDialogCancel,
-	AlertDialogContent,
-	AlertDialogDescription,
-	AlertDialogFooter,
-	AlertDialogHeader,
-	AlertDialogTitle,
-	AlertDialogTrigger,
-} from './ui/alert-dialog'
 import { Tooltip, TooltipContent, TooltipTrigger } from './ui/tooltip'
 
 const buttonConfig = {
@@ -92,12 +81,14 @@ async function AuthSidebarSection() {
 	const signedIn = (await authenticate()) !== null
 
 	return signedIn ? (
-		<SignOutTooltip>
-			<Link href="/account" className={linkClassName}>
-				<UserIcon />
-				<span>Account</span>
-			</Link>
-		</SignOutTooltip>
+		<SignOutDialog>
+			<SignOutTooltip>
+				<Link href="/account" className={linkClassName}>
+					<UserIcon />
+					<span>Account</span>
+				</Link>
+			</SignOutTooltip>
+		</SignOutDialog>
 	) : (
 		<Link href="/sign-in" className={linkClassName}>
 			<DoorOpenIcon />
@@ -105,45 +96,26 @@ async function AuthSidebarSection() {
 		</Link>
 	)
 }
-
 function SignOutTooltip({ children }: PropsWithChildren) {
 	return (
-		<AlertDialog>
-			<Tooltip delayDuration={0}>
-				<TooltipTrigger asChild>{children}</TooltipTrigger>
-				<TooltipContent
-					side="right"
-					sideOffset={18}
-					className="border-none p-0"
-				>
-					<AlertDialogTrigger asChild>
-						<Button
-							type="submit"
-							variant="outline"
-							className="p-2"
-							aria-label="sign out"
-						>
-							<LogOutIcon />
-						</Button>
-					</AlertDialogTrigger>
-				</TooltipContent>
-			</Tooltip>
-			<AlertDialogContent>
-				<AlertDialogHeader>
-					<AlertDialogTitle>Sign out</AlertDialogTitle>
-					<AlertDialogDescription>
-						Are you sure you want to sign out?
-					</AlertDialogDescription>
-				</AlertDialogHeader>
-				<AlertDialogFooter>
-					<AlertDialogCancel>Cancel</AlertDialogCancel>
-					<AlertDialogAction asChild className="p-0">
-						<form action={signOut}>
-							<Button variant="destructive">Sign out</Button>
-						</form>
-					</AlertDialogAction>
-				</AlertDialogFooter>
-			</AlertDialogContent>
-		</AlertDialog>
+		<Tooltip delayDuration={0}>
+			<TooltipTrigger asChild>{children}</TooltipTrigger>
+			<TooltipContent
+				side="right"
+				sideOffset={18}
+				className="border-none p-0"
+			>
+				<SignOutDialogTrigger asChild>
+					<Button
+						type="submit"
+						variant="outline"
+						className="p-2"
+						aria-label="sign out"
+					>
+						<LogOutIcon />
+					</Button>
+				</SignOutDialogTrigger>
+			</TooltipContent>
+		</Tooltip>
 	)
 }
