@@ -96,6 +96,7 @@ async function AuthSidebarSection() {
 		</Link>
 	)
 }
+
 function SignOutTooltip({ children }: PropsWithChildren) {
 	return (
 		<Tooltip delayDuration={0}>
