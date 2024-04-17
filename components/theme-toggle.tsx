@@ -2,7 +2,8 @@
 
 import { Moon, Sun } from 'lucide-react'
 import { useTheme } from 'next-themes'
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback } from 'react'
+import { useIsMountedState } from '@/lib/hooks'
 import { capitalize, cn } from '@/lib/utils'
 import { Button, ButtonProps } from './ui/button'
 import { Skeleton } from './ui/skeleton'
@@ -17,13 +18,11 @@ export default function ThemeToggle({
 	...buttonProps
 }: Props) {
 	const { setTheme, theme } = useTheme()
-	const [isMounted, setIsMounted] = useState(false)
+	const isMounted = useIsMountedState()
 
 	const toggleTheme = useCallback(() => {
 		setTheme(theme == 'dark' ? 'light' : 'dark')
 	}, [theme, setTheme])
-
-	useEffect(() => setIsMounted(true), [])
 
 	return (
 		<Button
