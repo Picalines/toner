@@ -33,6 +33,7 @@ export default function SignUpForm(cardProps: ComponentProps<typeof Card>) {
 		defaultValues: {
 			login: '',
 			password: '',
+			confirmPassword: '',
 		},
 	})
 
