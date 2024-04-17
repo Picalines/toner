@@ -1,6 +1,7 @@
 'use server'
 
 import { eq } from 'drizzle-orm'
+import { revalidatePath } from 'next/cache'
 import { cookies } from 'next/headers'
 import { lucia, scrypt } from '@/lib/auth'
 import { accountTable, database } from '@/lib/db'
@@ -8,7 +9,6 @@ import { SignInFormData, signInFormSchema } from './schemas'
 
 export type SignInActionResult = {
 	errors: { field: keyof SignInFormData; message: string }[]
-	redirectUrl?: string
 }
 
 const authenticationError: SignInActionResult = {
@@ -62,8 +62,9 @@ export const signIn = async (
 		sessionCookie.attributes,
 	)
 
+	revalidatePath('/sign-in')
+
 	return {
 		errors: [],
-		redirectUrl: '/account',
 	}
 }

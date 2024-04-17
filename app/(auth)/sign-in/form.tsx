@@ -2,7 +2,6 @@
 
 import { zodResolver } from '@hookform/resolvers/zod'
 import { Loader2 } from 'lucide-react'
-import { useRouter } from 'next/navigation'
 import { ComponentProps } from 'react'
 import { useForm } from 'react-hook-form'
 import { Button } from '@/components/ui/button'
@@ -26,8 +25,6 @@ import { signIn } from './actions'
 import { SignInFormData, signInFormSchema } from './schemas'
 
 export default function SignInForm(cardProps: ComponentProps<typeof Card>) {
-	const { push: navigate } = useRouter()
-
 	const form = useForm<SignInFormData>({
 		resolver: zodResolver(signInFormSchema),
 		defaultValues: {
@@ -43,13 +40,7 @@ export default function SignInForm(cardProps: ComponentProps<typeof Card>) {
 	const isInputDisabled = isSubmitting || isSubmitSuccessful
 
 	const onSubmit = form.handleSubmit(async formData => {
-		const { errors, redirectUrl } = await signIn(formData)
-
-		if (redirectUrl) {
-			navigate(redirectUrl)
-			return
-		}
-
+		const { errors } = await signIn(formData)
 		for (const { field, message } of errors) {
 			form.setError(field, { message })
 		}
