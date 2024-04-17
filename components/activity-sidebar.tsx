@@ -25,7 +25,7 @@ const buttonConfig = {
 
 const linkClassName = cn(
 	buttonVariants(buttonConfig),
-	'space-x-2 w-full justify-start',
+	'w-full justify-start space-x-2',
 	'cursor-pointer',
 )
 
