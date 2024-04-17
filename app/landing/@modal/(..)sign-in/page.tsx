@@ -17,7 +17,10 @@ export default function SignInModal() {
 		[router],
 	)
 
-	const onSignedIn = useCallback(() => router.push('/account'), [router])
+	const onSignedIn = useCallback(() => {
+		router.push('/account')
+		router.refresh()
+	}, [router])
 
 	return (
 		<Dialog defaultOpen onOpenChange={onOpenChange}>
