@@ -1,18 +1,35 @@
 'use server'
 
 import Link from 'next/link'
-import { ComponentProps } from 'react'
 import { authenticate } from '@/lib/auth'
+import { cn } from '@/lib/utils'
+import BackButton from '@/components/back-button'
+import { type ButtonProps, buttonVariants } from '@/components/ui/button'
 
-export default async function SignInOrReturn(
-	linkProps: Omit<ComponentProps<typeof Link>, 'href'>,
-) {
+type Props = Readonly<{
+	buttonVariant: ButtonProps['variant']
+	className?: string
+}>
+
+export default async function SignInOrReturn({
+	buttonVariant,
+	className,
+}: Props) {
 	const signedIn = (await authenticate()) !== null
 
-	// TODO: back link
+	if (signedIn) {
+		return <BackButton variant={buttonVariant} defaultHref="/account" />
+	}
 
 	return (
-		<Link {...linkProps} href="/sign-in" scroll={false}>
+		<Link
+			href="/sign-in"
+			scroll={false}
+			className={cn(
+				className,
+				buttonVariants({ variant: buttonVariant }),
+			)}
+		>
 			Sign In
 		</Link>
 	)
