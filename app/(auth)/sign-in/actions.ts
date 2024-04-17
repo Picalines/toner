@@ -1,7 +1,6 @@
 'use server'
 
 import { eq } from 'drizzle-orm'
-import { revalidatePath } from 'next/cache'
 import { cookies } from 'next/headers'
 import { lucia, scrypt } from '@/lib/auth'
 import { accountTable, database } from '@/lib/db'
@@ -61,8 +60,6 @@ export const signIn = async (
 		sessionCookie.value,
 		sessionCookie.attributes,
 	)
-
-	revalidatePath('/sign-in')
 
 	return {
 		errors: [],

@@ -24,7 +24,12 @@ import { Input } from '@/components/ui/input'
 import { signIn } from './actions'
 import { SignInFormData, signInFormSchema } from './schemas'
 
-export default function SignInForm(cardProps: ComponentProps<typeof Card>) {
+type Props = ComponentProps<typeof Card> &
+	Readonly<{
+		onSignedIn?: () => void
+	}>
+
+export default function SignInForm({ onSignedIn, ...cardProps }: Props) {
 	const form = useForm<SignInFormData>({
 		resolver: zodResolver(signInFormSchema),
 		defaultValues: {
@@ -43,6 +48,9 @@ export default function SignInForm(cardProps: ComponentProps<typeof Card>) {
 		const { errors } = await signIn(formData)
 		for (const { field, message } of errors) {
 			form.setError(field, { message })
+		}
+		if (!errors.length) {
+			onSignedIn?.()
 		}
 	})
 
