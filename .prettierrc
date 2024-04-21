@@ -18,7 +18,9 @@
 	"importOrder": [
 		"<THIRD_PARTY_MODULES>",
 		"^@/lib/.*$",
+		"^@/schemas/.*$",
 		"^@/components/.*$",
+		"^@/app/.*$",
 		"^@/.*$",
 		"^\\..*$"
 	],
