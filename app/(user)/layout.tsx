@@ -1,9 +1,11 @@
 import { Loader2 } from 'lucide-react'
-import React, { PropsWithChildren, Suspense } from 'react'
+import React, { PropsWithChildren, ReactNode, Suspense } from 'react'
 import ActivitySidebar from '@/components/activity-sidebar'
 import { TooltipProvider } from '@/components/ui/tooltip'
 
-export default function UserLayout({ children }: PropsWithChildren) {
+type Props = Readonly<PropsWithChildren & { modal: ReactNode }>
+
+export default function UserLayout({ children, modal }: Props) {
 	return (
 		<div className="flex h-[100svh] w-full flex-row">
 			<TooltipProvider>
@@ -17,6 +19,7 @@ export default function UserLayout({ children }: PropsWithChildren) {
 						{children}
 					</Suspense>
 				</main>
+				{modal}
 			</TooltipProvider>
 		</div>
 	)

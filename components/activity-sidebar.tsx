@@ -12,9 +12,8 @@ import { ComponentProps, PropsWithChildren, Suspense } from 'react'
 import { authenticate } from '@/lib/auth'
 import { cn } from '@/lib/utils'
 import ProjectLogo from '@/components/icons/project-logo'
-import { Button, buttonVariants } from '@/components/ui/button'
+import { buttonVariants } from '@/components/ui/button'
 import { Separator } from '@/components/ui/separator'
-import SignOutDialog, { SignOutDialogTrigger } from './sign-out-dialog'
 import ThemeToggle from './theme-toggle'
 import { Tooltip, TooltipContent, TooltipTrigger } from './ui/tooltip'
 
@@ -81,14 +80,12 @@ async function AuthSidebarSection() {
 	const signedIn = (await authenticate()) !== null
 
 	return signedIn ? (
-		<SignOutDialog>
-			<SignOutTooltip>
-				<Link href="/account" className={linkClassName}>
-					<UserIcon />
-					<span>Account</span>
-				</Link>
-			</SignOutTooltip>
-		</SignOutDialog>
+		<SignOutTooltip>
+			<Link href="/account" className={linkClassName}>
+				<UserIcon />
+				<span>Account</span>
+			</Link>
+		</SignOutTooltip>
 	) : (
 		<Link href="/sign-in" className={linkClassName}>
 			<DoorOpenIcon />
@@ -106,16 +103,18 @@ function SignOutTooltip({ children }: PropsWithChildren) {
 				sideOffset={18}
 				className="border-none p-0"
 			>
-				<SignOutDialogTrigger asChild>
-					<Button
-						type="submit"
-						variant="outline"
-						className="p-2"
-						aria-label="sign out"
-					>
-						<LogOutIcon />
-					</Button>
-				</SignOutDialogTrigger>
+				<Link
+					href="/sign-out"
+					scroll={false}
+					className={cn(
+						buttonVariants({
+							variant: 'outline',
+						}),
+						'p-2',
+					)}
+				>
+					<LogOutIcon />
+				</Link>
 			</TooltipContent>
 		</Tooltip>
 	)

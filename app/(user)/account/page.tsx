@@ -3,9 +3,6 @@ import { EllipsisIcon, KeyRoundIcon, LogOutIcon, UserIcon } from 'lucide-react'
 import Link from 'next/link'
 import { authenticateOrRedirect } from '@/lib/auth'
 import { tw } from '@/lib/utils'
-import SignOutDialog, {
-	SignOutDialogTrigger,
-} from '@/components/sign-out-dialog'
 import { Button } from '@/components/ui/button'
 import {
 	DropdownMenu,
@@ -51,48 +48,42 @@ function PageHeader({ login, displayName }: User) {
 				</span>
 			</div>
 			<div className="flex-grow" />
-			<SignOutDialog>
-				<DropdownMenu>
-					<DropdownMenuTrigger asChild>
-						<Button variant="outline" className="p-2">
-							<EllipsisIcon />
-						</Button>
-					</DropdownMenuTrigger>
-					<DropdownMenuContent align="end">
-						<DropdownMenuLabel>Profile</DropdownMenuLabel>
-						<DropdownMenuSeparator />
-						<DropdownMenuItem asChild>
-							<Link
-								href="/account/profile"
-								className={linkClassName}
-							>
-								<UserIcon />
-								<span>Edit Profile</span>
-							</Link>
-						</DropdownMenuItem>
-						<DropdownMenuItem asChild>
-							<Link
-								href="/account/password"
-								className={linkClassName}
-							>
-								<KeyRoundIcon />
-								<span>Change Password</span>
-							</Link>
-						</DropdownMenuItem>
-						<DropdownMenuItem asChild>
-							<SignOutDialogTrigger asChild>
-								<Button
-									variant="ghost"
-									className={linkClassName}
-								>
-									<LogOutIcon />
-									<span>Sign out</span>
-								</Button>
-							</SignOutDialogTrigger>
-						</DropdownMenuItem>
-					</DropdownMenuContent>
-				</DropdownMenu>
-			</SignOutDialog>
+			<DropdownMenu>
+				<DropdownMenuTrigger asChild>
+					<Button variant="outline" className="p-2">
+						<EllipsisIcon />
+					</Button>
+				</DropdownMenuTrigger>
+				<DropdownMenuContent align="end">
+					<DropdownMenuLabel>Profile</DropdownMenuLabel>
+					<DropdownMenuSeparator />
+					<DropdownMenuItem asChild>
+						<Link href="/account/profile" className={linkClassName}>
+							<UserIcon />
+							<span>Edit Profile</span>
+						</Link>
+					</DropdownMenuItem>
+					<DropdownMenuItem asChild>
+						<Link
+							href="/account/password"
+							className={linkClassName}
+						>
+							<KeyRoundIcon />
+							<span>Change Password</span>
+						</Link>
+					</DropdownMenuItem>
+					<DropdownMenuItem asChild>
+						<Link
+							href="/sign-out"
+							scroll={false}
+							className={linkClassName}
+						>
+							<LogOutIcon />
+							<span>Sign out</span>
+						</Link>
+					</DropdownMenuItem>
+				</DropdownMenuContent>
+			</DropdownMenu>
 		</div>
 	)
 }
