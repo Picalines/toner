@@ -41,15 +41,15 @@ function PageHeader({ login, displayName }: User) {
 					displayName={displayName}
 					className="h-16 text-2xl"
 				/>
-				<span>
-					{login == displayName ? (
-						<>@{login}</>
-					) : (
-						<>
-							{displayName} @{login}
-						</>
-					)}
-				</span>
+
+				{login == displayName ? (
+					<span>@{login}</span>
+				) : (
+					<div className="flex flex-col">
+						<span>{displayName}</span>
+						<span>@{login}</span>
+					</div>
+				)}
 			</div>
 			<div className="flex-grow" />
 			<ProfileDropdownMenu>
