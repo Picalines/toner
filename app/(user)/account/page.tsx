@@ -39,7 +39,7 @@ function PageHeader({ login, displayName }: User) {
 				<UserAvatar
 					login={login}
 					displayName={displayName}
-					className="h-16 w-16 text-3xl"
+					className="h-16 text-2xl"
 				/>
 				<span>
 					{login == displayName ? (

@@ -1,6 +1,7 @@
 'use client'
 
 import { AvatarImage } from '@radix-ui/react-avatar'
+import { cn } from '@/lib/utils'
 import { Avatar, AvatarFallback } from './ui/avatar'
 
 type Props = Readonly<{
@@ -8,7 +9,6 @@ type Props = Readonly<{
 	displayName: string
 	imageUrl?: string
 	className?: string
-	fallbackClassName?: string
 }>
 
 export default function UserAvatar({
@@ -16,12 +16,11 @@ export default function UserAvatar({
 	displayName,
 	imageUrl,
 	className,
-	fallbackClassName,
 }: Props) {
 	return (
-		<Avatar className={className}>
+		<Avatar className={cn('aspect-square h-auto w-auto', className)}>
 			<AvatarImage src={imageUrl} alt={login} />
-			<AvatarFallback className={fallbackClassName}>
+			<AvatarFallback>
 				{displayName
 					.split(' ', 2)
 					.map(p => p[0].toUpperCase())
