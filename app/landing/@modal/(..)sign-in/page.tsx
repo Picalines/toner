@@ -3,7 +3,7 @@
 import { useRouter } from 'next/navigation'
 import { useCallback } from 'react'
 import { Dialog, DialogContent } from '@/components/ui/dialog'
-import SignInForm from '@/app/(auth)/sign-in/form'
+import SignInForm from '@/app/(guest)/sign-in/form'
 
 export default function SignInModal() {
 	const router = useRouter()
