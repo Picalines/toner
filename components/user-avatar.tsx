@@ -25,7 +25,7 @@ export default function UserAvatar({
 				{displayName
 					.split(' ', 2)
 					.map(p => p[0].toUpperCase())
-					.join()}
+					.join('')}
 			</AvatarFallback>
 		</Avatar>
 	)
