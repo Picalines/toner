@@ -2,6 +2,7 @@ import { z } from 'zod'
 
 export const loginSchema = z
 	.string()
+	.trim()
 	.min(5, 'must contain at least 5 characters')
 	.max(32, 'must contain at most 32 characters')
 	.regex(

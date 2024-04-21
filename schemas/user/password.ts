@@ -2,5 +2,6 @@ import { z } from 'zod'
 
 export const passwordSchema = z
 	.string()
+	.trim()
 	.min(6, 'must contain at least 6 characters')
 	.max(100, 'must contain at most 255 characters')
