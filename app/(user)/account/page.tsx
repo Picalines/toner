@@ -60,6 +60,7 @@ function PageHeader({ login, displayName }: User) {
 		</div>
 	)
 }
+
 function ProfileDropdownMenu({ children }: PropsWithChildren) {
 	const linkClassName = tw`flex h-min w-full justify-start gap-2 p-2 hover:cursor-pointer`
 
