@@ -9,10 +9,12 @@ import { Button, ButtonProps } from './ui/button'
 type Props = ButtonProps &
 	Readonly<{
 		defaultHref?: string
+		text?: string | null
 	}>
 
 export default function BackButton({
 	defaultHref,
+	text = 'Back',
 	className,
 	...buttonProps
 }: Props) {
@@ -29,11 +31,11 @@ export default function BackButton({
 	return (
 		<Button
 			{...buttonProps}
-			className={cn('space-x-2', className)}
+			className={cn('flex flex-row gap-2', className)}
 			onClick={onClick}
 		>
 			<ArrowLeftIcon />
-			<span>Back</span>
+			{text !== null ? <span>{text}</span> : null}
 		</Button>
 	)
 }
