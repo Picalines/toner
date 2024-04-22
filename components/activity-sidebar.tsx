@@ -8,25 +8,24 @@ import {
 	UserIcon,
 } from 'lucide-react'
 import Link from 'next/link'
-import { ComponentProps, PropsWithChildren, Suspense } from 'react'
+import {
+	ComponentProps,
+	ComponentType,
+	PropsWithChildren,
+	Suspense,
+} from 'react'
 import { authenticate } from '@/lib/auth'
 import { cn } from '@/lib/utils'
 import ProjectLogo from '@/components/icons/project-logo'
 import { buttonVariants } from '@/components/ui/button'
 import { Separator } from '@/components/ui/separator'
 import ThemeToggle from './theme-toggle'
-import { Tooltip, TooltipContent, TooltipTrigger } from './ui/tooltip'
-
-const buttonConfig = {
-	variant: 'ghost',
-	size: 'sm',
-} as const
-
-const linkClassName = cn(
-	buttonVariants(buttonConfig),
-	'w-full justify-start space-x-2',
-	'cursor-pointer',
-)
+import {
+	Tooltip,
+	TooltipArrow,
+	TooltipContent,
+	TooltipTrigger,
+} from './ui/tooltip'
 
 export default function ActivitySidebar({
 	className,
@@ -36,86 +35,93 @@ export default function ActivitySidebar({
 		<aside
 			{...asideProps}
 			className={cn(
-				className,
 				'flex h-full w-min max-w-[300px] flex-col gap-2 border-r-2 p-2',
+				className,
 			)}
 		>
-			<Link
-				href="/landing"
-				className={cn(
-					buttonVariants({ variant: 'ghost' }),
-					'flex flex-row items-center justify-center gap-x-2',
-				)}
-			>
-				<ProjectLogo width={24} height={24} />
-				<span className="text-lg font-semibold">toner</span>
-			</Link>
+			<SidebarLink href="/landing" Icon={ProjectLogo} />
 			<Separator />
-			<Link href="/browse" className={linkClassName}>
-				<RadioTowerIcon />
-				<span>Browse</span>
-			</Link>
-			<Link href="/subscriptions" className={linkClassName}>
-				<HeartIcon />
-				<span>Subscriptions</span>
-			</Link>
-			<Link href="/library" className={linkClassName}>
-				<ListMusicIcon />
-				<span>Library</span>
-			</Link>
-			<Link href="/search" className={linkClassName}>
-				<SearchIcon />
-				<span>Search</span>
-			</Link>
-			<div className="flex-grow"></div>
+			<SidebarLink href="/browse" Icon={RadioTowerIcon}>
+				Browse
+			</SidebarLink>
+			<SidebarLink href="/subscriptions" Icon={HeartIcon}>
+				Subscriptions
+			</SidebarLink>
+			<SidebarLink href="/library" Icon={ListMusicIcon}>
+				Library
+			</SidebarLink>
+			<SidebarLink href="/search" Icon={SearchIcon}>
+				Search
+			</SidebarLink>
+			<div className="flex-grow" />
 			<Suspense>
-				<AuthSidebarSection />
+				<AccountSidebarLink />
 			</Suspense>
-			<ThemeToggle {...buttonConfig} className={linkClassName} />
+			<ThemeToggle variant="ghost" themeName={false} />
 		</aside>
 	)
 }
 
-async function AuthSidebarSection() {
-	const signedIn = (await authenticate()) !== null
-
-	return signedIn ? (
-		<SignOutTooltip>
-			<Link href="/account" className={linkClassName}>
-				<UserIcon />
-				<span>Account</span>
-			</Link>
-		</SignOutTooltip>
-	) : (
-		<Link href="/sign-in" className={linkClassName}>
-			<DoorOpenIcon />
-			<span>Sign In</span>
-		</Link>
+function SidebarLink({
+	href,
+	Icon,
+	className,
+	children,
+}: PropsWithChildren & {
+	href: string
+	Icon: ComponentType<ComponentProps<'svg'>>
+	className?: string
+}) {
+	return (
+		<Tooltip delayDuration={0}>
+			<TooltipTrigger asChild>
+				<Link
+					href={href}
+					className={buttonVariants({ variant: 'ghost' })}
+				>
+					<Icon width={24} height={24} />
+				</Link>
+			</TooltipTrigger>
+			{children ? (
+				<TooltipContent
+					side="right"
+					sideOffset={0}
+					className={className}
+				>
+					<TooltipArrow />
+					{children}
+				</TooltipContent>
+			) : null}
+		</Tooltip>
 	)
 }
 
-function SignOutTooltip({ children }: PropsWithChildren) {
-	return (
-		<Tooltip delayDuration={0}>
-			<TooltipTrigger asChild>{children}</TooltipTrigger>
-			<TooltipContent
-				side="right"
-				sideOffset={18}
-				className="border-none p-0"
+async function AccountSidebarLink() {
+	const signedIn = (await authenticate()) !== null
+
+	return signedIn ? (
+		<SidebarLink
+			href="/account"
+			Icon={UserIcon}
+			className="flex flex-row items-center gap-2 pr-1"
+		>
+			<span>Account</span>
+			<Link
+				href="/sign-out"
+				scroll={false}
+				className={cn(
+					buttonVariants({
+						variant: 'ghost',
+					}),
+					'h-min p-1',
+				)}
 			>
-				<Link
-					href="/sign-out"
-					scroll={false}
-					className={cn(
-						buttonVariants({
-							variant: 'outline',
-						}),
-						'p-2',
-					)}
-				>
-					<LogOutIcon />
-				</Link>
-			</TooltipContent>
-		</Tooltip>
+				<LogOutIcon />
+			</Link>
+		</SidebarLink>
+	) : (
+		<SidebarLink href="/sign-in" Icon={DoorOpenIcon}>
+			Sign In
+		</SidebarLink>
 	)
 }
