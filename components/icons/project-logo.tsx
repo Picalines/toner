@@ -1,10 +1,10 @@
-type Props = { width?: number; height?: number; className?: string }
+import type { ComponentProps } from 'react'
 
-export default function ProjectLogo(props: Props) {
+export default function ProjectLogo(props: ComponentProps<'svg'>) {
 	return (
 		<svg
-			width="200"
-			height="200"
+			width={24}
+			height={24}
 			viewBox="0 0 200 200"
 			fill="none"
 			xmlns="http://www.w3.org/2000/svg"
