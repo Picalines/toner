@@ -13,8 +13,8 @@ export default function LandingPage() {
 				<div className="inline flex-grow" />
 				<ThemeToggle
 					variant="outline"
-					toggleVariant="iconOnly"
 					className="p-2"
+					themeName={false}
 				/>
 			</div>
 			<div className="relative h-[80vh]">

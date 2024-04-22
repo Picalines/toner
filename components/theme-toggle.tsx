@@ -8,13 +8,14 @@ import { capitalize, cn } from '@/lib/utils'
 import { Button, ButtonProps } from './ui/button'
 import { Skeleton } from './ui/skeleton'
 
-type Props = Omit<ButtonProps, 'onClick'> &
+type Props = Omit<ButtonProps, 'children' | 'onClick'> &
 	Readonly<{
-		toggleVariant?: 'all' | 'iconOnly'
+		themeName: boolean
 	}>
 
 export default function ThemeToggle({
-	toggleVariant = 'all',
+	themeName: showThemeName = true,
+	className,
 	...buttonProps
 }: Props) {
 	const { setTheme, theme } = useTheme()
@@ -27,7 +28,7 @@ export default function ThemeToggle({
 	return (
 		<Button
 			{...buttonProps}
-			className={cn('space-x-2', buttonProps.className)}
+			className={cn('space-x-2', className)}
 			onClick={toggleTheme}
 		>
 			{isMounted ? (
@@ -38,7 +39,7 @@ export default function ThemeToggle({
 			) : (
 				<Skeleton className="h-[24px] w-[24px] shrink-0 rounded-full" />
 			)}
-			{toggleVariant == 'all' ? (
+			{showThemeName ? (
 				isMounted ? (
 					<span>{capitalize(theme ?? 'light')}</span>
 				) : (
