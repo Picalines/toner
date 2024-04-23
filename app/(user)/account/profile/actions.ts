@@ -60,7 +60,7 @@ export const editProfile = async (
 			errors: [
 				{
 					field: 'login',
-					message: `login '${newLogin}' is already exists`,
+					message: `login '${newLogin}' is already taken`,
 				},
 			],
 		}
