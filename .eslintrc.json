@@ -1,13 +1,36 @@
 {
-	"extends": ["next/core-web-vitals", "prettier"],
-	"plugins": ["prettier", "index", "drizzle"],
+	"root": true,
+	"plugins": ["@typescript-eslint", "prettier", "index", "drizzle"],
+	"extends": [
+		"eslint:recommended",
+		"plugin:@typescript-eslint/recommended-type-checked",
+		"next",
+		"next/core-web-vitals",
+		"prettier"
+	],
 	"rules": {
 		"prettier/prettier": "error",
+
 		"index/only-import-export": "error",
 		"index/forbid": "off",
+
+		"@typescript-eslint/no-namespace": [
+			"error",
+			{
+				"allowDeclarations": true
+			}
+		],
+		"@typescript-eslint/no-misused-promises": [
+			"error",
+			{
+				"checksVoidReturn": false
+			}
+		],
+
 		"drizzle/enforce-delete-with-where": "error",
 		"drizzle/enforce-update-with-where": "error"
 	},
+	"parser": "@typescript-eslint/parser",
 	"parserOptions": {
 		"project": "./tsconfig.json"
 	}
