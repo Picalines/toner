@@ -275,44 +275,41 @@ export const nodeTable = pgTable('node', {
 	displayName: varchar('display_name', { length: 32 }),
 })
 
-export const nodeRelations = relations(nodeTable, ({ one, many }) => ({
+export const nodeRelations = relations(nodeTable, ({ one }) => ({
 	project: one(trackProjectTable, {
 		fields: [nodeTable.projectId],
 		references: [trackProjectTable.id],
 	}),
-	sockets: many(nodeSocketTable),
 }))
 
-export const nodeSocketType = pgEnum('node_socket_type', ['input', 'output'])
-
-export const nodeSocketTable = pgTable('node_socket', {
-	id: serial('id').primaryKey(),
-	nodeId: integer('node_id')
-		.notNull()
-		.references(() => nodeTable.id, { onDelete: 'cascade' }),
-	type: nodeSocketType('type').notNull(),
-	name: varchar('name', { length: 32 }).notNull(),
-})
-
-export const nodeSocketRelations = relations(nodeSocketTable, ({ one }) => ({
-	node: one(nodeTable, {
-		fields: [nodeSocketTable.nodeId],
-		references: [nodeTable.id],
+export const nodeConnectionTable = pgTable(
+	'node_connection',
+	{
+		projectId: integer('project_id').references(
+			() => trackProjectTable.id,
+			{ onDelete: 'cascade' },
+		),
+		senderId: integer('sender_id').references(() => nodeTable.id, {
+			onDelete: 'cascade',
+		}),
+		receiverId: integer('receiver_id').references(() => nodeTable.id, {
+			onDelete: 'cascade',
+		}),
+		outputSocket: integer('output_socket'),
+		inputSocket: integer('input_socket'),
+	},
+	table => ({
+		primaryKey: primaryKey({
+			columns: [
+				table.projectId,
+				table.senderId,
+				table.receiverId,
+				table.outputSocket,
+				table.inputSocket,
+			],
+		}),
 	}),
-}))
-
-export const nodeConnectionTable = pgTable('node_connection', {
-	id: serial('id').primaryKey(),
-	projectId: integer('project_id')
-		.notNull()
-		.references(() => trackProjectTable.id, { onDelete: 'cascade' }),
-	senderId: integer('sender_id')
-		.notNull()
-		.references(() => nodeSocketTable.id, { onDelete: 'cascade' }),
-	receiverId: integer('receiver_id')
-		.notNull()
-		.references(() => nodeSocketTable.id, { onDelete: 'cascade' }),
-})
+)
 
 export const nodeConnectionRelations = relations(
 	nodeConnectionTable,
@@ -321,13 +318,13 @@ export const nodeConnectionRelations = relations(
 			fields: [nodeConnectionTable.projectId],
 			references: [trackProjectTable.id],
 		}),
-		sender: one(nodeSocketTable, {
+		sender: one(nodeTable, {
 			fields: [nodeConnectionTable.senderId],
-			references: [nodeSocketTable.id],
+			references: [nodeTable.id],
 		}),
-		receiver: one(nodeSocketTable, {
+		receiver: one(nodeTable, {
 			fields: [nodeConnectionTable.receiverId],
-			references: [nodeSocketTable.id],
+			references: [nodeTable.id],
 		}),
 	}),
 )

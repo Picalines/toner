@@ -36,6 +36,20 @@
       "when": 1712045163471,
       "tag": "0004_powerful_wraith",
       "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "5",
+      "when": 1713879570323,
+      "tag": "0005_cute_nemesis",
+      "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "5",
+      "when": 1713880349288,
+      "tag": "0006_nervous_wrecking_crew",
+      "breakpoints": true
     }
   ]
 }
