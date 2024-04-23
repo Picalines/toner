@@ -1,9 +1,14 @@
 {
 	"extends": ["next/core-web-vitals", "prettier"],
-	"plugins": ["prettier", "index"],
+	"plugins": ["prettier", "index", "drizzle"],
 	"rules": {
 		"prettier/prettier": "error",
 		"index/only-import-export": "error",
-		"index/forbid": "off"
+		"index/forbid": "off",
+		"drizzle/enforce-delete-with-where": "error",
+		"drizzle/enforce-update-with-where": "error"
+	},
+	"parserOptions": {
+		"project": "./tsconfig.json"
 	}
 }
