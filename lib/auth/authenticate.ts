@@ -14,7 +14,6 @@ export const authenticate = cache(async (): Promise<UserAuth | null> => {
 
 	const { user, session } = await lucia.validateSession(sessionId)
 
-	// next.js throws when you attempt to set cookie when rendering page
 	try {
 		let sessionCookie: Cookie | undefined = undefined
 
@@ -31,7 +30,9 @@ export const authenticate = cache(async (): Promise<UserAuth | null> => {
 				sessionCookie.attributes,
 			)
 		}
-	} catch {}
+	} catch {
+		// next.js throws when you attempt to set cookie when rendering page
+	}
 
 	return user && session ? { user, session } : null
 })
