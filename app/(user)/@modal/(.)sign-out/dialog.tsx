@@ -17,9 +17,9 @@ import { signOut } from './actions'
 type Props = Exclude<ComponentProps<typeof AlertDialog>, 'open'>
 
 export default function SignOutDialog({ ...restProps }: Props) {
-	const onActionClick = useCallback<MouseEventHandler>(event => {
+	const onActionClick = useCallback<MouseEventHandler>(async event => {
 		event.preventDefault()
-		signOut() // TODO: add error handing?
+		await signOut() // TODO: add error handing?
 	}, [])
 
 	return (
