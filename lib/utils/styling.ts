@@ -7,7 +7,7 @@ export function cn(...inputs: ClassValue[]) {
 
 export function tw(
 	strings: readonly string[] | ArrayLike<string>,
-	...values: readonly any[]
+	...values: readonly unknown[]
 ) {
 	return String.raw({ raw: strings }, ...values)
 }
