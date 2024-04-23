@@ -16,7 +16,7 @@ if (!global.postgresSqlClient) {
 		database: serverEnv.DB_DATABASE,
 	})
 
-	global.postgresSqlClient.connect()
+	void global.postgresSqlClient.connect()
 }
 
 export const database = drizzle(global.postgresSqlClient, { schema })
