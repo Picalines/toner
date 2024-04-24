@@ -99,7 +99,7 @@ export default function SignUpForm(cardProps: ComponentProps<typeof Card>) {
 										<FormLabel>Confirm</FormLabel>
 										<FormControl>
 											<Input
-												type="confirmPassword"
+												type="password"
 												disabled={isInputDisabled}
 												placeholder="password"
 												{...field}
