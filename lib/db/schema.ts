@@ -53,8 +53,8 @@ export const authorRelations = relations(authorTable, ({ one, many }) => ({
 		fields: [authorTable.accountId],
 		references: [accountTable.id],
 	}),
-	trackProjects: many(trackProjectTable),
-	trackPublications: many(trackPublicationTable),
+	compositions: many(compositionTable),
+	publications: many(publicationTable),
 }))
 
 export const listenerTable = pgTable('listener', {
@@ -103,31 +103,31 @@ export const subscriptionRelations = relations(
 	}),
 )
 
-// trackPublications
+// publication
 
-export const trackPublicationTable = pgTable('track_publication', {
+export const publicationTable = pgTable('publication', {
 	id: serial('id').primaryKey(),
 	authorId: integer('author_id')
 		.notNull()
 		.references(() => authorTable.accountId, { onDelete: 'cascade' }),
-	projectId: integer('project_id')
+	compositionId: integer('composition_id')
 		.notNull()
-		.references(() => trackProjectTable.id, { onDelete: 'cascade' }),
+		.references(() => compositionTable.id, { onDelete: 'cascade' }),
 	name: varchar('name', { length: 64 }).notNull(),
 	description: text('description').notNull().default(''),
 	createdAt: timestamp('created_at').notNull().defaultNow(),
 })
 
-export const trackPublicationRelations = relations(
-	trackPublicationTable,
+export const publicationRelations = relations(
+	publicationTable,
 	({ one, many }) => ({
 		author: one(authorTable, {
-			fields: [trackPublicationTable.authorId],
+			fields: [publicationTable.authorId],
 			references: [authorTable.accountId],
 		}),
-		project: one(trackProjectTable, {
-			fields: [trackPublicationTable.projectId],
-			references: [trackProjectTable.id],
+		composition: one(compositionTable, {
+			fields: [publicationTable.compositionId],
+			references: [compositionTable.id],
 		}),
 		listens: many(listenTable),
 	}),
@@ -141,7 +141,7 @@ export const listenTable = pgTable(
 			.references(() => listenerTable.accountId, { onDelete: 'cascade' }),
 		publicationId: integer('publication_id')
 			.notNull()
-			.references(() => trackPublicationTable.id, {
+			.references(() => publicationTable.id, {
 				onDelete: 'cascade',
 			}),
 		createdAt: timestamp('created_at').notNull().defaultNow(),
@@ -158,9 +158,9 @@ export const listenRelations = relations(listenTable, ({ one }) => ({
 		fields: [listenTable.listenerId],
 		references: [listenerTable.accountId],
 	}),
-	publication: one(trackPublicationTable, {
+	publication: one(publicationTable, {
 		fields: [listenTable.publicationId],
-		references: [trackPublicationTable.id],
+		references: [publicationTable.id],
 	}),
 }))
 
@@ -179,7 +179,7 @@ export const reactionTable = pgTable(
 			.references(() => listenerTable.accountId, { onDelete: 'cascade' }),
 		publicationId: integer('publication_id')
 			.notNull()
-			.references(() => trackPublicationTable.id, {
+			.references(() => publicationTable.id, {
 				onDelete: 'cascade',
 			}),
 		type: reactionType('type').notNull(),
@@ -197,15 +197,15 @@ export const reactionRelations = relations(reactionTable, ({ one }) => ({
 		fields: [reactionTable.listenerId],
 		references: [listenerTable.accountId],
 	}),
-	publication: one(trackPublicationTable, {
+	publication: one(publicationTable, {
 		fields: [reactionTable.publicationId],
-		references: [trackPublicationTable.id],
+		references: [publicationTable.id],
 	}),
 }))
 
-// trackProjects
+// composition
 
-export const trackProjectTable = pgTable('track_project', {
+export const compositionTable = pgTable('composition', {
 	id: serial('id').primaryKey(),
 	authorId: integer('author_id')
 		.notNull()
@@ -215,11 +215,11 @@ export const trackProjectTable = pgTable('track_project', {
 	createdAt: timestamp('created_at').notNull().defaultNow(),
 })
 
-export const trackProjectRelations = relations(
-	trackProjectTable,
+export const compositionRelations = relations(
+	compositionTable,
 	({ one, many }) => ({
 		author: one(authorTable, {
-			fields: [trackProjectTable.authorId],
+			fields: [compositionTable.authorId],
 			references: [authorTable.accountId],
 		}),
 		keyLayers: many(keyLayerTable),
@@ -230,16 +230,16 @@ export const trackProjectRelations = relations(
 
 export const keyLayerTable = pgTable('key_layer', {
 	id: serial('id').primaryKey(),
-	projectId: integer('project_id')
+	compositionId: integer('composition_id')
 		.notNull()
-		.references(() => trackProjectTable.id, { onDelete: 'cascade' }),
+		.references(() => compositionTable.id, { onDelete: 'cascade' }),
 	name: varchar('name', { length: 32 }).notNull(),
 })
 
 export const keyLayerRelations = relations(keyLayerTable, ({ one, many }) => ({
-	project: one(trackProjectTable, {
-		fields: [keyLayerTable.projectId],
-		references: [trackProjectTable.id],
+	composition: one(compositionTable, {
+		fields: [keyLayerTable.compositionId],
+		references: [compositionTable.id],
 	}),
 	keys: many(keyTable),
 }))
@@ -267,26 +267,28 @@ export const keyRelations = relations(keyTable, ({ one }) => ({
 
 export const nodeTable = pgTable('node', {
 	id: serial('id').primaryKey(),
-	projectId: integer('project_id')
+	compositionId: integer('composition_id')
 		.notNull()
-		.references(() => trackProjectTable.id, { onDelete: 'cascade' }),
+		.references(() => compositionTable.id, { onDelete: 'cascade' }),
 	type: varchar('type', { length: 32 }).notNull(),
 	displayName: varchar('display_name', { length: 32 }),
 })
 
 export const nodeRelations = relations(nodeTable, ({ one }) => ({
-	project: one(trackProjectTable, {
-		fields: [nodeTable.projectId],
-		references: [trackProjectTable.id],
+	composition: one(compositionTable, {
+		fields: [nodeTable.compositionId],
+		references: [compositionTable.id],
 	}),
 }))
 
 export const nodeConnectionTable = pgTable(
 	'node_connection',
 	{
-		projectId: integer('project_id').references(
-			() => trackProjectTable.id,
-			{ onDelete: 'cascade' },
+		compositionId: integer('composition_id').references(
+			() => compositionTable.id,
+			{
+				onDelete: 'cascade',
+			},
 		),
 		senderId: integer('sender_id').references(() => nodeTable.id, {
 			onDelete: 'cascade',
@@ -300,7 +302,7 @@ export const nodeConnectionTable = pgTable(
 	table => ({
 		primaryKey: primaryKey({
 			columns: [
-				table.projectId,
+				table.compositionId,
 				table.senderId,
 				table.receiverId,
 				table.outputSocket,
@@ -313,9 +315,9 @@ export const nodeConnectionTable = pgTable(
 export const nodeConnectionRelations = relations(
 	nodeConnectionTable,
 	({ one }) => ({
-		project: one(trackProjectTable, {
-			fields: [nodeConnectionTable.projectId],
-			references: [trackProjectTable.id],
+		composition: one(compositionTable, {
+			fields: [nodeConnectionTable.compositionId],
+			references: [compositionTable.id],
 		}),
 		sender: one(nodeTable, {
 			fields: [nodeConnectionTable.senderId],
