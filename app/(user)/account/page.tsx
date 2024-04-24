@@ -71,7 +71,7 @@ function ProfileDropdownMenu({ children }: PropsWithChildren) {
 				<DropdownMenuLabel>Profile</DropdownMenuLabel>
 				<DropdownMenuSeparator />
 				<DropdownMenuItem asChild>
-					<Link href="/account/profile" className={linkClassName}>
+					<Link href="/profile" className={linkClassName}>
 						<PencilIcon />
 						<span>Edit Profile</span>
 					</Link>
