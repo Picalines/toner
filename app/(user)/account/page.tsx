@@ -26,13 +26,13 @@ export default async function AccountPage() {
 
 	return (
 		<div className="p-2">
-			<PageHeader {...user} />
+			<UserProfile {...user} />
 			<Separator className="mb-2 mt-2" />
 		</div>
 	)
 }
 
-function PageHeader({ login, displayName }: User) {
+function UserProfile({ login, displayName }: User) {
 	return (
 		<div className="flex flex-row items-center p-2">
 			<div className="flex flex-row items-center gap-2">
