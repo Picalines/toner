@@ -1,11 +1,12 @@
 import { relations } from 'drizzle-orm'
 import {
 	integer,
-	numeric,
 	pgEnum,
 	pgTable,
 	primaryKey,
+	real,
 	serial,
+	smallint,
 	text,
 	timestamp,
 	varchar,
@@ -221,13 +222,13 @@ export const trackProjectRelations = relations(
 			fields: [trackProjectTable.authorId],
 			references: [authorTable.accountId],
 		}),
-		noteLayers: many(noteLayerTable),
+		keyLayers: many(keyLayerTable),
 		nodes: many(nodeTable),
 		nodeConnections: many(nodeConnectionTable),
 	}),
 )
 
-export const noteLayerTable = pgTable('note_layer', {
+export const keyLayerTable = pgTable('key_layer', {
 	id: serial('id').primaryKey(),
 	projectId: integer('project_id')
 		.notNull()
@@ -235,34 +236,32 @@ export const noteLayerTable = pgTable('note_layer', {
 	name: varchar('name', { length: 32 }).notNull(),
 })
 
-export const noteLayerRelations = relations(
-	noteLayerTable,
-	({ one, many }) => ({
-		project: one(trackProjectTable, {
-			fields: [noteLayerTable.projectId],
-			references: [trackProjectTable.id],
-		}),
-		notes: many(noteTable),
+export const keyLayerRelations = relations(keyLayerTable, ({ one, many }) => ({
+	project: one(trackProjectTable, {
+		fields: [keyLayerTable.projectId],
+		references: [trackProjectTable.id],
 	}),
-)
+	keys: many(keyTable),
+}))
 
-export const noteTable = pgTable('note', {
+export const keyTable = pgTable('key', {
 	id: serial('id').primaryKey(),
 	layerId: integer('layer_id')
 		.notNull()
-		.references(() => noteLayerTable.id, { onDelete: 'cascade' }),
-	instrumentNodeId: integer('instrumentNode_id')
+		.references(() => keyLayerTable.id, { onDelete: 'cascade' }),
+	synthNodeId: integer('synth_node_id')
 		.notNull()
 		.references(() => nodeTable.id, { onDelete: 'cascade' }),
-	startAt: integer('start_at').notNull(),
+	time: integer('time').notNull(),
 	duration: integer('duration').notNull(),
-	frequency: numeric('frequency', { precision: 9, scale: 3 }).notNull(),
+	velocity: real('velocity').notNull(),
+	note: smallint('note').notNull(), // number of half steps from C0
 })
 
-export const noteRelations = relations(noteTable, ({ one }) => ({
-	layer: one(noteLayerTable, {
-		fields: [noteTable.layerId],
-		references: [noteLayerTable.id],
+export const keyRelations = relations(keyTable, ({ one }) => ({
+	layer: one(keyLayerTable, {
+		fields: [keyTable.layerId],
+		references: [keyLayerTable.id],
 	}),
 }))
 
