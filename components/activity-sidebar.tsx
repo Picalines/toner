@@ -35,7 +35,7 @@ export default function ActivitySidebar({
 		<aside
 			{...asideProps}
 			className={cn(
-				'flex h-full w-min max-w-[300px] flex-col gap-2 border-r-2 p-2',
+				'flex h-full w-min max-w-[300px] flex-col gap-2 border-r p-2',
 				className,
 			)}
 		>
