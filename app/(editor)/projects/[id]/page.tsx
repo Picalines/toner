@@ -1,9 +1,9 @@
-import { and, eq } from 'drizzle-orm'
-import { notFound } from 'next/navigation'
-import { z } from 'zod'
 import { authenticateOrRedirect } from '@/lib/auth'
-import { compositionTable, database } from '@/lib/db'
 import { DeepReadonly } from '@/lib/utils'
+import KeyAreaBackground from '@/components/editor/key-area-background'
+import EditorHeader from './editor-header'
+import { fetchComposition } from './fetch-composition'
+import { parseProjectId } from './parse-project-id'
 
 type Props = DeepReadonly<{
 	params: {
@@ -11,40 +11,28 @@ type Props = DeepReadonly<{
 	}
 }>
 
-const paramsSchema = z.object({
-	id: z.coerce.number().positive().finite().safe().int(),
-})
-
 export default async function EditorPage({ params }: Props) {
-	const parsedParams = paramsSchema.safeParse(params)
-	if (!parsedParams.success) {
-		notFound()
-	}
-
-	const {
-		data: { id: projectId },
-	} = parsedParams
+	const compositionId = parseProjectId(params)
 
 	const {
 		user: { id: accountId },
 	} = await authenticateOrRedirect('/sign-in')
 
-	const compositionQuery = await database
-		.select({ name: compositionTable.name })
-		.from(compositionTable)
-		.limit(1)
-		.where(
-			and(
-				eq(compositionTable.authorId, accountId),
-				eq(compositionTable.id, projectId),
-			),
-		)
+	const { name } = await fetchComposition(accountId, compositionId)
 
-	if (compositionQuery.length != 1) {
-		notFound()
-	}
-
-	const [{ name }] = compositionQuery
-
-	return <>{name}</>
+	return (
+		<div className="flex max-h-[100svh] flex-col">
+			<EditorHeader
+				compositionId={compositionId}
+				compositionName={name}
+			/>
+			<div className="max-w-full flex-grow overflow-scroll">
+				<KeyAreaBackground
+					className="w-full"
+					lineHeight={24}
+					numberOfLines={120}
+				/>
+			</div>
+		</div>
+	)
 }
