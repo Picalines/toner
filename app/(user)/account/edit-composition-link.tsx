@@ -40,7 +40,7 @@ export default function EditCompositionLink({
 				</CardHeader>
 				<CardContent className="truncate">
 					{description || (
-						<span className="italic text-muted">
+						<span className="italic text-gray-400">
 							No description
 						</span>
 					)}
