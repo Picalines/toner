@@ -1,3 +1,5 @@
+export type PropsWithoutChildren<P> = Omit<P, 'children'>
+
 export type DeepReadonly<T> = T extends {
 	[K in keyof T]: unknown
 }

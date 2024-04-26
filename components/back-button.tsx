@@ -3,10 +3,10 @@
 import { ArrowLeftIcon } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 import { useCallback } from 'react'
-import { cn } from '@/lib/utils'
+import { PropsWithoutChildren, cn } from '@/lib/utils'
 import { Button, ButtonProps } from './ui/button'
 
-type Props = Omit<ButtonProps, 'children'> &
+type Props = PropsWithoutChildren<ButtonProps> &
 	Readonly<{
 		defaultHref?: string
 		text?: string | null
