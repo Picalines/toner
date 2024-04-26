@@ -58,7 +58,7 @@ export default function ProfileSection({
 }
 
 function ProfileDropdownMenu({ children }: PropsWithChildren) {
-	const linkClassName = tw`flex h-min w-full justify-start gap-2 p-2 hover:cursor-pointer`
+	const linkClassName = tw`flex h-min w-full cursor-pointer justify-start gap-2 p-2`
 
 	return (
 		<DropdownMenu>
