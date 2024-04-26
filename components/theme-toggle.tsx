@@ -10,7 +10,7 @@ import { Skeleton } from './ui/skeleton'
 
 type Props = Omit<ButtonProps, 'children' | 'onClick'> &
 	Readonly<{
-		themeName: boolean
+		themeName?: boolean
 	}>
 
 export default function ThemeToggle({
