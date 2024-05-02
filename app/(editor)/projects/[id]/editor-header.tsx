@@ -1,6 +1,12 @@
 'use client'
 
-import { PencilIcon, Trash2Icon, UploadIcon } from 'lucide-react'
+import {
+	EllipsisIcon,
+	LayoutIcon,
+	PencilIcon,
+	Trash2Icon,
+	UploadIcon,
+} from 'lucide-react'
 import Link from 'next/link'
 import { PropsWithChildren } from 'react'
 import BackButton from '@/components/back-button'
@@ -12,7 +18,14 @@ import {
 	DropdownMenu,
 	DropdownMenuContent,
 	DropdownMenuItem,
+	DropdownMenuLabel,
+	DropdownMenuPortal,
+	DropdownMenuRadioGroup,
+	DropdownMenuRadioItem,
 	DropdownMenuSeparator,
+	DropdownMenuSub,
+	DropdownMenuSubContent,
+	DropdownMenuSubTrigger,
 	DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
 
@@ -25,7 +38,11 @@ export default function EditorHeader() {
 			<ProjectDropdownMenu>
 				<Button variant="ghost">{compositionName}</Button>
 			</ProjectDropdownMenu>
-			<ThemeToggle variant="outline" themeName={false} />
+			<EditorDropdownMenu>
+				<Button variant="outline">
+					<EllipsisIcon />
+				</Button>
+			</EditorDropdownMenu>
 		</div>
 	)
 }
@@ -59,6 +76,51 @@ function ProjectDropdownMenu({ children }: PropsWithChildren) {
 					<Trash2Icon />
 					<span>Delete</span>
 				</DropdownMenuItem>
+			</DropdownMenuContent>
+		</DropdownMenu>
+	)
+}
+
+function EditorDropdownMenu({ children }: PropsWithChildren) {
+	const panelLayout = useEditorStore(editor => editor.panelLayout)
+	const setPanelLayout = useEditorStore(editor => editor.setPanelLayout) as (
+		newLayout: string,
+	) => void
+
+	return (
+		<DropdownMenu>
+			<DropdownMenuTrigger asChild>{children}</DropdownMenuTrigger>
+			<DropdownMenuContent align="end">
+				<DropdownMenuLabel>Editor</DropdownMenuLabel>
+				<DropdownMenuSeparator />
+				<DropdownMenuItem asChild>
+					<ThemeToggle
+						themeName
+						variant="ghost"
+						className="h-min w-full cursor-pointer justify-start space-x-2"
+					/>
+				</DropdownMenuItem>
+				<DropdownMenuSub>
+					<DropdownMenuSubTrigger className="space-x-2">
+						<LayoutIcon />
+						<span>Layout</span>
+					</DropdownMenuSubTrigger>
+					<DropdownMenuPortal>
+						<DropdownMenuSubContent>
+							<DropdownMenuRadioGroup
+								value={panelLayout}
+								onValueChange={setPanelLayout}
+							>
+								<DropdownMenuRadioItem value="horizontal">
+									Horizontal
+								</DropdownMenuRadioItem>
+								<DropdownMenuRadioItem value="vertical">
+									Vertical
+								</DropdownMenuRadioItem>
+							</DropdownMenuRadioGroup>
+						</DropdownMenuSubContent>
+					</DropdownMenuPortal>
+				</DropdownMenuSub>
 			</DropdownMenuContent>
 		</DropdownMenu>
 	)
