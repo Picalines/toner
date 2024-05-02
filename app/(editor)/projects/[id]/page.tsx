@@ -1,10 +1,9 @@
 import { authenticateOrRedirect } from '@/lib/auth'
 import { DeepReadonly } from '@/lib/utils'
-import KeyAreaBackground from '@/components/editor/key-area-background'
-import PianoRoll from '@/components/editor/piano-roll'
 import CompositionStoreProvider from '@/components/providers/composition-store-provider'
 import EditorStoreProvider from '@/components/providers/editor-store-provider'
 import EditorHeader from './editor-header'
+import EditorLayout from './editor-layout'
 import { fetchComposition } from './fetch-composition'
 import { parseProjectId } from './parse-project-id'
 import UpdateInfoModal from './update-info-modal'
@@ -25,28 +24,20 @@ export default async function EditorPage({ params }: Props) {
 	const composition = await fetchComposition(accountId, compositionId)
 
 	return (
-		<div className="flex max-h-[100svh] flex-col">
-			<CompositionStoreProvider
-				initialState={{
-					...composition,
-				}}
+		<CompositionStoreProvider
+			initialState={{
+				...composition,
+			}}
+		>
+			<EditorStoreProvider
+				initialState={{ openedModal: null, panelLayout: 'horizontal' }}
 			>
-				<EditorStoreProvider initialState={{ openedModal: null }}>
+				<div className="flex h-[100svh] max-h-[100svh] flex-col">
 					<EditorHeader />
-					<div className="relative overflow-auto">
-						<PianoRoll
-							className="absolute left-0 w-28"
-							lineHeight={24}
-						/>
-						<KeyAreaBackground
-							className="w-full"
-							lineHeight={24}
-							numberOfLines={120}
-						/>
-					</div>
-					<UpdateInfoModal />
-				</EditorStoreProvider>
-			</CompositionStoreProvider>
-		</div>
+					<EditorLayout />
+				</div>
+				<UpdateInfoModal />
+			</EditorStoreProvider>
+		</CompositionStoreProvider>
 	)
 }
