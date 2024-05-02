@@ -10,7 +10,7 @@ export default function UserLayout({ children, modal }: Props) {
 		<div className="flex h-[100svh] w-full flex-row">
 			<TooltipProvider>
 				<ActivitySidebar />
-				<main className="relative w-full">
+				<main className="relative w-full overflow-auto">
 					<Suspense
 						fallback={
 							<Loader2 className="absolute left-1/2 top-1/2 h-6 w-6 animate-spin" />
