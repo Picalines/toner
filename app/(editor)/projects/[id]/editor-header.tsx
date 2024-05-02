@@ -5,6 +5,7 @@ import Link from 'next/link'
 import { PropsWithChildren } from 'react'
 import BackButton from '@/components/back-button'
 import { useCompositionStore } from '@/components/providers/composition-store-provider'
+import { useEditorStore } from '@/components/providers/editor-store-provider'
 import ThemeToggle from '@/components/theme-toggle'
 import { Button } from '@/components/ui/button'
 import {
@@ -31,12 +32,16 @@ export default function EditorHeader() {
 
 function ProjectDropdownMenu({ children }: PropsWithChildren) {
 	const compositionId = useCompositionStore(composition => composition.id)
+	const openModal = useEditorStore(editor => editor.openModal)
 
 	return (
 		<DropdownMenu>
 			<DropdownMenuTrigger asChild>{children}</DropdownMenuTrigger>
 			<DropdownMenuContent align="center">
-				<DropdownMenuItem className="cursor-pointer space-x-2">
+				<DropdownMenuItem
+					className="cursor-pointer space-x-2"
+					onClick={() => openModal('updateInfo')}
+				>
 					<PencilIcon />
 					<span>Edit Info</span>
 				</DropdownMenuItem>
