@@ -1,6 +1,7 @@
 import { authenticateOrRedirect } from '@/lib/auth'
 import { DeepReadonly } from '@/lib/utils'
 import KeyAreaBackground from '@/components/editor/key-area-background'
+import PianoRoll from '@/components/editor/piano-roll'
 import CompositionStoreProvider from '@/components/providers/composition-store-provider'
 import EditorStoreProvider from '@/components/providers/editor-store-provider'
 import EditorHeader from './editor-header'
@@ -32,7 +33,11 @@ export default async function EditorPage({ params }: Props) {
 			>
 				<EditorStoreProvider initialState={{ openedModal: null }}>
 					<EditorHeader />
-					<div className="max-w-full flex-grow overflow-scroll">
+					<div className="relative overflow-auto">
+						<PianoRoll
+							className="absolute left-0 w-28"
+							lineHeight={24}
+						/>
 						<KeyAreaBackground
 							className="w-full"
 							lineHeight={24}
