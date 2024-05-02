@@ -6,7 +6,11 @@ import { compositionTable, database } from '@/lib/db'
 export const fetchComposition = cache(
 	async (accountId: number, compositionId: number) => {
 		const compositionQuery = await database
-			.select({ name: compositionTable.name })
+			.select({
+				id: compositionTable.id,
+				name: compositionTable.name,
+				description: compositionTable.description,
+			})
 			.from(compositionTable)
 			.limit(1)
 			.where(

@@ -1,6 +1,7 @@
 import { authenticateOrRedirect } from '@/lib/auth'
 import { DeepReadonly } from '@/lib/utils'
 import KeyAreaBackground from '@/components/editor/key-area-background'
+import CompositionStoreProvider from '@/components/providers/composition-store-provider'
 import EditorHeader from './editor-header'
 import { fetchComposition } from './fetch-composition'
 import { parseProjectId } from './parse-project-id'
@@ -18,21 +19,24 @@ export default async function EditorPage({ params }: Props) {
 		user: { id: accountId },
 	} = await authenticateOrRedirect('/sign-in')
 
-	const { name } = await fetchComposition(accountId, compositionId)
+	const composition = await fetchComposition(accountId, compositionId)
 
 	return (
 		<div className="flex max-h-[100svh] flex-col">
-			<EditorHeader
-				compositionId={compositionId}
-				compositionName={name}
-			/>
-			<div className="max-w-full flex-grow overflow-scroll">
-				<KeyAreaBackground
-					className="w-full"
-					lineHeight={24}
-					numberOfLines={120}
-				/>
-			</div>
+			<CompositionStoreProvider
+				initialState={{
+					...composition,
+				}}
+			>
+				<EditorHeader />
+				<div className="max-w-full flex-grow overflow-scroll">
+					<KeyAreaBackground
+						className="w-full"
+						lineHeight={24}
+						numberOfLines={120}
+					/>
+				</div>
+			</CompositionStoreProvider>
 		</div>
 	)
 }

@@ -4,6 +4,7 @@ import { PencilIcon, Trash2Icon, UploadIcon } from 'lucide-react'
 import Link from 'next/link'
 import { PropsWithChildren } from 'react'
 import BackButton from '@/components/back-button'
+import { useCompositionStore } from '@/components/providers/composition-store-provider'
 import ThemeToggle from '@/components/theme-toggle'
 import { Button } from '@/components/ui/button'
 import {
@@ -14,30 +15,23 @@ import {
 	DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
 
-type Props = Readonly<{
-	compositionId: number
-	compositionName: string
-}>
+export default function EditorHeader() {
+	const compositionName = useCompositionStore(composition => composition.name)
 
-export default function EditorHeader({
-	compositionId,
-	compositionName: initialName,
-}: Props) {
 	return (
 		<div className="flex items-center justify-between border-b p-2">
 			<BackButton variant="outline" text={null} />
-			<ProjectDropdownMenu compositionId={compositionId}>
-				<Button variant="ghost">{initialName}</Button>
+			<ProjectDropdownMenu>
+				<Button variant="ghost">{compositionName}</Button>
 			</ProjectDropdownMenu>
 			<ThemeToggle variant="outline" themeName={false} />
 		</div>
 	)
 }
 
-function ProjectDropdownMenu({
-	compositionId,
-	children,
-}: PropsWithChildren & Readonly<{ compositionId: number }>) {
+function ProjectDropdownMenu({ children }: PropsWithChildren) {
+	const compositionId = useCompositionStore(composition => composition.id)
+
 	return (
 		<DropdownMenu>
 			<DropdownMenuTrigger asChild>{children}</DropdownMenuTrigger>
