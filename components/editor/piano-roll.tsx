@@ -25,9 +25,9 @@ export default function PianoRoll({
 	minOctave = 0,
 	maxOctave = 9,
 	lineHeight = 16,
-	keyClassName = tw`rounded-br rounded-tr pr-1 text-right outline outline-2 -outline-offset-1 outline-border filter active:text-opacity-50 dark:active:text-opacity-50`,
-	naturalKeyClassName = tw`bg-white text-black active:bg-neutral-100 dark:bg-neutral-600 dark:text-neutral-900 dark:active:bg-neutral-700`,
-	accidentalKeyClassName = tw`absolute w-full max-w-[calc(100%-0.5rem-2ch)] bg-neutral-800 text-white dark:bg-neutral-950 dark:text-neutral-500`,
+	keyClassName = tw`select-none rounded-br rounded-tr pr-1 text-right outline outline-2 -outline-offset-1 outline-border [&.down]:text-opacity-50`,
+	naturalKeyClassName = tw`bg-white text-black dark:bg-neutral-600 dark:text-neutral-900 [&.down]:bg-neutral-100 dark:[&.down]:bg-neutral-700`,
+	accidentalKeyClassName = tw`bg-neutral-800 text-white dark:bg-neutral-950 dark:text-neutral-500`,
 	className,
 	onKeyDown,
 	onKeyUp,
@@ -98,20 +98,40 @@ const PianoRollOctave = memo(
 				chromaticHalfStep,
 				absoluteHalfStep: numberOfKeys * octave + chromaticHalfStep,
 			})
+
+			button.classList.toggle('down', callbackProp == onKeyDown)
 		}
 
-		const onMouseDown: ComponentProps<'button'>['onMouseDown'] = event => {
+		const onMouseDown: ComponentProps<'div'>['onMouseDown'] = event => {
 			onMouseEvent(event.target as HTMLButtonElement, onKeyDown)
 		}
 
-		const onMouseUp: ComponentProps<'button'>['onMouseUp'] = event => {
+		const onMouseUp: ComponentProps<'div'>['onMouseUp'] = event => {
 			onMouseEvent(event.target as HTMLButtonElement, onKeyUp)
 		}
+
+		const onMouseEnterKey: ComponentProps<'button'>['onMouseEnter'] =
+			event => {
+				if (event.buttons > 0) {
+					onMouseEvent(event.target as HTMLButtonElement, onKeyDown)
+					;(event.target as HTMLElement).classList.add('down')
+				}
+			}
+
+		const onMouseLeaveKey: ComponentProps<'button'>['onMouseLeave'] =
+			event => {
+				if (event.buttons > 0) {
+					onMouseEvent(event.target as HTMLButtonElement, onKeyUp)
+				}
+				;(event.target as HTMLElement).classList.remove('down')
+			}
 
 		return (
 			<div
 				className="relative flex flex-col-reverse"
 				style={{ height: lineHeight * numberOfKeys }}
+				onMouseDown={onMouseDown}
+				onMouseUp={onMouseUp}
 			>
 				{octaveKeys.map(({ isAccidental, lineScale }, keyIndex) => (
 					<button
@@ -121,7 +141,10 @@ const PianoRollOctave = memo(
 							'block flex-grow',
 							keyClassName,
 							isAccidental
-								? accidentalKeyClassName
+								? cn(
+										'absolute w-full max-w-[calc(100%-0.5rem-2ch)]',
+										accidentalKeyClassName,
+									)
 								: naturalKeyClassName,
 						)}
 						style={{
@@ -130,8 +153,8 @@ const PianoRollOctave = memo(
 								? keyIndex * lineHeight
 								: 'auto',
 						}}
-						onMouseDown={onMouseDown}
-						onMouseUp={onMouseUp}
+						onMouseEnter={onMouseEnterKey}
+						onMouseLeave={onMouseLeaveKey}
 					>
 						{keyLetters[keyIndex]}
 						{octave}
