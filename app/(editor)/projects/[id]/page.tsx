@@ -1,9 +1,9 @@
 import { authenticateOrRedirect } from '@/lib/auth'
 import { DeepReadonly } from '@/lib/utils'
+import CompositionEditor from '@/components/editor/composition-editor'
 import CompositionStoreProvider from '@/components/providers/composition-store-provider'
 import EditorStoreProvider from '@/components/providers/editor-store-provider'
 import EditorHeader from './editor-header'
-import EditorLayout from './editor-layout'
 import { fetchComposition } from './fetch-composition'
 import { parseProjectId } from './parse-project-id'
 import UpdateInfoModal from './update-info-modal'
@@ -34,7 +34,7 @@ export default async function EditorPage({ params }: Props) {
 			>
 				<div className="flex h-[100svh] max-h-[100svh] flex-col">
 					<EditorHeader />
-					<EditorLayout />
+					<CompositionEditor />
 				</div>
 				<UpdateInfoModal />
 			</EditorStoreProvider>

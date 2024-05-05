@@ -8,7 +8,7 @@ import {
 } from '@/components/ui/resizable'
 import KeyEditorPanel from './key-editor-panel'
 
-export default function EditorLayout() {
+export default function CompositionEditor() {
 	const panelLayout = useEditorStore(editor => editor.panelLayout)
 
 	return (
