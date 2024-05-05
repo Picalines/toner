@@ -1,5 +1,6 @@
 import { relations } from 'drizzle-orm'
 import {
+	doublePrecision,
 	integer,
 	pgEnum,
 	pgTable,
@@ -272,6 +273,8 @@ export const nodeTable = pgTable('node', {
 		.references(() => compositionTable.id, { onDelete: 'cascade' }),
 	type: varchar('type', { length: 32 }).notNull(),
 	displayName: varchar('display_name', { length: 32 }),
+	centerX: doublePrecision('center_x').notNull(),
+	centerY: doublePrecision('center_y').notNull(),
 })
 
 export const nodeRelations = relations(nodeTable, ({ one }) => ({
