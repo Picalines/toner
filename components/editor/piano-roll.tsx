@@ -1,7 +1,7 @@
 import { ComponentProps, memo } from 'react'
 import { cn, range, tw } from '@/lib/utils'
 
-type KeyEvent = {
+export type KeyEvent = {
 	note: string
 	isAccidental: boolean
 	octave: number
