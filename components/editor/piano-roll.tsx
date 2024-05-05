@@ -1,5 +1,13 @@
-import { memo } from 'react'
+import { ComponentProps, memo } from 'react'
 import { cn, range, tw } from '@/lib/utils'
+
+type KeyEvent = {
+	note: string
+	isAccidental: boolean
+	octave: number
+	chromaticHalfStep: number
+	absoluteHalfStep: number
+}
 
 type PianoRollProps = Readonly<{
 	minOctave?: number
@@ -9,6 +17,8 @@ type PianoRollProps = Readonly<{
 	naturalKeyClassName?: string
 	accidentalKeyClassName?: string
 	className?: string
+	onKeyDown?: (event: KeyEvent) => void
+	onKeyUp?: (event: KeyEvent) => void
 }>
 
 export default function PianoRoll({
@@ -19,6 +29,8 @@ export default function PianoRoll({
 	naturalKeyClassName = tw`bg-white text-black active:bg-neutral-100 dark:bg-neutral-600 dark:text-neutral-900 dark:active:bg-neutral-700`,
 	accidentalKeyClassName = tw`absolute w-full max-w-[calc(100%-0.5rem-2ch)] bg-neutral-800 text-white dark:bg-neutral-950 dark:text-neutral-500`,
 	className,
+	onKeyDown,
+	onKeyUp,
 }: PianoRollProps) {
 	return (
 		<div className={className}>
@@ -30,16 +42,25 @@ export default function PianoRoll({
 					keyClassName={keyClassName}
 					naturalKeyClassName={naturalKeyClassName}
 					accidentalKeyClassName={accidentalKeyClassName}
+					onKeyDown={onKeyDown}
+					onKeyUp={onKeyUp}
 				/>
 			))}
 		</div>
 	)
 }
 
-const numberOfKeys = 12
-const accidentalKeys = new Set([1, 3, 5, 8, 10])
-const stepSizedKeys = new Set([2, 4, 9])
-const keyLetters = 'CCDDEFFGGAAB'.split('').reverse()
+const keyLetters = 'CCDDEFFGGAAB'
+const numberOfKeys = keyLetters.length
+const accidentalKeys = new Set([1, 3, 6, 8, 10])
+const stepSizedKeys = new Set([2, 7, 9])
+
+const octaveKeys = [...range(numberOfKeys)].map(keyIndex => ({
+	letter: keyLetters[keyIndex],
+	isAccidental: accidentalKeys.has(keyIndex),
+	lineScale: stepSizedKeys.has(keyIndex) ? 2 : 1.5,
+	chromaticHalfStep: keyIndex,
+}))
 
 type PianoRollOctaveProps = Readonly<{
 	octave: number
@@ -47,6 +68,8 @@ type PianoRollOctaveProps = Readonly<{
 	keyClassName: string
 	naturalKeyClassName: string
 	accidentalKeyClassName: string
+	onKeyDown?: (event: KeyEvent) => void
+	onKeyUp?: (event: KeyEvent) => void
 }>
 
 const PianoRollOctave = memo(
@@ -56,31 +79,59 @@ const PianoRollOctave = memo(
 		keyClassName,
 		naturalKeyClassName,
 		accidentalKeyClassName,
+		onKeyDown,
+		onKeyUp,
 	}: PianoRollOctaveProps) => {
+		const onMouseEvent = (
+			button: HTMLButtonElement,
+			callbackProp?: (event: KeyEvent) => void,
+		) => {
+			const {
+				letter: note,
+				isAccidental,
+				chromaticHalfStep,
+			} = octaveKeys[parseInt(button.getAttribute('data-index')!)]
+			callbackProp?.({
+				note,
+				isAccidental,
+				octave,
+				chromaticHalfStep,
+				absoluteHalfStep: numberOfKeys * octave + chromaticHalfStep,
+			})
+		}
+
+		const onMouseDown: ComponentProps<'button'>['onMouseDown'] = event => {
+			onMouseEvent(event.target as HTMLButtonElement, onKeyDown)
+		}
+
+		const onMouseUp: ComponentProps<'button'>['onMouseUp'] = event => {
+			onMouseEvent(event.target as HTMLButtonElement, onKeyUp)
+		}
+
 		return (
 			<div
-				className="relative flex flex-col"
+				className="relative flex flex-col-reverse"
 				style={{ height: lineHeight * numberOfKeys }}
 			>
-				{[...range(numberOfKeys)].map(keyIndex => (
+				{octaveKeys.map(({ isAccidental, lineScale }, keyIndex) => (
 					<button
 						key={keyIndex}
-						data-letter={keyLetters[keyIndex]}
+						data-index={keyIndex}
 						className={cn(
 							'block flex-grow',
 							keyClassName,
-							accidentalKeys.has(keyIndex)
+							isAccidental
 								? accidentalKeyClassName
 								: naturalKeyClassName,
 						)}
 						style={{
-							maxHeight: stepSizedKeys.has(keyIndex)
-								? lineHeight * 2
-								: lineHeight * 1.5,
-							top: accidentalKeys.has(keyIndex)
+							maxHeight: lineHeight * lineScale,
+							bottom: isAccidental
 								? keyIndex * lineHeight
 								: 'auto',
 						}}
+						onMouseDown={onMouseDown}
+						onMouseUp={onMouseUp}
 					>
 						{keyLetters[keyIndex]}
 						{octave}
