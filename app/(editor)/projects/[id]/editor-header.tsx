@@ -93,11 +93,11 @@ function EditorDropdownMenu({ children }: PropsWithChildren) {
 			<DropdownMenuContent align="end">
 				<DropdownMenuLabel>Editor</DropdownMenuLabel>
 				<DropdownMenuSeparator />
-				<DropdownMenuItem asChild>
+				<DropdownMenuItem className="p-0">
 					<ThemeToggle
 						themeName
 						variant="ghost"
-						className="h-min w-full cursor-pointer justify-start space-x-2"
+						className="w-full cursor-pointer justify-start space-x-2 p-2"
 					/>
 				</DropdownMenuItem>
 				<DropdownMenuSub>
