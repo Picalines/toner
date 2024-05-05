@@ -8,7 +8,7 @@ export default function KeyEditorPanel() {
 	return (
 		<ScrollArea className="h-full">
 			<div className="relative">
-				<PianoRoll className="absolute left-0 w-28" lineHeight={24} />
+				<PianoRoll className="absolute left-0 w-20" lineHeight={24} />
 				<KeyAreaBackground
 					className="w-full"
 					lineHeight={24}
