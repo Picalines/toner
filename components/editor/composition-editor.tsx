@@ -33,25 +33,26 @@ export default function CompositionEditor({ className }: Props) {
 			}}
 		>
 			<div className={cn('relative min-h-0 min-w-0', className)}>
-				<ResizablePanelGroup
-					direction={panelLayout}
-					className="flex h-full w-full flex-grow"
-				>
-					<ResizablePanel defaultSize={50}>
-						<KeyEditorPanel />
-					</ResizablePanel>
-					<ResizableHandle withHandle />
-					<ResizablePanel defaultSize={50}>
-						{/* TODO: nodes */}
-					</ResizablePanel>
-				</ResizablePanelGroup>
-				{!isMounted ? (
-					<div className="absolute inset-0 z-10 backdrop-blur">
+				{isMounted ? (
+					<ResizablePanelGroup
+						direction={panelLayout}
+						className="flex h-full w-full flex-grow"
+					>
+						<ResizablePanel defaultSize={50}>
+							<KeyEditorPanel />
+						</ResizablePanel>
+						<ResizableHandle withHandle />
+						<ResizablePanel defaultSize={50}>
+							{/* TODO: nodes */}
+						</ResizablePanel>
+					</ResizablePanelGroup>
+				) : (
+					<div className="absolute inset-0 bg-neutral-900">
 						<div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2">
 							<Loader2Icon className="animate-spin" />
 						</div>
 					</div>
-				) : null}
+				)}
 			</div>
 		</ToneStoreProvider>
 	)
