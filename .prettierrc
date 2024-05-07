@@ -16,6 +16,7 @@
 	"importOrderSeparation": false,
 	"importOrderSortSpecifiers": true,
 	"importOrder": [
+		"^.*\\.css$",
 		"<THIRD_PARTY_MODULES>",
 		"^@/lib/.*$",
 		"^@/schemas/.*$",
