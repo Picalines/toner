@@ -34,7 +34,7 @@ export default async function EditorPage({ params }: Props) {
 			>
 				<div className="flex h-[100svh] max-h-[100svh] flex-col">
 					<EditorHeader />
-					<CompositionEditor />
+					<CompositionEditor className="w-full flex-grow" />
 				</div>
 				<UpdateInfoModal />
 			</EditorStoreProvider>
