@@ -1,6 +1,7 @@
 'use client'
 
 import { Loader2Icon } from 'lucide-react'
+import { useEffect, useRef } from 'react'
 import * as Tone from 'tone'
 import { useIsMountedState } from '@/lib/hooks'
 import { cn } from '@/lib/utils'
@@ -19,9 +20,9 @@ type Props = Readonly<{
 }>
 
 export default function CompositionEditor({ className }: Props) {
-	const panelLayout = useEditorStore(editor => editor.panelLayout)
-
 	const isMounted = useIsMountedState()
+
+	const panelLayout = useEditorStore(editor => editor.panelLayout)
 
 	return (
 		<ToneStoreProvider
@@ -37,10 +38,7 @@ export default function CompositionEditor({ className }: Props) {
 					className="flex h-full w-full flex-grow"
 				>
 					<ResizablePanel defaultSize={50}>
-						<ScrollArea className="h-full">
-							<KeyEditor />
-							<ScrollBar orientation="vertical" />
-						</ScrollArea>
+						<KeyEditorPanel />
 					</ResizablePanel>
 					<ResizableHandle withHandle />
 					<ResizablePanel defaultSize={50}>
@@ -56,5 +54,24 @@ export default function CompositionEditor({ className }: Props) {
 				) : null}
 			</div>
 		</ToneStoreProvider>
+	)
+}
+
+function KeyEditorPanel() {
+	const keyPanelViewport = useRef<HTMLDivElement>(null)
+
+	useEffect(() => {
+		const viewport = keyPanelViewport.current
+		if (viewport) {
+			viewport.scrollTop =
+				viewport.scrollHeight / 2 - viewport.clientHeight / 2
+		}
+	}, [keyPanelViewport])
+
+	return (
+		<ScrollArea viewportRef={keyPanelViewport} className="h-full">
+			<KeyEditor />
+			<ScrollBar orientation="vertical" />
+		</ScrollArea>
 	)
 }
