@@ -7,6 +7,7 @@ import {
 	ResizablePanel,
 	ResizablePanelGroup,
 } from '@/components/ui/resizable'
+import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area'
 import ToneStoreProvider from '../providers/tone-store-provider'
 import KeyEditorPanel from './key-editor-panel'
 
@@ -26,7 +27,10 @@ export default function CompositionEditor() {
 				className="flex flex-grow"
 			>
 				<ResizablePanel defaultSize={50}>
-					<KeyEditorPanel />
+					<ScrollArea className="h-full">
+						<KeyEditorPanel />
+						<ScrollBar orientation="vertical" />
+					</ScrollArea>
 				</ResizablePanel>
 				<ResizableHandle withHandle />
 				<ResizablePanel defaultSize={50}>
