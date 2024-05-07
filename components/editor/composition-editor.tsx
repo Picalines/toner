@@ -9,7 +9,7 @@ import {
 } from '@/components/ui/resizable'
 import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area'
 import ToneStoreProvider from '../providers/tone-store-provider'
-import KeyEditorPanel from './key-editor-panel'
+import KeyEditor from './key-editor'
 
 export default function CompositionEditor() {
 	const panelLayout = useEditorStore(editor => editor.panelLayout)
@@ -28,7 +28,7 @@ export default function CompositionEditor() {
 			>
 				<ResizablePanel defaultSize={50}>
 					<ScrollArea className="h-full">
-						<KeyEditorPanel />
+						<KeyEditor />
 						<ScrollBar orientation="vertical" />
 					</ScrollArea>
 				</ResizablePanel>

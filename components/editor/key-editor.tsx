@@ -11,7 +11,7 @@ type Props = Readonly<{
 	className?: string
 }>
 
-export default function KeyEditorPanel({ className }: Props) {
+export default function KeyEditor({ className }: Props) {
 	const debugSynthRef = useRef<Tone.Synth | null>(null)
 	const resumeContext = useToneStore(tone => tone.resumeContext)
 	const addNode = useToneStore(tone => tone.addNode)
