@@ -1,4 +1,5 @@
-import { createStore } from 'zustand/vanilla'
+import { create } from 'zustand'
+import { persist } from 'zustand/middleware'
 
 type EditorModal = 'updateInfo' | 'deleteComposition'
 
@@ -19,12 +20,21 @@ export type EditorActions = {
 export type EditorStore = EditorState & EditorActions
 
 export function createEditorStore(initialState: EditorState) {
-	return createStore<EditorStore>()(set => ({
-		...initialState,
+	return create(
+		persist<EditorStore>(
+			set => ({
+				...initialState,
 
-		openModal: modal => set({ openedModal: modal }),
-		closeModal: () => set({ openedModal: null }),
+				openModal: modal => set({ openedModal: modal }),
+				closeModal: () => set({ openedModal: null }),
 
-		setPanelLayout: layout => set({ panelLayout: layout }),
-	}))
+				setPanelLayout: layout => set({ panelLayout: layout }),
+			}),
+			{
+				name: 'composition-editor',
+				partialize: state =>
+					({ panelLayout: state.panelLayout }) as EditorStore,
+			},
+		),
+	)
 }
