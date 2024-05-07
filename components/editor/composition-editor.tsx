@@ -13,6 +13,7 @@ import {
 } from '@/components/ui/resizable'
 import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area'
 import ToneStoreProvider from '../providers/tone-store-provider'
+import AudioNodeEditor from './audio-node-editor'
 import KeyEditor from './key-editor'
 
 type Props = Readonly<{
@@ -43,7 +44,7 @@ export default function CompositionEditor({ className }: Props) {
 						</ResizablePanel>
 						<ResizableHandle withHandle />
 						<ResizablePanel defaultSize={50}>
-							{/* TODO: nodes */}
+							<AudioNodeEditor />
 						</ResizablePanel>
 					</ResizablePanelGroup>
 				) : (
