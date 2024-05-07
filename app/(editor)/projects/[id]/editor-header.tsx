@@ -9,6 +9,7 @@ import {
 } from 'lucide-react'
 import Link from 'next/link'
 import { PropsWithChildren } from 'react'
+import { cn } from '@/lib/utils'
 import BackButton from '@/components/back-button'
 import { useCompositionStore } from '@/components/providers/composition-store-provider'
 import { useEditorStore } from '@/components/providers/editor-store-provider'
@@ -29,11 +30,20 @@ import {
 	DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
 
-export default function EditorHeader() {
+type Props = Readonly<{
+	className?: string
+}>
+
+export default function EditorHeader({ className }: Props) {
 	const compositionName = useCompositionStore(composition => composition.name)
 
 	return (
-		<div className="flex items-center justify-between border-b p-2">
+		<div
+			className={cn(
+				'flex items-center justify-between border-b p-2',
+				className,
+			)}
+		>
 			<BackButton variant="outline" text={null} />
 			<ProjectDropdownMenu>
 				<Button variant="ghost">{compositionName}</Button>
