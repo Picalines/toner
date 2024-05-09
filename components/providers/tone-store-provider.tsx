@@ -7,32 +7,31 @@ import {
 	useEffect,
 	useRef,
 } from 'react'
+import * as Tone from 'tone'
 import { StoreApi, useStore } from 'zustand'
-import { ToneState, ToneStore, createToneStore } from '@/stores/tone-store'
+import { ToneStore, createToneStore } from '@/stores/tone-store'
 
 const ToneStoreContext = createContext<StoreApi<ToneStore> | null>(null)
 
-type Props = PropsWithChildren<
-	Readonly<{
-		initialState: ToneState
-	}>
->
+export default function ToneStoreProvider({ children }: PropsWithChildren) {
+	const toneStoreRef = useRef<StoreApi<ToneStore>>()
 
-export default function ToneStoreProvider({ initialState, children }: Props) {
-	const storeRef = useRef<StoreApi<ToneStore>>()
-
-	if (!storeRef.current) {
-		storeRef.current = createToneStore(initialState)
+	if (!toneStoreRef.current) {
+		toneStoreRef.current = createToneStore({
+			context: Tone.getContext(),
+			isAudioAvailable: false,
+			nodes: [],
+		})
 	}
 
 	useEffect(() => {
 		return () => {
-			storeRef.current?.getState().disposeAll()
+			toneStoreRef.current?.getState().disposeAll()
 		}
 	}, [])
 
 	return (
-		<ToneStoreContext.Provider value={storeRef.current}>
+		<ToneStoreContext.Provider value={toneStoreRef.current}>
 			{children}
 		</ToneStoreContext.Provider>
 	)
