@@ -24,7 +24,27 @@ export default async function EditorPage({ params }: Props) {
 	const audioTree = await fetchAudioTree(compositionId)
 
 	return (
-		<CompositionStoreProvider {...composition} audioTree={audioTree}>
+		<CompositionStoreProvider
+			{...composition}
+			nodes={Object.entries(audioTree.nodes).map(([nodeId, node]) => ({
+				id: nodeId,
+				position: { x: node.centerX, y: node.centerY },
+				data: {
+					label: node.displayName ?? node.type,
+					properties: node.properties,
+				},
+				label: node.type,
+			}))}
+			edges={audioTree.connections.map(
+				// TODO: sockets
+				([[senderId, senderSocket], [receiverId, receiverSocket]]) => ({
+					id: `${senderId}.${senderSocket}-${receiverId}${receiverSocket}`,
+					type: 'default',
+					source: senderId,
+					target: receiverId,
+				}),
+			)}
+		>
 			<ToneStoreProvider>
 				<EditorStoreProvider
 					initialState={{

@@ -5,30 +5,15 @@ import {
 	Background,
 	BackgroundVariant,
 	ColorMode,
-	Connection,
 	Controls,
-	EdgeChange,
-	NodeChange,
 	ReactFlow,
 	ReactFlowProvider,
-	addEdge,
-	applyEdgeChanges,
-	applyNodeChanges,
 } from '@xyflow/react'
 import { useTheme } from 'next-themes'
-import { useCallback, useState } from 'react'
+import { useShallow } from 'zustand/react/shallow'
 import { cn } from '@/lib/utils'
-
-const initialNodes = [
-	{ id: '1', position: { x: 0, y: 0 }, data: { label: '1' } },
-	{ id: '2', position: { x: 0, y: 100 }, data: { label: '2' } },
-]
-
-const initialEdges = [{ id: 'e1-2', source: '1', target: '2' }]
-
-type AudioNode = typeof initialNodes extends (infer I)[] ? I : never
-
-type AudioEdge = typeof initialEdges extends (infer I)[] ? I : never
+import { CompositionStore } from '@/stores/composition-store'
+import { useCompositionStore } from '../providers/composition-store-provider'
 
 type Props = Readonly<{
 	className?: string
@@ -38,42 +23,33 @@ export default function AudioNodeEditor({ className }: Props) {
 	return (
 		<div className={cn('h-full w-full', className)}>
 			<ReactFlowProvider>
-				<Flow />
+				<AudioFlow />
 			</ReactFlowProvider>
 		</div>
 	)
 }
 
-function Flow() {
+const selector = (composition: CompositionStore) => ({
+	nodes: composition.nodes,
+	edges: composition.edges,
+	applyNodeChanges: composition.applyNodeChanges,
+	applyEdgeChanges: composition.applyEdgeChanges,
+	connect: composition.connect,
+})
+
+function AudioFlow() {
 	const { theme } = useTheme()
 
-	const [nodes, setNodes] = useState(initialNodes)
-	const [edges, setEdges] = useState(initialEdges)
-
-	const onNodesChange = useCallback(
-		(changes: NodeChange<AudioNode>[]) =>
-			setNodes(n => applyNodeChanges(changes, n)),
-		[],
-	)
-
-	const onEdgesChange = useCallback(
-		(changes: EdgeChange<AudioEdge>[]) =>
-			setEdges(e => applyEdgeChanges(changes, e)),
-		[],
-	)
-
-	const onConnect = useCallback(
-		(edgeParams: Connection) => setEdges(e => addEdge(edgeParams, e)),
-		[],
-	)
+	const { nodes, edges, applyNodeChanges, applyEdgeChanges, connect } =
+		useCompositionStore(useShallow(selector))
 
 	return (
 		<ReactFlow
 			nodes={nodes}
 			edges={edges}
-			onNodesChange={onNodesChange}
-			onEdgesChange={onEdgesChange}
-			onConnect={onConnect}
+			onNodesChange={applyNodeChanges}
+			onEdgesChange={applyEdgeChanges}
+			onConnect={connect}
 			colorMode={theme as ColorMode}
 			proOptions={{ hideAttribution: true }}
 			fitView

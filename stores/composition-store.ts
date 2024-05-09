@@ -1,35 +1,37 @@
-import { produce } from 'immer'
+import {
+	Connection,
+	type Edge,
+	type EdgeChange,
+	type Node,
+	type NodeChange,
+	addEdge,
+	applyEdgeChanges,
+	applyNodeChanges,
+} from '@xyflow/react'
 import { createStore } from 'zustand/vanilla'
 
-type ConnectionTarget = [nodeId: string, socket: number]
+export type AudioNode = Node<{
+	label: string
+	properties: Record<string, number>
+}>
+
+export type AudioEdge = Edge<{}>
 
 export type CompositionState = {
 	id: number
 	name: string
 	description: string
-	audioTree: {
-		nodes: Record<string, AudioNodeState>
-		connections: [sender: ConnectionTarget, receiver: ConnectionTarget][]
-	}
-}
 
-export type AudioNodeState = {
-	type: string
-	displayName: string | null
-	centerX: number
-	centerY: number
-	properties: Record<string, number>
+	nodes: AudioNode[]
+	edges: AudioEdge[]
 }
 
 export type CompositionActions = {
 	updateInfo: (info: Readonly<{ name: string; description: string }>) => void
 
-	addNode: (id: string, node: AudioNodeState) => void
-	removeNode: (id: string) => void
-	connectNode: (sender: ConnectionTarget, receiver: ConnectionTarget) => void
-	disconnectNode: (sender: ConnectionTarget) => void
-
-	setNodeProperty: (nodeId: string, property: string, value: number) => void
+	applyNodeChanges: (changes: NodeChange<AudioNode>[]) => void
+	applyEdgeChanges: (changes: EdgeChange<AudioEdge>[]) => void
+	connect: (connection: Connection) => void
 }
 
 export type CompositionStore = CompositionState & CompositionActions
@@ -37,57 +39,17 @@ export type CompositionStore = CompositionState & CompositionActions
 export function createCompositionStore(initialState: CompositionState) {
 	// TODO: validate initialState
 
-	return createStore<CompositionStore>()(set => ({
+	return createStore<CompositionStore>()((set, get) => ({
 		...initialState,
 
 		updateInfo: ({ name, description }) => set({ name, description }),
 
-		addNode: (id, node) =>
-			set(
-				produce<CompositionState>(state => {
-					state.audioTree.nodes[id] = node
-				}),
-			),
+		applyNodeChanges: changes =>
+			set({ nodes: applyNodeChanges(changes, get().nodes) }),
 
-		removeNode: idToRemove =>
-			set(
-				produce<CompositionState>(state => {
-					delete state.audioTree.nodes[idToRemove]
-					state.audioTree.connections =
-						state.audioTree.connections.filter(
-							([[senderId], [receiverId]]) =>
-								senderId == idToRemove ||
-								receiverId == idToRemove,
-						)
-				}),
-			),
+		applyEdgeChanges: changes =>
+			set({ edges: applyEdgeChanges(changes, get().edges) }),
 
-		connectNode: (sender, receiver) =>
-			set(
-				produce<CompositionState>(state => {
-					state.audioTree.connections.push([sender, receiver])
-				}),
-			),
-
-		disconnectNode: ([senderId, senderSocket]) =>
-			set(
-				produce<CompositionState>(state => {
-					const index = state.audioTree.connections.findIndex(
-						([[id, socket]]) =>
-							id == senderId && socket == senderSocket,
-					)
-
-					if (index >= 0) {
-						state.audioTree.connections.splice(index, 1)
-					}
-				}),
-			),
-
-		setNodeProperty: (nodeId, property, value) =>
-			set(
-				produce<CompositionState>(state => {
-					state.audioTree.nodes[nodeId].properties[property] = value
-				}),
-			),
+		connect: connection => set({ edges: addEdge(connection, get().edges) }),
 	}))
 }
