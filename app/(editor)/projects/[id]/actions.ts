@@ -62,3 +62,94 @@ export async function updateCompositionInfo(
 
 	revalidatePath('/account')
 }
+
+type FetchedAudioNode = {
+	type: string
+	displayName: string | null
+	centerX: number
+	centerY: number
+	properties: Record<string, number>
+	outputConnections: {
+		receiverId: number
+		outputSocket: number
+		inputSocket: number
+	}[]
+}
+
+export async function fetchAudioNodes(
+	compositionId: number,
+): Promise<Record<number, FetchedAudioNode>> {
+	const { nodeRows, propertyRows } = await database.transaction(
+		async tx => {
+			const nodeRows = await tx
+				.select({
+					id: nodeTable.id,
+					type: nodeTable.type,
+					displayName: nodeTable.displayName,
+					centerX: nodeTable.centerX,
+					centerY: nodeTable.centerY,
+					receiverId: nodeConnectionTable.receiverId,
+					outputSocket: nodeConnectionTable.outputSocket,
+					inputSocket: nodeConnectionTable.inputSocket,
+				})
+				.from(nodeTable)
+				.leftJoin(
+					nodeConnectionTable,
+					eq(nodeTable.id, nodeConnectionTable.senderId),
+				)
+				.where(eq(nodeTable.compositionId, compositionId))
+
+			const propertyRows = await tx
+				.select({
+					nodeId: nodePropertyTable.nodeId,
+					name: nodePropertyTable.name,
+					value: nodePropertyTable.value,
+				})
+				.from(nodePropertyTable)
+				.innerJoin(
+					nodeTable,
+					eq(nodeTable.id, nodePropertyTable.nodeId),
+				)
+				.where(eq(nodeTable.compositionId, compositionId))
+
+			return { nodeRows, propertyRows }
+		},
+		{ accessMode: 'read only' },
+	)
+
+	const properties = propertyRows.reduce(
+		(props, { nodeId, name, value }) => {
+			;(props[nodeId] ??= {})[name] = value
+			return props
+		},
+		{} as Record<number, Record<string, number>>,
+	)
+
+	return nodeRows.reduce(
+		(nodes, { id, ...nodeRow }) => {
+			if (!(id in nodes)) {
+				const { type, displayName, centerX, centerY } = nodeRow
+				nodes[id] = {
+					type,
+					displayName,
+					centerX,
+					centerY,
+					properties: properties[id] ?? [],
+					outputConnections: [],
+				}
+			}
+
+			if (nodeRow.receiverId !== null) {
+				const { receiverId, outputSocket, inputSocket } = nodeRow
+				nodes[id].outputConnections.push({
+					receiverId,
+					outputSocket: outputSocket!,
+					inputSocket: inputSocket!,
+				})
+			}
+
+			return nodes
+		},
+		{} as Record<number, FetchedAudioNode>,
+	)
+}
