@@ -17,11 +17,9 @@ type Props = DeepReadonly<{
 export default async function EditorPage({ params }: Props) {
 	const compositionId = parseProjectId(params)
 
-	const {
-		user: { id: accountId },
-	} = await authenticateOrRedirect('/sign-in')
+	await authenticateOrRedirect('/sign-in')
 
-	const composition = await fetchComposition(accountId, compositionId)
+	const composition = await fetchComposition(compositionId)
 
 	return (
 		<CompositionStoreProvider

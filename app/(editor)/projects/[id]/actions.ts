@@ -4,13 +4,20 @@ import { and, eq } from 'drizzle-orm'
 import { revalidatePath } from 'next/cache'
 import { notFound } from 'next/navigation'
 import { authenticateOrRedirect } from '@/lib/auth'
-import { compositionTable, database } from '@/lib/db'
+import {
+	compositionTable,
+	database,
+	nodeConnectionTable,
+	nodePropertyTable,
+	nodeTable,
+} from '@/lib/db'
 import { CompositionInfo } from './schemas'
 
-export async function fetchComposition(
-	accountId: number,
-	compositionId: number,
-) {
+export async function fetchComposition(compositionId: number) {
+	const {
+		user: { id: accountId },
+	} = await authenticateOrRedirect('/sign-in')
+
 	const compositionQuery = await database
 		.select({
 			id: compositionTable.id,
