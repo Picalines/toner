@@ -11,6 +11,7 @@ import {
 	nodePropertyTable,
 	nodeTable,
 } from '@/lib/db'
+import { AudioNodeState, CompositionState } from '@/stores/composition-store'
 import { CompositionInfo } from './schemas'
 
 export async function fetchComposition(compositionId: number) {
@@ -63,22 +64,9 @@ export async function updateCompositionInfo(
 	revalidatePath('/account')
 }
 
-type FetchedAudioNode = {
-	type: string
-	displayName: string | null
-	centerX: number
-	centerY: number
-	properties: Record<string, number>
-	outputConnections: {
-		receiverId: number
-		outputSocket: number
-		inputSocket: number
-	}[]
-}
-
-export async function fetchAudioNodes(
+export async function fetchAudioTree(
 	compositionId: number,
-): Promise<Record<number, FetchedAudioNode>> {
+): Promise<CompositionState['audioTree']> {
 	const { nodeRows, propertyRows } = await database.transaction(
 		async tx => {
 			const nodeRows = await tx
@@ -122,10 +110,12 @@ export async function fetchAudioNodes(
 			;(props[nodeId] ??= {})[name] = value
 			return props
 		},
-		{} as Record<number, Record<string, number>>,
+		{} as Record<number, AudioNodeState['properties']>,
 	)
 
-	return nodeRows.reduce(
+	const connections: CompositionState['audioTree']['connections'] = []
+
+	const nodes = nodeRows.reduce(
 		(nodes, { id, ...nodeRow }) => {
 			if (!(id in nodes)) {
 				const { type, displayName, centerX, centerY } = nodeRow
@@ -134,22 +124,22 @@ export async function fetchAudioNodes(
 					displayName,
 					centerX,
 					centerY,
-					properties: properties[id] ?? [],
-					outputConnections: [],
+					properties: properties[id] ?? {},
 				}
 			}
 
 			if (nodeRow.receiverId !== null) {
 				const { receiverId, outputSocket, inputSocket } = nodeRow
-				nodes[id].outputConnections.push({
-					receiverId,
-					outputSocket: outputSocket!,
-					inputSocket: inputSocket!,
-				})
+				connections.push([
+					[String(id), outputSocket!],
+					[String(receiverId), inputSocket!],
+				])
 			}
 
 			return nodes
 		},
-		{} as Record<number, FetchedAudioNode>,
+		{} as Record<number, AudioNodeState>,
 	)
+
+	return { nodes, connections }
 }

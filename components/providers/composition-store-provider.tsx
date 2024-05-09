@@ -11,20 +11,16 @@ import {
 const CompositionStoreContext =
 	createContext<StoreApi<CompositionStore> | null>(null)
 
-type Props = PropsWithChildren<
-	Readonly<{
-		initialState: CompositionState
-	}>
->
+type Props = PropsWithChildren<Readonly<CompositionState>>
 
 export default function CompositionStoreProvider({
-	initialState,
 	children,
+	...compositionState
 }: Props) {
 	const storeRef = useRef<StoreApi<CompositionStore>>()
 
 	if (!storeRef.current) {
-		storeRef.current = createCompositionStore(initialState)
+		storeRef.current = createCompositionStore(compositionState)
 	}
 
 	return (
