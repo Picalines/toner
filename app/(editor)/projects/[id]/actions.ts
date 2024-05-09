@@ -11,7 +11,6 @@ import {
 	nodePropertyTable,
 	nodeTable,
 } from '@/lib/db'
-import { AudioNodeState, CompositionState } from '@/stores/composition-store'
 import { CompositionInfo } from './schemas'
 
 export async function fetchComposition(compositionId: number) {
@@ -64,9 +63,22 @@ export async function updateCompositionInfo(
 	revalidatePath('/account')
 }
 
+type FetchedAudioNode = {
+	type: string
+	displayName: string | null
+	centerX: number
+	centerY: number
+	properties: Record<string, number>
+}
+
+type FetchedAudioTree = {
+	nodes: Record<string, FetchedAudioNode>
+	connections: [output: [string, number], input: [string, number]][]
+}
+
 export async function fetchAudioTree(
 	compositionId: number,
-): Promise<CompositionState['audioTree']> {
+): Promise<FetchedAudioTree> {
 	const { nodeRows, propertyRows } = await database.transaction(
 		async tx => {
 			const nodeRows = await tx
@@ -110,10 +122,10 @@ export async function fetchAudioTree(
 			;(props[nodeId] ??= {})[name] = value
 			return props
 		},
-		{} as Record<number, AudioNodeState['properties']>,
+		{} as Record<string, FetchedAudioNode['properties']>,
 	)
 
-	const connections: CompositionState['audioTree']['connections'] = []
+	const connections: FetchedAudioTree['connections'] = []
 
 	const nodes = nodeRows.reduce(
 		(nodes, { id, ...nodeRow }) => {
@@ -138,7 +150,7 @@ export async function fetchAudioTree(
 
 			return nodes
 		},
-		{} as Record<number, AudioNodeState>,
+		{} as Record<string, FetchedAudioNode>,
 	)
 
 	return { nodes, connections }
