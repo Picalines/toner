@@ -22,14 +22,8 @@ export const accountTable = pgTable('account', {
 })
 
 export const accountRelations = relations(accountTable, ({ one }) => ({
-	author: one(authorTable, {
-		fields: [accountTable.id],
-		references: [authorTable.accountId],
-	}),
-	listener: one(listenerTable, {
-		fields: [accountTable.id],
-		references: [listenerTable.accountId],
-	}),
+	author: one(authorTable),
+	listener: one(listenerTable),
 }))
 
 export const sessionTable = pgTable('session', {
@@ -50,10 +44,7 @@ export const authorTable = pgTable('author', {
 })
 
 export const authorRelations = relations(authorTable, ({ one, many }) => ({
-	user: one(accountTable, {
-		fields: [authorTable.accountId],
-		references: [accountTable.id],
-	}),
+	account: one(accountTable),
 	compositions: many(compositionTable),
 	publications: many(publicationTable),
 }))
@@ -65,10 +56,7 @@ export const listenerTable = pgTable('listener', {
 })
 
 export const listenerRelations = relations(listenerTable, ({ one, many }) => ({
-	user: one(accountTable, {
-		fields: [listenerTable.accountId],
-		references: [accountTable.id],
-	}),
+	account: one(accountTable),
 	listens: many(listenTable),
 	subscriptions: many(subscriptionTable),
 	reactions: many(reactionTable),
@@ -93,14 +81,8 @@ export const subscriptionTable = pgTable(
 export const subscriptionRelations = relations(
 	subscriptionTable,
 	({ one }) => ({
-		listener: one(listenerTable, {
-			fields: [subscriptionTable.listenerId],
-			references: [listenerTable.accountId],
-		}),
-		author: one(authorTable, {
-			fields: [subscriptionTable.authorId],
-			references: [authorTable.accountId],
-		}),
+		listener: one(listenerTable),
+		author: one(authorTable),
 	}),
 )
 
@@ -122,14 +104,8 @@ export const publicationTable = pgTable('publication', {
 export const publicationRelations = relations(
 	publicationTable,
 	({ one, many }) => ({
-		author: one(authorTable, {
-			fields: [publicationTable.authorId],
-			references: [authorTable.accountId],
-		}),
-		composition: one(compositionTable, {
-			fields: [publicationTable.compositionId],
-			references: [compositionTable.id],
-		}),
+		author: one(authorTable),
+		composition: one(compositionTable),
 		listens: many(listenTable),
 	}),
 )
@@ -155,14 +131,8 @@ export const listenTable = pgTable(
 )
 
 export const listenRelations = relations(listenTable, ({ one }) => ({
-	listener: one(listenerTable, {
-		fields: [listenTable.listenerId],
-		references: [listenerTable.accountId],
-	}),
-	publication: one(publicationTable, {
-		fields: [listenTable.publicationId],
-		references: [publicationTable.id],
-	}),
+	listener: one(listenerTable),
+	publication: one(publicationTable),
 }))
 
 export const reactionType = pgEnum('reaction_type', [
@@ -194,14 +164,8 @@ export const reactionTable = pgTable(
 )
 
 export const reactionRelations = relations(reactionTable, ({ one }) => ({
-	listener: one(listenerTable, {
-		fields: [reactionTable.listenerId],
-		references: [listenerTable.accountId],
-	}),
-	publication: one(publicationTable, {
-		fields: [reactionTable.publicationId],
-		references: [publicationTable.id],
-	}),
+	listener: one(listenerTable),
+	publication: one(publicationTable),
 }))
 
 // composition
@@ -219,10 +183,7 @@ export const compositionTable = pgTable('composition', {
 export const compositionRelations = relations(
 	compositionTable,
 	({ one, many }) => ({
-		author: one(authorTable, {
-			fields: [compositionTable.authorId],
-			references: [authorTable.accountId],
-		}),
+		author: one(authorTable),
 		keyLayers: many(keyLayerTable),
 		nodes: many(nodeTable),
 		nodeConnections: many(nodeConnectionTable),
@@ -238,10 +199,7 @@ export const keyLayerTable = pgTable('key_layer', {
 })
 
 export const keyLayerRelations = relations(keyLayerTable, ({ one, many }) => ({
-	composition: one(compositionTable, {
-		fields: [keyLayerTable.compositionId],
-		references: [compositionTable.id],
-	}),
+	composition: one(compositionTable),
 	keys: many(keyTable),
 }))
 
@@ -260,10 +218,7 @@ export const keyTable = pgTable('key', {
 })
 
 export const keyRelations = relations(keyTable, ({ one }) => ({
-	layer: one(keyLayerTable, {
-		fields: [keyTable.layerId],
-		references: [keyLayerTable.id],
-	}),
+	layer: one(keyLayerTable),
 }))
 
 export const nodeTable = pgTable('node', {
@@ -277,11 +232,9 @@ export const nodeTable = pgTable('node', {
 	centerY: doublePrecision('center_y').notNull(),
 })
 
-export const nodeRelations = relations(nodeTable, ({ one }) => ({
-	composition: one(compositionTable, {
-		fields: [nodeTable.compositionId],
-		references: [compositionTable.id],
-	}),
+export const nodeRelations = relations(nodeTable, ({ one, many }) => ({
+	composition: one(compositionTable),
+	properties: many(nodePropertyTable),
 }))
 
 export const nodeConnectionTable = pgTable(
