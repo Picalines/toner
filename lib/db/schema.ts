@@ -271,17 +271,22 @@ export const nodeConnectionTable = pgTable(
 export const nodeConnectionRelations = relations(
 	nodeConnectionTable,
 	({ one }) => ({
-		composition: one(compositionTable, {
-			fields: [nodeConnectionTable.compositionId],
-			references: [compositionTable.id],
+		composition: one(compositionTable),
+		sender: one(nodeTable),
+		receiver: one(nodeTable),
+	}),
+)
+
+export const nodePropertyTable = pgTable(
+	'node_property',
+	{
+		nodeId: integer('node_id').references(() => nodeTable.id, {
+			onDelete: 'cascade',
 		}),
-		sender: one(nodeTable, {
-			fields: [nodeConnectionTable.senderId],
-			references: [nodeTable.id],
-		}),
-		receiver: one(nodeTable, {
-			fields: [nodeConnectionTable.receiverId],
-			references: [nodeTable.id],
-		}),
+		name: varchar('name', { length: 32 }),
+		value: real('value').notNull(),
+	},
+	table => ({
+		primaryKey: primaryKey({ columns: [table.nodeId, table.name] }),
 	}),
 )
