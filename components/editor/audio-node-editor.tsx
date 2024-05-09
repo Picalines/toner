@@ -76,6 +76,7 @@ function Flow() {
 			onConnect={onConnect}
 			colorMode={theme as ColorMode}
 			proOptions={{ hideAttribution: true }}
+			fitView
 		>
 			<Controls showInteractive={false} position="bottom-right" />
 			<Background variant={BackgroundVariant.Dots} gap={12} size={1} />
