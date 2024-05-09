@@ -186,7 +186,6 @@ export const compositionRelations = relations(
 		author: one(authorTable),
 		keyLayers: many(keyLayerTable),
 		nodes: many(nodeTable),
-		nodeConnections: many(nodeConnectionTable),
 	}),
 )
 
@@ -240,25 +239,22 @@ export const nodeRelations = relations(nodeTable, ({ one, many }) => ({
 export const nodeConnectionTable = pgTable(
 	'node_connection',
 	{
-		compositionId: integer('composition_id').references(
-			() => compositionTable.id,
-			{
+		senderId: integer('sender_id')
+			.references(() => nodeTable.id, {
 				onDelete: 'cascade',
-			},
-		),
-		senderId: integer('sender_id').references(() => nodeTable.id, {
-			onDelete: 'cascade',
-		}),
-		receiverId: integer('receiver_id').references(() => nodeTable.id, {
-			onDelete: 'cascade',
-		}),
-		outputSocket: integer('output_socket'),
-		inputSocket: integer('input_socket'),
+			})
+			.notNull(),
+		receiverId: integer('receiver_id')
+			.references(() => nodeTable.id, {
+				onDelete: 'cascade',
+			})
+			.notNull(),
+		outputSocket: integer('output_socket').notNull(),
+		inputSocket: integer('input_socket').notNull(),
 	},
 	table => ({
 		primaryKey: primaryKey({
 			columns: [
-				table.compositionId,
 				table.senderId,
 				table.receiverId,
 				table.outputSocket,
