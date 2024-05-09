@@ -280,10 +280,12 @@ export const nodeConnectionRelations = relations(
 export const nodePropertyTable = pgTable(
 	'node_property',
 	{
-		nodeId: integer('node_id').references(() => nodeTable.id, {
-			onDelete: 'cascade',
-		}),
-		name: varchar('name', { length: 32 }),
+		nodeId: integer('node_id')
+			.references(() => nodeTable.id, {
+				onDelete: 'cascade',
+			})
+			.notNull(),
+		name: varchar('name', { length: 32 }).notNull(),
 		value: real('value').notNull(),
 	},
 	table => ({
