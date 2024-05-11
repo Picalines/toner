@@ -7,7 +7,6 @@ import {
 	ColorMode,
 	Controls,
 	ReactFlow,
-	ReactFlowProvider,
 } from '@xyflow/react'
 import { useTheme } from 'next-themes'
 import { useShallow } from 'zustand/react/shallow'
@@ -20,16 +19,6 @@ type Props = Readonly<{
 	className?: string
 }>
 
-export default function AudioNodeEditor({ className }: Props) {
-	return (
-		<div className={cn('h-full w-full', className)}>
-			<ReactFlowProvider>
-				<AudioFlow />
-			</ReactFlowProvider>
-		</div>
-	)
-}
-
 const nodeTypes = { audio: AudioNodeDisplay }
 
 const compositionSelector = (composition: CompositionStore) => ({
@@ -40,26 +29,32 @@ const compositionSelector = (composition: CompositionStore) => ({
 	connect: composition.connect,
 })
 
-function AudioFlow() {
+export default function AudioNodeEditor({ className }: Props) {
 	const { theme } = useTheme()
 
 	const { nodes, edges, applyNodeChanges, applyEdgeChanges, connect } =
 		useCompositionStore(useShallow(compositionSelector))
 
 	return (
-		<ReactFlow
-			nodeTypes={nodeTypes}
-			nodes={nodes}
-			edges={edges}
-			onNodesChange={applyNodeChanges}
-			onEdgesChange={applyEdgeChanges}
-			onConnect={connect}
-			colorMode={theme as ColorMode}
-			proOptions={{ hideAttribution: true }}
-			fitView
-		>
-			<Controls showInteractive={false} position="bottom-right" />
-			<Background variant={BackgroundVariant.Dots} gap={12} size={1} />
-		</ReactFlow>
+		<div className={cn('h-full w-full', className)}>
+			<ReactFlow
+				nodeTypes={nodeTypes}
+				nodes={nodes}
+				edges={edges}
+				onNodesChange={applyNodeChanges}
+				onEdgesChange={applyEdgeChanges}
+				onConnect={connect}
+				colorMode={theme as ColorMode}
+				proOptions={{ hideAttribution: true }}
+				fitView
+			>
+				<Controls showInteractive={false} position="bottom-right" />
+				<Background
+					variant={BackgroundVariant.Dots}
+					gap={12}
+					size={1}
+				/>
+			</ReactFlow>
+		</div>
 	)
 }
