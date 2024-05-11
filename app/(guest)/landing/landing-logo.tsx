@@ -1,12 +1,22 @@
 'use client'
 
 import { Variants, motion } from 'framer-motion'
+import { cn } from '@/lib/utils'
 
-export default function LandingLogo() {
+export type Props = Readonly<{
+	className?: string
+}>
+
+export default function LandingLogo({ className }: Props) {
 	const projectName = 'toner'
 
 	return (
-		<motion.div className="absolute left-1/2 top-1/2 flex -translate-x-1/2 -translate-y-1/2 scale-[5] flex-row items-center space-x-0.5">
+		<motion.div
+			className={cn(
+				'flex scale-[5] flex-row items-center space-x-0.5',
+				className,
+			)}
+		>
 			<AnimatedProjectLogo width={24} height={24} />
 			<motion.span
 				className="text-lg font-bold"
