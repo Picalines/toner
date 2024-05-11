@@ -29,7 +29,7 @@ export default function AudioNodeEditor({ className }: Props) {
 	)
 }
 
-const selector = (composition: CompositionStore) => ({
+const compositionSelector = (composition: CompositionStore) => ({
 	nodes: composition.nodes,
 	edges: composition.edges,
 	applyNodeChanges: composition.applyNodeChanges,
@@ -41,7 +41,7 @@ function AudioFlow() {
 	const { theme } = useTheme()
 
 	const { nodes, edges, applyNodeChanges, applyEdgeChanges, connect } =
-		useCompositionStore(useShallow(selector))
+		useCompositionStore(useShallow(compositionSelector))
 
 	return (
 		<ReactFlow
