@@ -14,6 +14,7 @@ import { useShallow } from 'zustand/react/shallow'
 import { cn } from '@/lib/utils'
 import { CompositionStore } from '@/stores/composition-store'
 import { useCompositionStore } from '../providers/composition-store-provider'
+import AudioNodeDisplay from './audio-node-display'
 
 type Props = Readonly<{
 	className?: string
@@ -28,6 +29,8 @@ export default function AudioNodeEditor({ className }: Props) {
 		</div>
 	)
 }
+
+const nodeTypes = { audio: AudioNodeDisplay }
 
 const compositionSelector = (composition: CompositionStore) => ({
 	nodes: composition.nodes,
@@ -45,6 +48,7 @@ function AudioFlow() {
 
 	return (
 		<ReactFlow
+			nodeTypes={nodeTypes}
 			nodes={nodes}
 			edges={edges}
 			onNodesChange={applyNodeChanges}

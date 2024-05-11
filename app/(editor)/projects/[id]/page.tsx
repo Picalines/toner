@@ -1,5 +1,6 @@
 import { authenticateOrRedirect } from '@/lib/auth'
-import { DeepReadonly } from '@/lib/utils'
+import { DeepReadonly, capitalize } from '@/lib/utils'
+import { AudioNodeType } from '@/schemas/nodes'
 import CompositionEditor from '@/components/editor/composition-editor'
 import CompositionStoreProvider from '@/components/providers/composition-store-provider'
 import EditorStoreProvider from '@/components/providers/editor-store-provider'
@@ -27,10 +28,12 @@ export default async function EditorPage({ params }: Props) {
 		<CompositionStoreProvider
 			{...composition}
 			nodes={Object.entries(audioTree.nodes).map(([nodeId, node]) => ({
+				type: 'audio',
 				id: nodeId,
 				position: { x: node.centerX, y: node.centerY },
 				data: {
-					label: node.displayName ?? node.type,
+					type: node.type as AudioNodeType,
+					label: node.displayName ?? capitalize(node.type),
 					properties: node.properties,
 				},
 				label: node.type,
