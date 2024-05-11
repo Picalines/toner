@@ -9,8 +9,10 @@ import {
 	applyNodeChanges,
 } from '@xyflow/react'
 import { createStore } from 'zustand/vanilla'
+import { AudioNodeType } from '@/schemas/nodes'
 
 export type AudioNode = Node<{
+	type: AudioNodeType
 	label: string
 	properties: Record<string, number>
 }>
