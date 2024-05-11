@@ -31,12 +31,12 @@ export default async function EditorPage({ params }: Props) {
 				type: 'audio',
 				id: nodeId,
 				position: { x: node.centerX, y: node.centerY },
+				deletable: node.type != 'output',
 				data: {
 					type: node.type as AudioNodeType,
 					label: node.displayName ?? capitalize(node.type),
 					properties: node.properties,
 				},
-				label: node.type,
 			}))}
 			edges={audioTree.connections.map(
 				// TODO: sockets
