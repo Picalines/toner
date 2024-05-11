@@ -12,7 +12,7 @@ if (!global.postgresSqlClient) {
 		host: serverEnv.DB_HOST,
 		port: serverEnv.DB_PORT,
 		user: serverEnv.DB_USER,
-		password: serverEnv.DB_PASWORD,
+		password: serverEnv.DB_PASSWORD,
 		database: serverEnv.DB_DATABASE,
 	})
 
