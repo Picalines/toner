@@ -4,6 +4,35 @@ import { Variants, motion } from 'framer-motion'
 
 const projectName = 'toner'
 
+export default function LandingContent() {
+	return (
+		<>
+			<motion.div className="absolute left-1/2 top-1/2 flex -translate-x-1/2 -translate-y-1/2 scale-[5] flex-row items-center space-x-0.5">
+				<AnimatedProjectLogo width={24} height={24} />
+				<motion.span
+					className="text-lg font-bold"
+					variants={projectNameVariants}
+					initial="hidden"
+					animate="shown"
+					transition={{ staggerChildren: 0.05 }}
+					aria-label={projectName}
+				>
+					{[...projectName].map((char, index) => (
+						<motion.span
+							key={index}
+							variants={projectNameVariants}
+							className="inline-block"
+							aria-hidden
+						>
+							{char}
+						</motion.span>
+					))}
+				</motion.span>
+			</motion.div>
+		</>
+	)
+}
+
 const projectNameVariants = {
 	hidden: { opacity: 0, y: -1 },
 	shown: { opacity: 1, y: 0 },
@@ -43,33 +72,5 @@ function AnimatedProjectLogo(props: AnimatedProjectLogoProps) {
 				animate="shown"
 			/>
 		</motion.svg>
-	)
-}
-export default function LandingContent() {
-	return (
-		<>
-			<motion.div className="absolute left-1/2 top-1/2 flex -translate-x-1/2 -translate-y-1/2 scale-[5] flex-row items-center space-x-0.5">
-				<AnimatedProjectLogo width={24} height={24} />
-				<motion.span
-					className="text-lg font-bold"
-					variants={projectNameVariants}
-					initial="hidden"
-					animate="shown"
-					transition={{ staggerChildren: 0.05 }}
-					aria-label={projectName}
-				>
-					{[...projectName].map((char, index) => (
-						<motion.span
-							key={index}
-							variants={projectNameVariants}
-							className="inline-block"
-							aria-hidden
-						>
-							{char}
-						</motion.span>
-					))}
-				</motion.span>
-			</motion.div>
-		</>
 	)
 }
