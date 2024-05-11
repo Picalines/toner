@@ -1,6 +1,6 @@
 import { Suspense } from 'react'
 import ThemeToggle from '@/components/theme-toggle'
-import LandingContent from './landing-content'
+import LandingLogo from './landing-logo'
 import SignInOrReturn from './sign-in-or-return'
 
 export default function LandingPage() {
@@ -18,7 +18,7 @@ export default function LandingPage() {
 				/>
 			</div>
 			<div className="relative h-[80vh]">
-				<LandingContent />
+				<LandingLogo />
 			</div>
 		</main>
 	)

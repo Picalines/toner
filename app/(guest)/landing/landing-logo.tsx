@@ -2,9 +2,9 @@
 
 import { Variants, motion } from 'framer-motion'
 
-const projectName = 'toner'
+export default function LandingLogo() {
+	const projectName = 'toner'
 
-export default function LandingContent() {
 	return (
 		<motion.div className="absolute left-1/2 top-1/2 flex -translate-x-1/2 -translate-y-1/2 scale-[5] flex-row items-center space-x-0.5">
 			<AnimatedProjectLogo width={24} height={24} />
