@@ -314,9 +314,14 @@ export const nodeConnectionTable = pgTable(
 export const nodeConnectionRelations = relations(
 	nodeConnectionTable,
 	({ one }) => ({
-		composition: one(compositionTable),
-		sender: one(nodeTable),
-		receiver: one(nodeTable),
+		sender: one(nodeTable, {
+			fields: [nodeConnectionTable.senderId],
+			references: [nodeTable.id],
+		}),
+		receiver: one(nodeTable, {
+			fields: [nodeConnectionTable.receiverId],
+			references: [nodeTable.id],
+		}),
 	}),
 )
 
