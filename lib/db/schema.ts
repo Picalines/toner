@@ -50,7 +50,7 @@ export const authorTable = pgTable('author', {
 })
 
 export const authorRelations = relations(authorTable, ({ one, many }) => ({
-	user: one(accountTable, {
+	account: one(accountTable, {
 		fields: [authorTable.accountId],
 		references: [accountTable.id],
 	}),
@@ -65,7 +65,7 @@ export const listenerTable = pgTable('listener', {
 })
 
 export const listenerRelations = relations(listenerTable, ({ one, many }) => ({
-	user: one(accountTable, {
+	account: one(accountTable, {
 		fields: [listenerTable.accountId],
 		references: [accountTable.id],
 	}),
