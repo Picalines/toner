@@ -11,7 +11,14 @@ import {
 const CompositionStoreContext =
 	createContext<StoreApi<CompositionStore> | null>(null)
 
-type Props = PropsWithChildren<Readonly<CompositionState>>
+type Props = PropsWithChildren<
+	Readonly<
+		Pick<
+			CompositionState,
+			'id' | 'name' | 'description' | 'nodes' | 'edges'
+		>
+	>
+>
 
 export default function CompositionStoreProvider({
 	children,
@@ -20,7 +27,12 @@ export default function CompositionStoreProvider({
 	const storeRef = useRef<StoreApi<CompositionStore>>()
 
 	if (!storeRef.current) {
-		storeRef.current = createCompositionStore(compositionState)
+		storeRef.current = createCompositionStore({
+			...compositionState,
+			lastSelectedNode: null,
+			lastSelectedEdge: null,
+			lastSelectedInstrument: null,
+		})
 	}
 
 	return (
