@@ -13,6 +13,7 @@ import {
 import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area'
 import AudioNodeFlow from './audio-node-flow'
 import KeyEditor from './key-editor'
+import NodePropertiesEditor from './node-properties-editor'
 
 type Props = Readonly<{
 	className?: string
@@ -22,6 +23,9 @@ export default function CompositionEditor({ className }: Props) {
 	const isMounted = useIsMountedState()
 
 	const panelLayout = useEditorStore(editor => editor.panelLayout)
+
+	const nodeEditorDirection =
+		panelLayout == 'vertical' ? 'horizontal' : 'vertical'
 
 	return (
 		<div className={cn('relative min-h-0 min-w-0', className)}>
@@ -35,7 +39,15 @@ export default function CompositionEditor({ className }: Props) {
 					</ResizablePanel>
 					<ResizableHandle withHandle />
 					<ResizablePanel defaultSize={50}>
-						<AudioNodeFlow />
+						<ResizablePanelGroup direction={nodeEditorDirection}>
+							<ResizablePanel defaultSize={30}>
+								<NodePropertiesEditor />
+							</ResizablePanel>
+							<ResizableHandle withHandle />
+							<ResizablePanel defaultSize={70}>
+								<AudioNodeFlow />
+							</ResizablePanel>
+						</ResizablePanelGroup>
 					</ResizablePanel>
 				</ResizablePanelGroup>
 			) : (
