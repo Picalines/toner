@@ -39,7 +39,7 @@ export default function CompositionEditor({ className }: Props) {
 					</ResizablePanel>
 				</ResizablePanelGroup>
 			) : (
-				<div className="absolute inset-0 bg-neutral-900">
+				<div className="absolute inset-0 dark:bg-neutral-900">
 					<div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2">
 						<Loader2Icon className="animate-spin" />
 					</div>
