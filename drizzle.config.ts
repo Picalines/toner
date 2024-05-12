@@ -1,10 +1,10 @@
-import type { Config } from 'drizzle-kit'
+import { defineConfig } from 'drizzle-kit'
 import { serverEnv } from '@/lib/env'
 
-export default {
+export default defineConfig({
 	schema: './lib/db/schema.ts',
 	out: './lib/db/migrations',
-	driver: 'pg',
+	dialect: 'postgresql',
 	dbCredentials: {
 		host: serverEnv.DB_HOST,
 		port: serverEnv.DB_PORT,
@@ -14,4 +14,4 @@ export default {
 	},
 	verbose: true,
 	strict: true,
-} satisfies Config
+})
