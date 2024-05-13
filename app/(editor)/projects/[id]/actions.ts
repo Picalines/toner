@@ -3,12 +3,12 @@
 import { and, eq } from 'drizzle-orm'
 import { revalidatePath } from 'next/cache'
 import { notFound } from 'next/navigation'
+import { z } from 'zod'
 import { authenticateOrRedirect } from '@/lib/auth'
 import {
 	compositionTable,
 	database,
 	nodeConnectionTable,
-	nodePropertyTable,
 	nodeTable,
 } from '@/lib/db'
 import { CompositionInfo } from './schemas'
@@ -79,7 +79,7 @@ type FetchedAudioTree = {
 export async function fetchAudioTree(
 	compositionId: number,
 ): Promise<FetchedAudioTree> {
-	const { nodeRows, propertyRows } = await database.transaction(
+	const { nodeRows } = await database.transaction(
 		async tx => {
 			const nodeRows = await tx
 				.select({
@@ -88,6 +88,7 @@ export async function fetchAudioTree(
 					displayName: nodeTable.displayName,
 					centerX: nodeTable.centerX,
 					centerY: nodeTable.centerY,
+					properties: nodeTable.properties,
 					receiverId: nodeConnectionTable.receiverId,
 					outputSocket: nodeConnectionTable.outputSocket,
 					inputSocket: nodeConnectionTable.inputSocket,
@@ -95,63 +96,47 @@ export async function fetchAudioTree(
 				.from(nodeTable)
 				.leftJoin(
 					nodeConnectionTable,
-					eq(nodeTable.id, nodeConnectionTable.senderId),
+					and(
+						eq(nodeConnectionTable.compositionId, compositionId),
+						eq(nodeTable.id, nodeConnectionTable.senderId),
+					),
 				)
 				.where(eq(nodeTable.compositionId, compositionId))
 
-			const propertyRows = await tx
-				.select({
-					nodeId: nodePropertyTable.nodeId,
-					name: nodePropertyTable.name,
-					value: nodePropertyTable.value,
-				})
-				.from(nodePropertyTable)
-				.innerJoin(
-					nodeTable,
-					eq(nodeTable.id, nodePropertyTable.nodeId),
-				)
-				.where(eq(nodeTable.compositionId, compositionId))
-
-			return { nodeRows, propertyRows }
+			return { nodeRows }
 		},
 		{ accessMode: 'read only' },
 	)
 
-	const properties = propertyRows.reduce(
-		(props, { nodeId, name, value }) => {
-			;(props[nodeId] ??= {})[name] = value
-			return props
-		},
-		{} as Record<string, FetchedAudioNode['properties']>,
-	)
-
+	const nodes: FetchedAudioTree['nodes'] = {}
 	const connections: FetchedAudioTree['connections'] = []
 
-	const nodes = nodeRows.reduce(
-		(nodes, { id, ...nodeRow }) => {
-			if (!(id in nodes)) {
-				const { type, displayName, centerX, centerY } = nodeRow
-				nodes[id] = {
-					type,
-					displayName,
-					centerX,
-					centerY,
-					properties: properties[id] ?? {},
-				}
-			}
+	for (const { id, ...nodeRow } of nodeRows) {
+		if (!validateNodeProperties(nodeRow.properties)) {
+			continue
+		}
 
-			if (nodeRow.receiverId !== null) {
-				const { receiverId, outputSocket, inputSocket } = nodeRow
-				connections.push([
-					[String(id), outputSocket!],
-					[String(receiverId), inputSocket!],
-				])
-			}
+		if (!(id in nodes)) {
+			const { type, displayName, centerX, centerY, properties } = nodeRow
+			nodes[id] = { type, displayName, centerX, centerY, properties }
+		}
 
-			return nodes
-		},
-		{} as Record<string, FetchedAudioNode>,
-	)
+		if (nodeRow.receiverId !== null) {
+			const { receiverId, outputSocket, inputSocket } = nodeRow
+			connections.push([
+				[id, outputSocket!],
+				[receiverId, inputSocket!],
+			])
+		}
+	}
 
 	return { nodes, connections }
+}
+
+const nodePropertiesSchema = z.record(z.string(), z.number())
+
+function validateNodeProperties(
+	properties: unknown,
+): properties is Record<string, number> {
+	return nodePropertiesSchema.safeParse(properties).success
 }
