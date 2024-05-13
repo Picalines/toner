@@ -41,7 +41,7 @@ export default function CompositionEditor({ className }: Props) {
 					<ResizablePanel defaultSize={50}>
 						<ResizablePanelGroup direction={nodeEditorDirection}>
 							<ResizablePanel defaultSize={30}>
-								<NodePropertiesEditor />
+								<NodePropertiesEditor className="h-full" />
 							</ResizablePanel>
 							<ResizableHandle withHandle />
 							<ResizablePanel defaultSize={70}>
