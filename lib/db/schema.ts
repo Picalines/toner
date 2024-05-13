@@ -226,6 +226,7 @@ export const compositionRelations = relations(
 		}),
 		keyLayers: many(keyLayerTable),
 		nodes: many(nodeTable),
+		nodeConnections: many(nodeConnectionTable),
 	}),
 )
 
@@ -250,9 +251,7 @@ export const keyTable = pgTable('key', {
 	layerId: integer('layer_id')
 		.notNull()
 		.references(() => keyLayerTable.id, { onDelete: 'cascade' }),
-	synthNodeId: integer('synth_node_id')
-		.notNull()
-		.references(() => nodeTable.id, { onDelete: 'cascade' }),
+	instrumentId: integer('instrument_id').notNull(),
 	time: integer('time').notNull(),
 	duration: integer('duration').notNull(),
 	velocity: real('velocity').notNull(),
@@ -266,17 +265,26 @@ export const keyRelations = relations(keyTable, ({ one }) => ({
 	}),
 }))
 
-export const nodeTable = pgTable('node', {
-	id: serial('id').primaryKey(),
-	compositionId: integer('composition_id')
-		.notNull()
-		.references(() => compositionTable.id, { onDelete: 'cascade' }),
-	type: varchar('type', { length: 32 }).notNull(),
-	displayName: varchar('display_name', { length: 32 }),
-	centerX: doublePrecision('center_x').notNull(),
-	centerY: doublePrecision('center_y').notNull(),
-	properties: jsonb('properties').notNull(),
-})
+export const nodeTable = pgTable(
+	'node',
+	{
+		compositionId: integer('composition_id')
+			.notNull()
+			.references(() => compositionTable.id, { onDelete: 'cascade' }),
+		id: varchar('id', { length: 36 }).notNull(),
+		type: varchar('type', { length: 32 }).notNull(),
+		displayName: varchar('display_name', { length: 32 }),
+		centerX: doublePrecision('center_x').notNull(),
+		centerY: doublePrecision('center_y').notNull(),
+		properties: jsonb('properties').notNull(),
+	},
+	table => ({
+		primaryKey: primaryKey({
+			name: 'primary_key',
+			columns: [table.compositionId, table.id],
+		}),
+	}),
+)
 
 export const nodeRelations = relations(nodeTable, ({ one }) => ({
 	composition: one(compositionTable, {
@@ -288,41 +296,26 @@ export const nodeRelations = relations(nodeTable, ({ one }) => ({
 export const nodeConnectionTable = pgTable(
 	'node_connection',
 	{
-		senderId: integer('sender_id')
-			.references(() => nodeTable.id, {
-				onDelete: 'cascade',
-			})
-			.notNull(),
-		receiverId: integer('receiver_id')
-			.references(() => nodeTable.id, {
-				onDelete: 'cascade',
-			})
-			.notNull(),
+		compositionId: integer('composition_id')
+			.notNull()
+			.references(() => compositionTable.id, { onDelete: 'cascade' }),
+		id: varchar('id', { length: 36 }).notNull(),
+		senderId: varchar('sender_id', { length: 36 }).notNull(),
+		receiverId: varchar('receiver_id', { length: 36 }).notNull(),
 		outputSocket: integer('output_socket').notNull(),
 		inputSocket: integer('input_socket').notNull(),
 	},
 	table => ({
-		primaryKey: primaryKey({
-			columns: [
-				table.senderId,
-				table.receiverId,
-				table.outputSocket,
-				table.inputSocket,
-			],
-		}),
+		primaryKey: primaryKey({ columns: [table.compositionId, table.id] }),
 	}),
 )
 
 export const nodeConnectionRelations = relations(
 	nodeConnectionTable,
 	({ one }) => ({
-		sender: one(nodeTable, {
-			fields: [nodeConnectionTable.senderId],
-			references: [nodeTable.id],
-		}),
-		receiver: one(nodeTable, {
-			fields: [nodeConnectionTable.receiverId],
-			references: [nodeTable.id],
+		composition: one(compositionTable, {
+			fields: [nodeConnectionTable.compositionId],
+			references: [compositionTable.id],
 		}),
 	}),
 )
