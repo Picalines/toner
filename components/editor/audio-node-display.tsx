@@ -5,9 +5,9 @@ import { AudioNode } from '@/stores/composition-store'
 import { Card, CardHeader } from '../ui/card'
 
 const nodeGroupClassNames: Record<AudioNodeGroup, string> = {
-	instrument: tw`bg-red-400`,
-	effect: tw`bg-orange-300`,
-	output: tw`bg-neutral-300`,
+	instrument: tw`bg-red-500`,
+	effect: tw`bg-orange-500`,
+	output: tw`bg-neutral-500`,
 }
 
 export default function AudioNodeDisplay({
@@ -30,7 +30,7 @@ export default function AudioNodeDisplay({
 			{outputs.map(({ name }) => (
 				<Handle key={name} type="source" position={Position.Right} />
 			))}
-			<CardHeader className="p-0 text-black">{label}</CardHeader>
+			<CardHeader className="p-0 text-white">{label}</CardHeader>
 		</Card>
 	)
 }
