@@ -1,10 +1,8 @@
 {
-  "id": "156d1fa2-a43c-44db-a8c8-8b0bd9b5beb3",
-  "prevId": "11fb4770-227d-4556-9706-704dac2716ee",
-  "version": "5",
-  "dialect": "pg",
+  "version": "6",
+  "dialect": "postgresql",
   "tables": {
-    "account": {
+    "public.account": {
       "name": "account",
       "schema": "",
       "columns": {
@@ -46,14 +44,14 @@
       "uniqueConstraints": {
         "account_login_unique": {
           "name": "account_login_unique",
-          "nullsNotDistinct": false,
           "columns": [
             "login"
-          ]
+          ],
+          "nullsNotDistinct": false
         }
       }
     },
-    "author": {
+    "public.author": {
       "name": "author",
       "schema": "",
       "columns": {
@@ -69,21 +67,21 @@
         "author_account_id_account_id_fk": {
           "name": "author_account_id_account_id_fk",
           "tableFrom": "author",
-          "tableTo": "account",
           "columnsFrom": [
             "account_id"
           ],
+          "tableTo": "account",
           "columnsTo": [
             "id"
           ],
-          "onDelete": "cascade",
-          "onUpdate": "no action"
+          "onUpdate": "no action",
+          "onDelete": "cascade"
         }
       },
       "compositePrimaryKeys": {},
       "uniqueConstraints": {}
     },
-    "composition": {
+    "public.composition": {
       "name": "composition",
       "schema": "",
       "columns": {
@@ -125,21 +123,21 @@
         "composition_author_id_author_account_id_fk": {
           "name": "composition_author_id_author_account_id_fk",
           "tableFrom": "composition",
-          "tableTo": "author",
           "columnsFrom": [
             "author_id"
           ],
+          "tableTo": "author",
           "columnsTo": [
             "account_id"
           ],
-          "onDelete": "cascade",
-          "onUpdate": "no action"
+          "onUpdate": "no action",
+          "onDelete": "cascade"
         }
       },
       "compositePrimaryKeys": {},
       "uniqueConstraints": {}
     },
-    "key_layer": {
+    "public.key_layer": {
       "name": "key_layer",
       "schema": "",
       "columns": {
@@ -167,21 +165,21 @@
         "key_layer_composition_id_composition_id_fk": {
           "name": "key_layer_composition_id_composition_id_fk",
           "tableFrom": "key_layer",
-          "tableTo": "composition",
           "columnsFrom": [
             "composition_id"
           ],
+          "tableTo": "composition",
           "columnsTo": [
             "id"
           ],
-          "onDelete": "cascade",
-          "onUpdate": "no action"
+          "onUpdate": "no action",
+          "onDelete": "cascade"
         }
       },
       "compositePrimaryKeys": {},
       "uniqueConstraints": {}
     },
-    "key": {
+    "public.key": {
       "name": "key",
       "schema": "",
       "columns": {
@@ -233,34 +231,34 @@
         "key_layer_id_key_layer_id_fk": {
           "name": "key_layer_id_key_layer_id_fk",
           "tableFrom": "key",
-          "tableTo": "key_layer",
           "columnsFrom": [
             "layer_id"
           ],
+          "tableTo": "key_layer",
           "columnsTo": [
             "id"
           ],
-          "onDelete": "cascade",
-          "onUpdate": "no action"
+          "onUpdate": "no action",
+          "onDelete": "cascade"
         },
         "key_synth_node_id_node_id_fk": {
           "name": "key_synth_node_id_node_id_fk",
           "tableFrom": "key",
-          "tableTo": "node",
           "columnsFrom": [
             "synth_node_id"
           ],
+          "tableTo": "node",
           "columnsTo": [
             "id"
           ],
-          "onDelete": "cascade",
-          "onUpdate": "no action"
+          "onUpdate": "no action",
+          "onDelete": "cascade"
         }
       },
       "compositePrimaryKeys": {},
       "uniqueConstraints": {}
     },
-    "listen": {
+    "public.listen": {
       "name": "listen",
       "schema": "",
       "columns": {
@@ -289,28 +287,28 @@
         "listen_listener_id_listener_account_id_fk": {
           "name": "listen_listener_id_listener_account_id_fk",
           "tableFrom": "listen",
-          "tableTo": "listener",
           "columnsFrom": [
             "listener_id"
           ],
+          "tableTo": "listener",
           "columnsTo": [
             "account_id"
           ],
-          "onDelete": "cascade",
-          "onUpdate": "no action"
+          "onUpdate": "no action",
+          "onDelete": "cascade"
         },
         "listen_publication_id_publication_id_fk": {
           "name": "listen_publication_id_publication_id_fk",
           "tableFrom": "listen",
-          "tableTo": "publication",
           "columnsFrom": [
             "publication_id"
           ],
+          "tableTo": "publication",
           "columnsTo": [
             "id"
           ],
-          "onDelete": "cascade",
-          "onUpdate": "no action"
+          "onUpdate": "no action",
+          "onDelete": "cascade"
         }
       },
       "compositePrimaryKeys": {
@@ -324,7 +322,7 @@
       },
       "uniqueConstraints": {}
     },
-    "listener": {
+    "public.listener": {
       "name": "listener",
       "schema": "",
       "columns": {
@@ -340,21 +338,21 @@
         "listener_account_id_account_id_fk": {
           "name": "listener_account_id_account_id_fk",
           "tableFrom": "listener",
-          "tableTo": "account",
           "columnsFrom": [
             "account_id"
           ],
+          "tableTo": "account",
           "columnsTo": [
             "id"
           ],
-          "onDelete": "cascade",
-          "onUpdate": "no action"
+          "onUpdate": "no action",
+          "onDelete": "cascade"
         }
       },
       "compositePrimaryKeys": {},
       "uniqueConstraints": {}
     },
-    "node_connection": {
+    "public.node_connection": {
       "name": "node_connection",
       "schema": "",
       "columns": {
@@ -394,41 +392,41 @@
         "node_connection_composition_id_composition_id_fk": {
           "name": "node_connection_composition_id_composition_id_fk",
           "tableFrom": "node_connection",
-          "tableTo": "composition",
           "columnsFrom": [
             "composition_id"
           ],
+          "tableTo": "composition",
           "columnsTo": [
             "id"
           ],
-          "onDelete": "cascade",
-          "onUpdate": "no action"
+          "onUpdate": "no action",
+          "onDelete": "cascade"
         },
         "node_connection_sender_id_node_id_fk": {
           "name": "node_connection_sender_id_node_id_fk",
           "tableFrom": "node_connection",
-          "tableTo": "node",
           "columnsFrom": [
             "sender_id"
           ],
+          "tableTo": "node",
           "columnsTo": [
             "id"
           ],
-          "onDelete": "cascade",
-          "onUpdate": "no action"
+          "onUpdate": "no action",
+          "onDelete": "cascade"
         },
         "node_connection_receiver_id_node_id_fk": {
           "name": "node_connection_receiver_id_node_id_fk",
           "tableFrom": "node_connection",
-          "tableTo": "node",
           "columnsFrom": [
             "receiver_id"
           ],
+          "tableTo": "node",
           "columnsTo": [
             "id"
           ],
-          "onDelete": "cascade",
-          "onUpdate": "no action"
+          "onUpdate": "no action",
+          "onDelete": "cascade"
         }
       },
       "compositePrimaryKeys": {
@@ -445,7 +443,7 @@
       },
       "uniqueConstraints": {}
     },
-    "node_property": {
+    "public.node_property": {
       "name": "node_property",
       "schema": "",
       "columns": {
@@ -473,15 +471,15 @@
         "node_property_node_id_node_id_fk": {
           "name": "node_property_node_id_node_id_fk",
           "tableFrom": "node_property",
-          "tableTo": "node",
           "columnsFrom": [
             "node_id"
           ],
+          "tableTo": "node",
           "columnsTo": [
             "id"
           ],
-          "onDelete": "cascade",
-          "onUpdate": "no action"
+          "onUpdate": "no action",
+          "onDelete": "cascade"
         }
       },
       "compositePrimaryKeys": {
@@ -495,7 +493,7 @@
       },
       "uniqueConstraints": {}
     },
-    "node": {
+    "public.node": {
       "name": "node",
       "schema": "",
       "columns": {
@@ -541,21 +539,21 @@
         "node_composition_id_composition_id_fk": {
           "name": "node_composition_id_composition_id_fk",
           "tableFrom": "node",
-          "tableTo": "composition",
           "columnsFrom": [
             "composition_id"
           ],
+          "tableTo": "composition",
           "columnsTo": [
             "id"
           ],
-          "onDelete": "cascade",
-          "onUpdate": "no action"
+          "onUpdate": "no action",
+          "onDelete": "cascade"
         }
       },
       "compositePrimaryKeys": {},
       "uniqueConstraints": {}
     },
-    "publication": {
+    "public.publication": {
       "name": "publication",
       "schema": "",
       "columns": {
@@ -603,34 +601,34 @@
         "publication_author_id_author_account_id_fk": {
           "name": "publication_author_id_author_account_id_fk",
           "tableFrom": "publication",
-          "tableTo": "author",
           "columnsFrom": [
             "author_id"
           ],
+          "tableTo": "author",
           "columnsTo": [
             "account_id"
           ],
-          "onDelete": "cascade",
-          "onUpdate": "no action"
+          "onUpdate": "no action",
+          "onDelete": "cascade"
         },
         "publication_composition_id_composition_id_fk": {
           "name": "publication_composition_id_composition_id_fk",
           "tableFrom": "publication",
-          "tableTo": "composition",
           "columnsFrom": [
             "composition_id"
           ],
+          "tableTo": "composition",
           "columnsTo": [
             "id"
           ],
-          "onDelete": "cascade",
-          "onUpdate": "no action"
+          "onUpdate": "no action",
+          "onDelete": "cascade"
         }
       },
       "compositePrimaryKeys": {},
       "uniqueConstraints": {}
     },
-    "reaction": {
+    "public.reaction": {
       "name": "reaction",
       "schema": "",
       "columns": {
@@ -665,28 +663,28 @@
         "reaction_listener_id_listener_account_id_fk": {
           "name": "reaction_listener_id_listener_account_id_fk",
           "tableFrom": "reaction",
-          "tableTo": "listener",
           "columnsFrom": [
             "listener_id"
           ],
+          "tableTo": "listener",
           "columnsTo": [
             "account_id"
           ],
-          "onDelete": "cascade",
-          "onUpdate": "no action"
+          "onUpdate": "no action",
+          "onDelete": "cascade"
         },
         "reaction_publication_id_publication_id_fk": {
           "name": "reaction_publication_id_publication_id_fk",
           "tableFrom": "reaction",
-          "tableTo": "publication",
           "columnsFrom": [
             "publication_id"
           ],
+          "tableTo": "publication",
           "columnsTo": [
             "id"
           ],
-          "onDelete": "cascade",
-          "onUpdate": "no action"
+          "onUpdate": "no action",
+          "onDelete": "cascade"
         }
       },
       "compositePrimaryKeys": {
@@ -700,7 +698,7 @@
       },
       "uniqueConstraints": {}
     },
-    "session": {
+    "public.session": {
       "name": "session",
       "schema": "",
       "columns": {
@@ -728,21 +726,21 @@
         "session_user_id_account_id_fk": {
           "name": "session_user_id_account_id_fk",
           "tableFrom": "session",
-          "tableTo": "account",
           "columnsFrom": [
             "user_id"
           ],
+          "tableTo": "account",
           "columnsTo": [
             "id"
           ],
-          "onDelete": "no action",
-          "onUpdate": "no action"
+          "onUpdate": "no action",
+          "onDelete": "no action"
         }
       },
       "compositePrimaryKeys": {},
       "uniqueConstraints": {}
     },
-    "subscription": {
+    "public.subscription": {
       "name": "subscription",
       "schema": "",
       "columns": {
@@ -771,28 +769,28 @@
         "subscription_listener_id_listener_account_id_fk": {
           "name": "subscription_listener_id_listener_account_id_fk",
           "tableFrom": "subscription",
-          "tableTo": "listener",
           "columnsFrom": [
             "listener_id"
           ],
+          "tableTo": "listener",
           "columnsTo": [
             "account_id"
           ],
-          "onDelete": "cascade",
-          "onUpdate": "no action"
+          "onUpdate": "no action",
+          "onDelete": "cascade"
         },
         "subscription_author_id_author_account_id_fk": {
           "name": "subscription_author_id_author_account_id_fk",
           "tableFrom": "subscription",
-          "tableTo": "author",
           "columnsFrom": [
             "author_id"
           ],
+          "tableTo": "author",
           "columnsTo": [
             "account_id"
           ],
-          "onDelete": "cascade",
-          "onUpdate": "no action"
+          "onUpdate": "no action",
+          "onDelete": "cascade"
         }
       },
       "compositePrimaryKeys": {
@@ -808,20 +806,23 @@
     }
   },
   "enums": {
-    "reaction_type": {
+    "public.reaction_type": {
       "name": "reaction_type",
-      "values": {
-        "heart": "heart",
-        "brokenHeart": "brokenHeart",
-        "smile": "smile",
-        "laugh": "laugh"
-      }
+      "schema": "public",
+      "values": [
+        "heart",
+        "brokenHeart",
+        "smile",
+        "laugh"
+      ]
     }
   },
   "schemas": {},
   "_meta": {
-    "columns": {},
     "schemas": {},
-    "tables": {}
-  }
+    "tables": {},
+    "columns": {}
+  },
+  "id": "156d1fa2-a43c-44db-a8c8-8b0bd9b5beb3",
+  "prevId": "11fb4770-227d-4556-9706-704dac2716ee"
 }
