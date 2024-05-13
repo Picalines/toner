@@ -33,6 +33,7 @@ export default function CompositionStoreProvider({
 	if (!storeRef.current) {
 		storeRef.current = createCompositionStore({
 			...compositionState,
+			changeHistory: [],
 			nodes: new Map(nodes.map(node => [node.id, node])),
 			edges: new Map(edges.map(edge => [edge.id, edge])),
 			selectedNodeId: null,
