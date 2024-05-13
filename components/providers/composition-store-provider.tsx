@@ -3,6 +3,8 @@
 import { PropsWithChildren, createContext, useContext, useRef } from 'react'
 import { StoreApi, useStore } from 'zustand'
 import {
+	AudioEdge,
+	AudioNode,
 	CompositionState,
 	CompositionStore,
 	createCompositionStore,
@@ -13,15 +15,17 @@ const CompositionStoreContext =
 
 type Props = PropsWithChildren<
 	Readonly<
-		Pick<
-			CompositionState,
-			'id' | 'name' | 'description' | 'nodes' | 'edges'
-		>
+		Pick<CompositionState, 'id' | 'name' | 'description'> & {
+			nodes: AudioNode[]
+			edges: AudioEdge[]
+		}
 	>
 >
 
 export default function CompositionStoreProvider({
 	children,
+	nodes,
+	edges,
 	...compositionState
 }: Props) {
 	const storeRef = useRef<StoreApi<CompositionStore>>()
@@ -29,9 +33,10 @@ export default function CompositionStoreProvider({
 	if (!storeRef.current) {
 		storeRef.current = createCompositionStore({
 			...compositionState,
-			lastSelectedNode: null,
-			lastSelectedEdge: null,
-			lastSelectedInstrument: null,
+			nodes: new Map(nodes.map(node => [node.id, node])),
+			edges: new Map(edges.map(edge => [edge.id, edge])),
+			selectedNodeId: null,
+			selectedEdgeId: null,
 		})
 	}
 

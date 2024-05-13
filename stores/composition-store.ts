@@ -2,14 +2,16 @@ import {
 	Connection,
 	type Edge,
 	type EdgeChange,
+	EdgeSelectionChange,
 	type Node,
 	type NodeChange,
+	NodeSelectionChange,
 	addEdge,
 	applyEdgeChanges,
 	applyNodeChanges,
 } from '@xyflow/react'
 import { createStore } from 'zustand/vanilla'
-import { AudioNodeType, audioNodeSchemas } from '@/schemas/nodes'
+import { AudioNodeType } from '@/schemas/nodes'
 
 export type AudioNode = Node<{
 	type: AudioNodeType
@@ -24,20 +26,26 @@ export type CompositionState = {
 	name: string
 	description: string
 
-	nodes: AudioNode[]
-	edges: AudioEdge[]
+	nodes: Map<AudioNode['id'], AudioNode>
+	edges: Map<AudioNode['id'], AudioEdge>
 
-	lastSelectedNode: AudioNode | null
-	lastSelectedEdge: AudioEdge | null
-	lastSelectedInstrument: AudioNode | null
+	selectedNodeId: AudioNode['id'] | null
+	selectedEdgeId: AudioEdge['id'] | null
 }
 
 export type CompositionActions = {
 	updateInfo: (info: Readonly<{ name: string; description: string }>) => void
 
+	getNodeById: (id: AudioNode['id']) => AudioNode | null
 	applyNodeChanges: (changes: NodeChange<AudioNode>[]) => void
 	applyEdgeChanges: (changes: EdgeChange<AudioEdge>[]) => void
 	connect: (connection: Connection) => void
+
+	renameNode: (id: AudioNode['id'], displayName: string) => void
+	setNodeProperties: (
+		id: AudioNode['id'],
+		properties: Record<string, number>,
+	) => void
 }
 
 export type CompositionStore = CompositionState & CompositionActions
@@ -50,47 +58,57 @@ export function createCompositionStore(initialState: CompositionState) {
 
 		updateInfo: ({ name, description }) => set({ name, description }),
 
-		applyNodeChanges: changes => {
-			const prevState = get()
-			const nodes = applyNodeChanges(changes, prevState.nodes)
+		getNodeById: id => get().nodes.get(id) ?? null,
 
-			const selectedNode = changes.reduce(
-				(s, c) =>
-					c.type == 'select' && c.selected
-						? nodes.find(n => n.id == c.id) ?? null
-						: s,
-				prevState.lastSelectedNode,
+		applyNodeChanges: changes => {
+			const nodes = applyNodeChanges(changes, [...get().nodes.values()])
+			set({ nodes: new Map(nodes.map(node => [node.id, node])) })
+
+			const selectChanges = changes.filter(
+				(c): c is NodeSelectionChange => c.type == 'select',
 			)
 
-			const selectedInstrument =
-				selectedNode &&
-				audioNodeSchemas[selectedNode.data.type].group == 'instrument'
-					? selectedNode
-					: prevState.lastSelectedInstrument
-
-			set({
-				nodes,
-				lastSelectedNode: selectedNode,
-				lastSelectedInstrument: selectedInstrument,
-			})
+			if (selectChanges.length) {
+				set({
+					selectedNodeId:
+						selectChanges.find(c => c.selected)?.id ?? null,
+				})
+			}
 		},
 
 		applyEdgeChanges: changes => {
-			const edges = applyEdgeChanges(changes, get().edges)
+			const edges = applyEdgeChanges(changes, [...get().edges.values()])
+			set({ edges: new Map(edges.map(edge => [edge.id, edge])) })
 
-			let lastSelectedEdge = get().lastSelectedEdge
+			const selectChanges = changes.filter(
+				(c): c is EdgeSelectionChange => c.type == 'select',
+			)
 
-			for (const change of changes) {
-				if (change.type == 'select') {
-					lastSelectedEdge = change.selected
-						? edges.find(e => e.id == change.id) ?? null
-						: lastSelectedEdge
-				}
+			if (selectChanges.length) {
+				set({
+					selectedEdgeId:
+						selectChanges.find(c => c.selected)?.id ?? null,
+				})
 			}
-
-			set({ edges, lastSelectedEdge })
 		},
 
-		connect: connection => set({ edges: addEdge(connection, get().edges) }),
+		connect: connection => {
+			const edges = addEdge(connection, [...get().edges.values()])
+			set({ edges: new Map(edges.map(edge => [edge.id, edge])) })
+		},
+
+		renameNode: (id, displayName) => {
+			const { nodes } = get()
+			const node = nodes.get(id)!
+			node.data.label = displayName
+			set({ nodes: new Map(nodes) })
+		},
+
+		setNodeProperties: (id, properties) => {
+			const { nodes } = get()
+			const node = nodes.get(id)!
+			Object.assign(node.data.properties, properties)
+			set({ nodes: new Map(nodes) })
+		},
 	}))
 }

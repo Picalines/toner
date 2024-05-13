@@ -38,8 +38,8 @@ export default function AudioNodeFlow({ className }: Props) {
 		<ReactFlow
 			className={className}
 			nodeTypes={nodeTypes}
-			nodes={nodes}
-			edges={edges}
+			nodes={[...nodes.values()]}
+			edges={[...edges.values()]}
 			onNodesChange={applyNodeChanges}
 			onEdgesChange={applyEdgeChanges}
 			onConnect={connect}
