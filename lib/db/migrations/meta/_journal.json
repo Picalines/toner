@@ -1,96 +1,12 @@
 {
-  "version": "5",
-  "dialect": "pg",
+  "version": "6",
+  "dialect": "postgresql",
   "entries": [
     {
       "idx": 0,
-      "version": "5",
-      "when": 1711972143071,
-      "tag": "0000_purple_viper",
-      "breakpoints": true
-    },
-    {
-      "idx": 1,
-      "version": "5",
-      "when": 1711973161042,
-      "tag": "0001_productive_natasha_romanoff",
-      "breakpoints": true
-    },
-    {
-      "idx": 2,
-      "version": "5",
-      "when": 1711973645582,
-      "tag": "0002_perpetual_wild_child",
-      "breakpoints": true
-    },
-    {
-      "idx": 3,
-      "version": "5",
-      "when": 1712041029726,
-      "tag": "0003_clear_harry_osborn",
-      "breakpoints": true
-    },
-    {
-      "idx": 4,
-      "version": "5",
-      "when": 1712045163471,
-      "tag": "0004_powerful_wraith",
-      "breakpoints": true
-    },
-    {
-      "idx": 5,
-      "version": "5",
-      "when": 1713879570323,
-      "tag": "0005_cute_nemesis",
-      "breakpoints": true
-    },
-    {
-      "idx": 6,
-      "version": "5",
-      "when": 1713880349288,
-      "tag": "0006_nervous_wrecking_crew",
-      "breakpoints": true
-    },
-    {
-      "idx": 7,
-      "version": "5",
-      "when": 1713955549571,
-      "tag": "0007_lush_prima",
-      "breakpoints": true
-    },
-    {
-      "idx": 8,
-      "version": "5",
-      "when": 1713966538007,
-      "tag": "0008_motionless_ogun",
-      "breakpoints": true
-    },
-    {
-      "idx": 9,
-      "version": "5",
-      "when": 1714932294645,
-      "tag": "0009_sour_mathemanic",
-      "breakpoints": true
-    },
-    {
-      "idx": 10,
-      "version": "5",
-      "when": 1715275925619,
-      "tag": "0010_open_rick_jones",
-      "breakpoints": true
-    },
-    {
-      "idx": 11,
-      "version": "5",
-      "when": 1715277346108,
-      "tag": "0011_flimsy_spitfire",
-      "breakpoints": true
-    },
-    {
-      "idx": 12,
-      "version": "5",
-      "when": 1715277467867,
-      "tag": "0012_smiling_sage",
+      "version": "6",
+      "when": 1715602930078,
+      "tag": "0000_sour_omega_flight",
       "breakpoints": true
     }
   ]

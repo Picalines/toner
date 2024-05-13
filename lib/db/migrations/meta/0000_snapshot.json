@@ -1,13 +1,64 @@
 {
+  "id": "5117785d-9670-4a06-b485-6b581bac7ea6",
+  "prevId": "00000000-0000-0000-0000-000000000000",
   "version": "6",
   "dialect": "postgresql",
   "tables": {
+    "public.account": {
+      "name": "account",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "serial",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "login": {
+          "name": "login",
+          "type": "varchar(32)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "hashed_password": {
+          "name": "hashed_password",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "display_name": {
+          "name": "display_name",
+          "type": "varchar(64)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {
+        "account_login_unique": {
+          "name": "account_login_unique",
+          "nullsNotDistinct": false,
+          "columns": [
+            "login"
+          ]
+        }
+      }
+    },
     "public.author": {
       "name": "author",
       "schema": "",
       "columns": {
-        "user_id": {
-          "name": "user_id",
+        "account_id": {
+          "name": "account_id",
           "type": "integer",
           "primaryKey": true,
           "notNull": true
@@ -15,18 +66,182 @@
       },
       "indexes": {},
       "foreignKeys": {
-        "author_user_id_user_id_fk": {
-          "name": "author_user_id_user_id_fk",
+        "author_account_id_account_id_fk": {
+          "name": "author_account_id_account_id_fk",
           "tableFrom": "author",
+          "tableTo": "account",
           "columnsFrom": [
-            "user_id"
+            "account_id"
           ],
-          "tableTo": "user",
           "columnsTo": [
             "id"
           ],
-          "onUpdate": "no action",
-          "onDelete": "cascade"
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {}
+    },
+    "public.composition": {
+      "name": "composition",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "serial",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "author_id": {
+          "name": "author_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "name": {
+          "name": "name",
+          "type": "varchar(64)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "description": {
+          "name": "description",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "''"
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "composition_author_id_author_account_id_fk": {
+          "name": "composition_author_id_author_account_id_fk",
+          "tableFrom": "composition",
+          "tableTo": "author",
+          "columnsFrom": [
+            "author_id"
+          ],
+          "columnsTo": [
+            "account_id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {}
+    },
+    "public.key_layer": {
+      "name": "key_layer",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "serial",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "composition_id": {
+          "name": "composition_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "name": {
+          "name": "name",
+          "type": "varchar(32)",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "key_layer_composition_id_composition_id_fk": {
+          "name": "key_layer_composition_id_composition_id_fk",
+          "tableFrom": "key_layer",
+          "tableTo": "composition",
+          "columnsFrom": [
+            "composition_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {}
+    },
+    "public.key": {
+      "name": "key",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "serial",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "layer_id": {
+          "name": "layer_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "instrument_id": {
+          "name": "instrument_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "time": {
+          "name": "time",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "duration": {
+          "name": "duration",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "velocity": {
+          "name": "velocity",
+          "type": "real",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "note": {
+          "name": "note",
+          "type": "smallint",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "key_layer_id_key_layer_id_fk": {
+          "name": "key_layer_id_key_layer_id_fk",
+          "tableFrom": "key",
+          "tableTo": "key_layer",
+          "columnsFrom": [
+            "layer_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
         }
       },
       "compositePrimaryKeys": {},
@@ -58,31 +273,31 @@
       },
       "indexes": {},
       "foreignKeys": {
-        "listen_listener_id_listener_user_id_fk": {
-          "name": "listen_listener_id_listener_user_id_fk",
+        "listen_listener_id_listener_account_id_fk": {
+          "name": "listen_listener_id_listener_account_id_fk",
           "tableFrom": "listen",
+          "tableTo": "listener",
           "columnsFrom": [
             "listener_id"
           ],
-          "tableTo": "listener",
           "columnsTo": [
-            "user_id"
+            "account_id"
           ],
-          "onUpdate": "no action",
-          "onDelete": "cascade"
+          "onDelete": "cascade",
+          "onUpdate": "no action"
         },
-        "listen_publication_id_track_publication_id_fk": {
-          "name": "listen_publication_id_track_publication_id_fk",
+        "listen_publication_id_publication_id_fk": {
+          "name": "listen_publication_id_publication_id_fk",
           "tableFrom": "listen",
+          "tableTo": "publication",
           "columnsFrom": [
             "publication_id"
           ],
-          "tableTo": "track_publication",
           "columnsTo": [
             "id"
           ],
-          "onUpdate": "no action",
-          "onDelete": "cascade"
+          "onDelete": "cascade",
+          "onUpdate": "no action"
         }
       },
       "compositePrimaryKeys": {
@@ -100,8 +315,8 @@
       "name": "listener",
       "schema": "",
       "columns": {
-        "user_id": {
-          "name": "user_id",
+        "account_id": {
+          "name": "account_id",
           "type": "integer",
           "primaryKey": true,
           "notNull": true
@@ -109,18 +324,18 @@
       },
       "indexes": {},
       "foreignKeys": {
-        "listener_user_id_user_id_fk": {
-          "name": "listener_user_id_user_id_fk",
+        "listener_account_id_account_id_fk": {
+          "name": "listener_account_id_account_id_fk",
           "tableFrom": "listener",
+          "tableTo": "account",
           "columnsFrom": [
-            "user_id"
+            "account_id"
           ],
-          "tableTo": "user",
           "columnsTo": [
             "id"
           ],
-          "onUpdate": "no action",
-          "onDelete": "cascade"
+          "onDelete": "cascade",
+          "onUpdate": "no action"
         }
       },
       "compositePrimaryKeys": {},
@@ -130,26 +345,38 @@
       "name": "node_connection",
       "schema": "",
       "columns": {
-        "id": {
-          "name": "id",
-          "type": "serial",
-          "primaryKey": true,
+        "composition_id": {
+          "name": "composition_id",
+          "type": "integer",
+          "primaryKey": false,
           "notNull": true
         },
-        "project_id": {
-          "name": "project_id",
-          "type": "integer",
+        "id": {
+          "name": "id",
+          "type": "varchar(36)",
           "primaryKey": false,
           "notNull": true
         },
         "sender_id": {
           "name": "sender_id",
-          "type": "integer",
+          "type": "varchar(36)",
           "primaryKey": false,
           "notNull": true
         },
         "receiver_id": {
           "name": "receiver_id",
+          "type": "varchar(36)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "output_socket": {
+          "name": "output_socket",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "input_socket": {
+          "name": "input_socket",
           "type": "integer",
           "primaryKey": false,
           "notNull": true
@@ -157,110 +384,44 @@
       },
       "indexes": {},
       "foreignKeys": {
-        "node_connection_project_id_track_project_id_fk": {
-          "name": "node_connection_project_id_track_project_id_fk",
+        "node_connection_composition_id_composition_id_fk": {
+          "name": "node_connection_composition_id_composition_id_fk",
           "tableFrom": "node_connection",
+          "tableTo": "composition",
           "columnsFrom": [
-            "project_id"
+            "composition_id"
           ],
-          "tableTo": "track_project",
           "columnsTo": [
             "id"
           ],
-          "onUpdate": "no action",
-          "onDelete": "cascade"
-        },
-        "node_connection_sender_id_node_socket_id_fk": {
-          "name": "node_connection_sender_id_node_socket_id_fk",
-          "tableFrom": "node_connection",
-          "columnsFrom": [
-            "sender_id"
-          ],
-          "tableTo": "node_socket",
-          "columnsTo": [
-            "id"
-          ],
-          "onUpdate": "no action",
-          "onDelete": "cascade"
-        },
-        "node_connection_receiver_id_node_socket_id_fk": {
-          "name": "node_connection_receiver_id_node_socket_id_fk",
-          "tableFrom": "node_connection",
-          "columnsFrom": [
-            "receiver_id"
-          ],
-          "tableTo": "node_socket",
-          "columnsTo": [
-            "id"
-          ],
-          "onUpdate": "no action",
-          "onDelete": "cascade"
+          "onDelete": "cascade",
+          "onUpdate": "no action"
         }
       },
-      "compositePrimaryKeys": {},
-      "uniqueConstraints": {}
-    },
-    "public.node_socket": {
-      "name": "node_socket",
-      "schema": "",
-      "columns": {
-        "id": {
-          "name": "id",
-          "type": "serial",
-          "primaryKey": true,
-          "notNull": true
-        },
-        "node_id": {
-          "name": "node_id",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "type": {
-          "name": "type",
-          "type": "node_socket_type",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "name": {
-          "name": "name",
-          "type": "varchar(32)",
-          "primaryKey": false,
-          "notNull": true
-        }
-      },
-      "indexes": {},
-      "foreignKeys": {
-        "node_socket_node_id_node_id_fk": {
-          "name": "node_socket_node_id_node_id_fk",
-          "tableFrom": "node_socket",
-          "columnsFrom": [
-            "node_id"
-          ],
-          "tableTo": "node",
-          "columnsTo": [
+      "compositePrimaryKeys": {
+        "node_connection_composition_id_id_pk": {
+          "name": "node_connection_composition_id_id_pk",
+          "columns": [
+            "composition_id",
             "id"
-          ],
-          "onUpdate": "no action",
-          "onDelete": "cascade"
+          ]
         }
       },
-      "compositePrimaryKeys": {},
       "uniqueConstraints": {}
     },
     "public.node": {
       "name": "node",
       "schema": "",
       "columns": {
-        "id": {
-          "name": "id",
-          "type": "serial",
-          "primaryKey": true,
+        "composition_id": {
+          "name": "composition_id",
+          "type": "integer",
+          "primaryKey": false,
           "notNull": true
         },
-        "project_id": {
-          "name": "project_id",
-          "type": "integer",
+        "id": {
+          "name": "id",
+          "type": "varchar(36)",
           "primaryKey": false,
           "notNull": true
         },
@@ -275,29 +436,55 @@
           "type": "varchar(32)",
           "primaryKey": false,
           "notNull": false
+        },
+        "center_x": {
+          "name": "center_x",
+          "type": "double precision",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "center_y": {
+          "name": "center_y",
+          "type": "double precision",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "properties": {
+          "name": "properties",
+          "type": "jsonb",
+          "primaryKey": false,
+          "notNull": true
         }
       },
       "indexes": {},
       "foreignKeys": {
-        "node_project_id_track_project_id_fk": {
-          "name": "node_project_id_track_project_id_fk",
+        "node_composition_id_composition_id_fk": {
+          "name": "node_composition_id_composition_id_fk",
           "tableFrom": "node",
+          "tableTo": "composition",
           "columnsFrom": [
-            "project_id"
+            "composition_id"
           ],
-          "tableTo": "track_project",
           "columnsTo": [
             "id"
           ],
-          "onUpdate": "no action",
-          "onDelete": "cascade"
+          "onDelete": "cascade",
+          "onUpdate": "no action"
         }
       },
-      "compositePrimaryKeys": {},
+      "compositePrimaryKeys": {
+        "primary_key": {
+          "name": "primary_key",
+          "columns": [
+            "composition_id",
+            "id"
+          ]
+        }
+      },
       "uniqueConstraints": {}
     },
-    "public.note_layer": {
-      "name": "note_layer",
+    "public.publication": {
+      "name": "publication",
       "schema": "",
       "columns": {
         "id": {
@@ -306,106 +493,66 @@
           "primaryKey": true,
           "notNull": true
         },
-        "project_id": {
-          "name": "project_id",
+        "author_id": {
+          "name": "author_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "composition_id": {
+          "name": "composition_id",
           "type": "integer",
           "primaryKey": false,
           "notNull": true
         },
         "name": {
           "name": "name",
-          "type": "varchar(32)",
+          "type": "varchar(64)",
           "primaryKey": false,
           "notNull": true
+        },
+        "description": {
+          "name": "description",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "''"
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
         }
       },
       "indexes": {},
       "foreignKeys": {
-        "note_layer_project_id_track_project_id_fk": {
-          "name": "note_layer_project_id_track_project_id_fk",
-          "tableFrom": "note_layer",
+        "publication_author_id_author_account_id_fk": {
+          "name": "publication_author_id_author_account_id_fk",
+          "tableFrom": "publication",
+          "tableTo": "author",
           "columnsFrom": [
-            "project_id"
+            "author_id"
           ],
-          "tableTo": "track_project",
+          "columnsTo": [
+            "account_id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        },
+        "publication_composition_id_composition_id_fk": {
+          "name": "publication_composition_id_composition_id_fk",
+          "tableFrom": "publication",
+          "tableTo": "composition",
+          "columnsFrom": [
+            "composition_id"
+          ],
           "columnsTo": [
             "id"
           ],
-          "onUpdate": "no action",
-          "onDelete": "cascade"
-        }
-      },
-      "compositePrimaryKeys": {},
-      "uniqueConstraints": {}
-    },
-    "public.note": {
-      "name": "note",
-      "schema": "",
-      "columns": {
-        "id": {
-          "name": "id",
-          "type": "serial",
-          "primaryKey": true,
-          "notNull": true
-        },
-        "layer_id": {
-          "name": "layer_id",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "instrumentNode_id": {
-          "name": "instrumentNode_id",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "start_at": {
-          "name": "start_at",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "duration": {
-          "name": "duration",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "frequency": {
-          "name": "frequency",
-          "type": "numeric(9, 3)",
-          "primaryKey": false,
-          "notNull": true
-        }
-      },
-      "indexes": {},
-      "foreignKeys": {
-        "note_layer_id_note_layer_id_fk": {
-          "name": "note_layer_id_note_layer_id_fk",
-          "tableFrom": "note",
-          "columnsFrom": [
-            "layer_id"
-          ],
-          "tableTo": "note_layer",
-          "columnsTo": [
-            "id"
-          ],
-          "onUpdate": "no action",
-          "onDelete": "cascade"
-        },
-        "note_instrumentNode_id_node_id_fk": {
-          "name": "note_instrumentNode_id_node_id_fk",
-          "tableFrom": "note",
-          "columnsFrom": [
-            "instrumentNode_id"
-          ],
-          "tableTo": "node",
-          "columnsTo": [
-            "id"
-          ],
-          "onUpdate": "no action",
-          "onDelete": "cascade"
+          "onDelete": "cascade",
+          "onUpdate": "no action"
         }
       },
       "compositePrimaryKeys": {},
@@ -430,6 +577,7 @@
         "type": {
           "name": "type",
           "type": "reaction_type",
+          "typeSchema": "public",
           "primaryKey": false,
           "notNull": true
         },
@@ -443,31 +591,31 @@
       },
       "indexes": {},
       "foreignKeys": {
-        "reaction_listener_id_listener_user_id_fk": {
-          "name": "reaction_listener_id_listener_user_id_fk",
+        "reaction_listener_id_listener_account_id_fk": {
+          "name": "reaction_listener_id_listener_account_id_fk",
           "tableFrom": "reaction",
+          "tableTo": "listener",
           "columnsFrom": [
             "listener_id"
           ],
-          "tableTo": "listener",
           "columnsTo": [
-            "user_id"
+            "account_id"
           ],
-          "onUpdate": "no action",
-          "onDelete": "cascade"
+          "onDelete": "cascade",
+          "onUpdate": "no action"
         },
-        "reaction_publication_id_track_publication_id_fk": {
-          "name": "reaction_publication_id_track_publication_id_fk",
+        "reaction_publication_id_publication_id_fk": {
+          "name": "reaction_publication_id_publication_id_fk",
           "tableFrom": "reaction",
+          "tableTo": "publication",
           "columnsFrom": [
             "publication_id"
           ],
-          "tableTo": "track_publication",
           "columnsTo": [
             "id"
           ],
-          "onUpdate": "no action",
-          "onDelete": "cascade"
+          "onDelete": "cascade",
+          "onUpdate": "no action"
         }
       },
       "compositePrimaryKeys": {
@@ -479,6 +627,48 @@
           ]
         }
       },
+      "uniqueConstraints": {}
+    },
+    "public.session": {
+      "name": "session",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "text",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "user_id": {
+          "name": "user_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "expires_at": {
+          "name": "expires_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "session_user_id_account_id_fk": {
+          "name": "session_user_id_account_id_fk",
+          "tableFrom": "session",
+          "tableTo": "account",
+          "columnsFrom": [
+            "user_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
       "uniqueConstraints": {}
     },
     "public.subscription": {
@@ -507,31 +697,31 @@
       },
       "indexes": {},
       "foreignKeys": {
-        "subscription_listener_id_listener_user_id_fk": {
-          "name": "subscription_listener_id_listener_user_id_fk",
+        "subscription_listener_id_listener_account_id_fk": {
+          "name": "subscription_listener_id_listener_account_id_fk",
           "tableFrom": "subscription",
+          "tableTo": "listener",
           "columnsFrom": [
             "listener_id"
           ],
-          "tableTo": "listener",
           "columnsTo": [
-            "user_id"
+            "account_id"
           ],
-          "onUpdate": "no action",
-          "onDelete": "cascade"
+          "onDelete": "cascade",
+          "onUpdate": "no action"
         },
-        "subscription_author_id_author_user_id_fk": {
-          "name": "subscription_author_id_author_user_id_fk",
+        "subscription_author_id_author_account_id_fk": {
+          "name": "subscription_author_id_author_account_id_fk",
           "tableFrom": "subscription",
+          "tableTo": "author",
           "columnsFrom": [
             "author_id"
           ],
-          "tableTo": "author",
           "columnsTo": [
-            "user_id"
+            "account_id"
           ],
-          "onUpdate": "no action",
-          "onDelete": "cascade"
+          "onDelete": "cascade",
+          "onUpdate": "no action"
         }
       },
       "compositePrimaryKeys": {
@@ -544,183 +734,9 @@
         }
       },
       "uniqueConstraints": {}
-    },
-    "public.track_project": {
-      "name": "track_project",
-      "schema": "",
-      "columns": {
-        "id": {
-          "name": "id",
-          "type": "serial",
-          "primaryKey": true,
-          "notNull": true
-        },
-        "author_id": {
-          "name": "author_id",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "name": {
-          "name": "name",
-          "type": "varchar(64)",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "description": {
-          "name": "description",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "''"
-        },
-        "created_at": {
-          "name": "created_at",
-          "type": "timestamp",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "now()"
-        }
-      },
-      "indexes": {},
-      "foreignKeys": {
-        "track_project_author_id_author_user_id_fk": {
-          "name": "track_project_author_id_author_user_id_fk",
-          "tableFrom": "track_project",
-          "columnsFrom": [
-            "author_id"
-          ],
-          "tableTo": "author",
-          "columnsTo": [
-            "user_id"
-          ],
-          "onUpdate": "no action",
-          "onDelete": "cascade"
-        }
-      },
-      "compositePrimaryKeys": {},
-      "uniqueConstraints": {}
-    },
-    "public.track_publication": {
-      "name": "track_publication",
-      "schema": "",
-      "columns": {
-        "id": {
-          "name": "id",
-          "type": "serial",
-          "primaryKey": true,
-          "notNull": true
-        },
-        "author_id": {
-          "name": "author_id",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "project_id": {
-          "name": "project_id",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "name": {
-          "name": "name",
-          "type": "varchar(64)",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "description": {
-          "name": "description",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "''"
-        },
-        "created_at": {
-          "name": "created_at",
-          "type": "timestamp",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "now()"
-        }
-      },
-      "indexes": {},
-      "foreignKeys": {
-        "track_publication_author_id_author_user_id_fk": {
-          "name": "track_publication_author_id_author_user_id_fk",
-          "tableFrom": "track_publication",
-          "columnsFrom": [
-            "author_id"
-          ],
-          "tableTo": "author",
-          "columnsTo": [
-            "user_id"
-          ],
-          "onUpdate": "no action",
-          "onDelete": "cascade"
-        },
-        "track_publication_project_id_track_project_id_fk": {
-          "name": "track_publication_project_id_track_project_id_fk",
-          "tableFrom": "track_publication",
-          "columnsFrom": [
-            "project_id"
-          ],
-          "tableTo": "track_project",
-          "columnsTo": [
-            "id"
-          ],
-          "onUpdate": "no action",
-          "onDelete": "cascade"
-        }
-      },
-      "compositePrimaryKeys": {},
-      "uniqueConstraints": {}
-    },
-    "public.user": {
-      "name": "user",
-      "schema": "",
-      "columns": {
-        "id": {
-          "name": "id",
-          "type": "serial",
-          "primaryKey": true,
-          "notNull": true
-        },
-        "login": {
-          "name": "login",
-          "type": "varchar(32)",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "display_name": {
-          "name": "display_name",
-          "type": "varchar(64)",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "created_at": {
-          "name": "created_at",
-          "type": "timestamp",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "now()"
-        }
-      },
-      "indexes": {},
-      "foreignKeys": {},
-      "compositePrimaryKeys": {},
-      "uniqueConstraints": {}
     }
   },
   "enums": {
-    "public.node_socket_type": {
-      "name": "node_socket_type",
-      "schema": "public",
-      "values": [
-        "input",
-        "output"
-      ]
-    },
     "public.reaction_type": {
       "name": "reaction_type",
       "schema": "public",
@@ -734,10 +750,8 @@
   },
   "schemas": {},
   "_meta": {
+    "columns": {},
     "schemas": {},
-    "tables": {},
-    "columns": {}
-  },
-  "id": "0d38b6ad-867d-40a1-af5e-00a79f8f2c5f",
-  "prevId": "00000000-0000-0000-0000-000000000000"
+    "tables": {}
+  }
 }
