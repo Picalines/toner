@@ -2,6 +2,7 @@ import { relations } from 'drizzle-orm'
 import {
 	doublePrecision,
 	integer,
+	jsonb,
 	pgEnum,
 	pgTable,
 	primaryKey,
@@ -274,6 +275,7 @@ export const nodeTable = pgTable('node', {
 	displayName: varchar('display_name', { length: 32 }),
 	centerX: doublePrecision('center_x').notNull(),
 	centerY: doublePrecision('center_y').notNull(),
+	properties: jsonb('properties').notNull(),
 })
 
 export const nodeRelations = relations(nodeTable, ({ one }) => ({
@@ -322,21 +324,5 @@ export const nodeConnectionRelations = relations(
 			fields: [nodeConnectionTable.receiverId],
 			references: [nodeTable.id],
 		}),
-	}),
-)
-
-export const nodePropertyTable = pgTable(
-	'node_property',
-	{
-		nodeId: integer('node_id')
-			.references(() => nodeTable.id, {
-				onDelete: 'cascade',
-			})
-			.notNull(),
-		name: varchar('name', { length: 32 }).notNull(),
-		value: real('value').notNull(),
-	},
-	table => ({
-		primaryKey: primaryKey({ columns: [table.nodeId, table.name] }),
 	}),
 )
