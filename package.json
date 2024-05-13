@@ -8,7 +8,7 @@
 		"start": "dotenv -c -- next start",
 		"lint": "next lint",
 		"format": "prettier . --write",
-		"db:codegen": "drizzle-kit generate:pg",
+		"db:codegen": "drizzle-kit generate",
 		"db:migrate": "tsx ./lib/db/migrate.ts",
 		"db:drizzle-kit-up": "npx drizzle-kit up",
 		"db:drizzle-studio": "npx drizzle-kit studio",
