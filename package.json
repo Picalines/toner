@@ -10,6 +10,7 @@
 		"format": "prettier . --write",
 		"db:codegen": "drizzle-kit generate:pg",
 		"db:migrate": "tsx ./lib/db/migrate.ts",
+		"db:drizzle-kit-up": "npx drizzle-kit up",
 		"db:drizzle-studio": "npx drizzle-kit studio",
 		"prepare": "husky"
 	},
