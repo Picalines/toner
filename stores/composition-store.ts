@@ -12,9 +12,12 @@ import {
 } from '@xyflow/react'
 import { nanoid } from 'nanoid'
 import { createStore } from 'zustand/vanilla'
-import { safeParseOr } from '@/lib/utils'
+import { safeParseOr, zodIs } from '@/lib/utils'
 import {
+	AudioEdgeId,
+	AudioNodeId,
 	AudioNodeType,
+	audioNodeDefinitions,
 	audioNodeSchemas as nodeSchemas,
 } from '@/schemas/audio-node'
 import {
@@ -38,11 +41,11 @@ export type CompositionState = {
 	name: string
 	description: string
 
-	nodes: Map<AudioNode['id'], AudioNode>
-	edges: Map<AudioNode['id'], AudioEdge>
+	nodes: Map<AudioNodeId, AudioNode>
+	edges: Map<AudioNodeId, AudioEdge>
 
-	selectedNodeId: AudioNode['id'] | null
-	selectedEdgeId: AudioEdge['id'] | null
+	selectedNodeId: AudioNodeId | null
+	selectedEdgeId: AudioEdgeId | null
 }
 
 const MAX_HISTORY_LENGTH = 100
@@ -51,13 +54,10 @@ export type CompositionActions = {
 	setName: (name: string) => void
 	setDescription: (description: string) => void
 
-	getNodeById: (id: AudioNode['id']) => AudioNode | null
-	renameNode: (id: AudioNode['id'], label: string) => void
-	setNodeProperty: (
-		id: AudioNode['id'],
-		property: string,
-		value: number,
-	) => void
+	getNodeById: (id: AudioNodeId) => AudioNode | null
+	createNode: (type: AudioNodeType, position: [number, number]) => AudioNodeId
+	renameNode: (id: AudioNodeId, label: string) => void
+	setNodeProperty: (id: AudioNodeId, property: string, value: number) => void
 
 	applyNodeChanges: (changes: NodeChange<AudioNode>[]) => void
 	applyEdgeChanges: (changes: EdgeChange<AudioEdge>[]) => void
@@ -72,10 +72,13 @@ export function createCompositionStore(initialState: CompositionState) {
 	// TODO: validate initialState
 
 	return createStore<CompositionStore>()((set, get) => {
-		const addChanges = (...changes: CompositionChange[]) =>
-			set({
-				changeHistory: mergeChanges(get().changeHistory, ...changes),
-			})
+		const addChanges = (...changes: CompositionChange[]) => {
+			let changeHistory = get().changeHistory
+			for (const change of changes) {
+				changeHistory = mergeCompositionChange(changeHistory, change)
+				set({ changeHistory })
+			}
+		}
 
 		return {
 			...initialState,
@@ -105,6 +108,25 @@ export function createCompositionStore(initialState: CompositionState) {
 			},
 
 			getNodeById: id => get().nodes.get(id) ?? null,
+
+			createNode: (type, position) => {
+				const properties = Object.fromEntries(
+					Object.entries(audioNodeDefinitions[type].properties).map(
+						([key, { default: value }]) => [key, value],
+					),
+				)
+
+				const id = nanoid()
+				const newNode: AudioNode = {
+					type: 'audio',
+					id,
+					position: { x: position[0], y: position[1] },
+					data: { type, label: type, properties },
+				}
+
+				get().applyNodeChanges([{ type: 'add', item: newNode }])
+				return id
+			},
 
 			renameNode: (id, label) => {
 				const node = get().getNodeById(id)
@@ -320,38 +342,25 @@ const changeReplacers = [
 	),
 ]
 
-function mergeChanges(
+function mergeCompositionChange(
 	changeHistory: CompositionChange[],
-	...newChanges: CompositionChange[]
+	newChange: CompositionChange,
 ): CompositionChange[] {
-	if (!changeHistory.length) {
-		return newChanges
+	if (!zodIs(compSchemas.change, newChange)) {
+		console.warn('invalid composition change', newChange)
+		return changeHistory
 	}
 
-	newChanges = newChanges.flatMap(c => {
-		const pc = safeParseOr(compSchemas.change, c, null)
-
-		if (!pc) {
-			console.warn('invalid composition change', c)
-			return []
-		}
-
-		return [pc]
-	})
-
-	if (!newChanges.length) {
-		return changeHistory
+	if (!changeHistory.length) {
+		return [newChange]
 	}
 
 	let historySlice = changeHistory
 
-	if (newChanges.length == 1) {
-		const lastChange = changeHistory[changeHistory.length - 1]
-		const incomingChange = newChanges[0]
+	const lastChange = changeHistory[changeHistory.length - 1]
 
-		if (changeReplacers.some(c => c(lastChange, incomingChange))) {
-			historySlice = changeHistory.slice(0, changeHistory.length - 1)
-		}
+	if (changeReplacers.some(c => c(lastChange, newChange))) {
+		historySlice = changeHistory.slice(0, changeHistory.length - 1)
 	}
 
 	if (historySlice.length > MAX_HISTORY_LENGTH) {
@@ -363,5 +372,5 @@ function mergeChanges(
 		)
 	}
 
-	return historySlice.concat(newChanges)
+	return historySlice.concat(newChange)
 }

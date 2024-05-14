@@ -5,10 +5,10 @@ import { useShallow } from 'zustand/react/shallow'
 import { cn, tw } from '@/lib/utils'
 import {
 	AudioNodeGroup,
+	AudioNodeId,
 	AudioNodeProperty,
 	audioNodeDefinitions,
 } from '@/schemas/audio-node'
-import { AudioNode } from '@/stores/composition-store'
 import { useCompositionStore } from '../providers/composition-store-provider'
 import { Input } from '../ui/input'
 import { ScrollArea, ScrollBar } from '../ui/scroll-area'
@@ -57,7 +57,7 @@ export default function NodePropertiesEditor({ className }: Props) {
 	)
 }
 
-type NodeNameInputProps = Readonly<{ nodeId: AudioNode['id'] }>
+type NodeNameInputProps = Readonly<{ nodeId: AudioNodeId }>
 
 function NodeNameInput({ nodeId }: NodeNameInputProps) {
 	const renameNode = useCompositionStore(comp => comp.renameNode)
@@ -101,7 +101,7 @@ function NodeNameInput({ nodeId }: NodeNameInputProps) {
 }
 
 type PropertySliderProps = Readonly<{
-	nodeId: AudioNode['id']
+	nodeId: AudioNodeId
 	propertyKey: string
 	propertySchema: AudioNodeProperty
 	className?: string
