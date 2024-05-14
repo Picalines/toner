@@ -273,10 +273,10 @@ export const nodeTable = pgTable(
 			.references(() => compositionTable.id, { onDelete: 'cascade' }),
 		id: varchar('id', { length: 36 }).notNull(),
 		type: varchar('type', { length: 32 }).notNull(),
-		displayName: varchar('display_name', { length: 32 }),
-		centerX: doublePrecision('center_x').notNull(),
-		centerY: doublePrecision('center_y').notNull(),
-		properties: jsonb('properties').notNull(),
+		label: varchar('label', { length: 32 }),
+		centerX: doublePrecision('center_x').notNull().default(0),
+		centerY: doublePrecision('center_y').notNull().default(0),
+		properties: jsonb('properties').notNull().default({}),
 	},
 	table => ({
 		primaryKey: primaryKey({
@@ -302,8 +302,8 @@ export const nodeConnectionTable = pgTable(
 		id: varchar('id', { length: 36 }).notNull(),
 		senderId: varchar('sender_id', { length: 36 }).notNull(),
 		receiverId: varchar('receiver_id', { length: 36 }).notNull(),
-		outputSocket: integer('output_socket').notNull(),
-		inputSocket: integer('input_socket').notNull(),
+		outputSocket: integer('output_socket').notNull().default(0),
+		inputSocket: integer('input_socket').notNull().default(0),
 	},
 	table => ({
 		primaryKey: primaryKey({ columns: [table.compositionId, table.id] }),

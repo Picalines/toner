@@ -1,8 +1,14 @@
 'use server'
 
+import { nanoid } from 'nanoid'
 import { redirect } from 'next/navigation'
 import { authenticateOrRedirect } from '@/lib/auth'
-import { compositionTable, database } from '@/lib/db'
+import {
+	compositionTable,
+	database,
+	nodeConnectionTable,
+	nodeTable,
+} from '@/lib/db'
 
 export async function createComposition() {
 	const {
@@ -15,7 +21,41 @@ export async function createComposition() {
 			.values({ authorId: accountId, name: 'Untitled' })
 			.returning({ compositionId: compositionTable.id })
 
-		return inserted.length == 1 ? inserted[0].compositionId : null
+		if (inserted.length != 1) {
+			return null
+		}
+
+		const [{ compositionId }] = inserted
+
+		const synthId = nanoid()
+		const outputId = nanoid()
+
+		await tx.insert(nodeTable).values([
+			{
+				compositionId,
+				id: synthId,
+				type: 'synth',
+				label: 'Synth',
+			},
+			{
+				compositionId,
+				id: outputId,
+				type: 'output',
+				label: 'Output',
+				centerX: 150,
+			},
+		])
+
+		await tx.insert(nodeConnectionTable).values([
+			{
+				compositionId,
+				id: nanoid(),
+				senderId: synthId,
+				receiverId: outputId,
+			},
+		])
+
+		return compositionId
 	})
 
 	if (compositionId === null) {

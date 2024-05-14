@@ -59,7 +59,7 @@ export async function updateComposition(
 				case 'create': {
 					const {
 						type,
-						label: displayName,
+						label,
 						position: [centerX, centerY],
 						properties,
 					} = nodeUpdate
@@ -67,7 +67,7 @@ export async function updateComposition(
 						id: nodeId,
 						compositionId,
 						type,
-						displayName,
+						label,
 						centerX,
 						centerY,
 						properties,
@@ -85,7 +85,7 @@ export async function updateComposition(
 					await tx
 						.update(nodeTable)
 						.set({
-							displayName,
+							label: displayName,
 							centerX,
 							centerY,
 							properties: properties

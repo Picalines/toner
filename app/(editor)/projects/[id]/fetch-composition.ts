@@ -64,7 +64,7 @@ export async function fetchAudioTree(
 				.select({
 					id: nodeTable.id,
 					type: nodeTable.type,
-					displayName: nodeTable.displayName,
+					displayName: nodeTable.label,
 					centerX: nodeTable.centerX,
 					centerY: nodeTable.centerY,
 					properties: nodeTable.properties,
