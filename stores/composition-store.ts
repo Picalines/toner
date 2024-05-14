@@ -12,6 +12,8 @@ import {
 } from '@xyflow/react'
 import { nanoid } from 'nanoid'
 import { createStore } from 'zustand/vanilla'
+import { safeParseOr } from '@/lib/utils'
+import { compositionSchemas as schemas } from '@/schemas/composition'
 import { AudioNodeType } from '@/schemas/nodes'
 
 export type AudioNode = Node<{
@@ -37,7 +39,12 @@ export type CompositionState = {
 	selectedEdgeId: AudioEdge['id'] | null
 }
 
+const MAX_HISTORY_LENGTH = 100
+
 export type CompositionChange =
+	| { type: 'save-changes' }
+	| { type: 'set-name'; name: string }
+	| { type: 'set-description'; description: string }
 	| {
 			type: 'node-add'
 			id: AudioNode['id']
@@ -59,7 +66,8 @@ export type CompositionChange =
 	| {
 			type: 'node-set-property'
 			id: AudioNode['id']
-			properties: Record<string, number>
+			property: string
+			value: number
 	  }
 	| {
 			type: 'node-remove'
@@ -77,18 +85,22 @@ export type CompositionChange =
 	  }
 
 export type CompositionActions = {
-	updateInfo: (info: Readonly<{ name: string; description: string }>) => void
+	setName: (name: string) => void
+	setDescription: (description: string) => void
 
 	getNodeById: (id: AudioNode['id']) => AudioNode | null
+	renameNode: (id: AudioNode['id'], displayName: string) => void
+	setNodeProperty: (
+		id: AudioNode['id'],
+		property: string,
+		value: number,
+	) => void
+
 	applyNodeChanges: (changes: NodeChange<AudioNode>[]) => void
 	applyEdgeChanges: (changes: EdgeChange<AudioEdge>[]) => void
 	connect: (connection: Connection) => void
 
-	renameNode: (id: AudioNode['id'], displayName: string) => void
-	setNodeProperties: (
-		id: AudioNode['id'],
-		properties: Record<string, number>,
-	) => void
+	saveChanges: () => void
 }
 
 export type CompositionStore = CompositionState & CompositionActions
@@ -99,21 +111,83 @@ export function createCompositionStore(initialState: CompositionState) {
 	return createStore<CompositionStore>()((set, get) => ({
 		...initialState,
 
-		updateInfo: ({ name, description }) => set({ name, description }),
+		setName: name => {
+			name = safeParseOr(schemas.name, name, null) ?? get().name
+
+			if (get().name != name) {
+				set({
+					name,
+					changeHistory: addCompChanges(get().changeHistory, {
+						type: 'set-name',
+						name,
+					}),
+				})
+			}
+		},
+
+		setDescription: description => {
+			description =
+				safeParseOr(schemas.description, description, null) ??
+				get().description
+
+			if (description != get().description) {
+				set({
+					description,
+					changeHistory: addCompChanges(get().changeHistory, {
+						type: 'set-description',
+						description,
+					}),
+				})
+			}
+		},
 
 		getNodeById: id => get().nodes.get(id) ?? null,
+
+		renameNode: (id, displayName) => {
+			const { nodes, changeHistory } = get()
+			const node = nodes.get(id)!
+			node.data.label = displayName
+
+			set({
+				nodes: new Map(nodes),
+				changeHistory: addCompChanges(changeHistory, {
+					type: 'node-rename',
+					id,
+					label: displayName,
+				}),
+			})
+		},
+
+		setNodeProperty: (id, property, value) => {
+			const { nodes, changeHistory } = get()
+			const node = nodes.get(id)!
+			node.data.properties[property] = value
+
+			set({
+				nodes: new Map(nodes),
+				changeHistory: addCompChanges(changeHistory, {
+					type: 'node-set-property',
+					id,
+					property,
+					value,
+				}),
+			})
+		},
 
 		applyNodeChanges: changes => {
 			const nodes = applyNodeChanges(changes, [...get().nodes.values()])
 			set({ nodes: new Map(nodes.map(node => [node.id, node])) })
 
-			const newCompChanges = changes
+			const compChanges = changes
 				.map(change => nodeChangeToCompositionChange(change))
 				.filter(Boolean) as CompositionChange[]
 
-			if (newCompChanges.length) {
+			if (compChanges.length) {
 				set({
-					changeHistory: [...get().changeHistory, ...newCompChanges],
+					changeHistory: addCompChanges(
+						get().changeHistory,
+						...compChanges,
+					),
 				})
 			}
 
@@ -133,13 +207,16 @@ export function createCompositionStore(initialState: CompositionState) {
 			const edges = applyEdgeChanges(changes, [...get().edges.values()])
 			set({ edges: new Map(edges.map(edge => [edge.id, edge])) })
 
-			const newCompChanges = changes
+			const compChanges = changes
 				.map(change => edgeChangeToCompositionChange(change))
 				.filter(Boolean) as CompositionChange[]
 
-			if (newCompChanges.length) {
+			if (compChanges.length) {
 				set({
-					changeHistory: [...get().changeHistory, ...newCompChanges],
+					changeHistory: addCompChanges(
+						get().changeHistory,
+						...compChanges,
+					),
 				})
 			}
 
@@ -156,58 +233,31 @@ export function createCompositionStore(initialState: CompositionState) {
 		},
 
 		connect: ({ source, target }) => {
+			const prevEdges = get().edges
 			const newEdge: AudioEdge = { id: nanoid(), source, target }
-			const edges = addEdge(newEdge, [...get().edges.values()])
+			const edges = addEdge(newEdge, [...prevEdges.values()])
+
+			if (edges.length == prevEdges.size) {
+				return
+			}
 
 			set({
 				edges: new Map(edges.map(edge => [edge.id, edge])),
-				changeHistory: [
-					...get().changeHistory,
-					{
-						type: 'edge-add',
-						id: newEdge.id,
-						sender: source,
-						receiver: target,
-					},
-				],
+				changeHistory: addCompChanges(get().changeHistory, {
+					type: 'edge-add',
+					id: newEdge.id,
+					sender: source,
+					receiver: target,
+				}),
 			})
 		},
 
-		renameNode: (id, displayName) => {
-			const { nodes, changeHistory } = get()
-			const node = nodes.get(id)!
-			node.data.label = displayName
-
+		saveChanges: () =>
 			set({
-				nodes: new Map(nodes),
-				changeHistory: [
-					...changeHistory,
-					{
-						type: 'node-rename',
-						id,
-						label: displayName,
-					},
-				],
-			})
-		},
-
-		setNodeProperties: (id, properties) => {
-			const { nodes, changeHistory } = get()
-			const node = nodes.get(id)!
-			Object.assign(node.data.properties, properties)
-
-			set({
-				nodes: new Map(nodes),
-				changeHistory: [
-					...changeHistory,
-					{
-						type: 'node-set-property',
-						id,
-						properties: { ...properties },
-					},
-				],
-			})
-		},
+				changeHistory: addCompChanges(get().changeHistory, {
+					type: 'save-changes',
+				}),
+			}),
 	}))
 }
 
@@ -266,4 +316,74 @@ function edgeChangeToCompositionChange(
 	}
 
 	return null
+}
+
+const changeReplacer =
+	<H extends CompositionChange['type'], I extends CompositionChange['type']>(
+		historyType: H,
+		incomingType: I,
+
+		condition?: (
+			historyChange: CompositionChange & { type: H },
+			incomingChange: CompositionChange & { type: I },
+		) => boolean,
+	) =>
+	(historyChange: CompositionChange, incomingChange: CompositionChange) => {
+		return (
+			historyChange.type == historyType &&
+			incomingChange.type == incomingType &&
+			(condition?.(
+				historyChange as CompositionChange & { type: H },
+				incomingChange as CompositionChange & { type: I },
+			) ??
+				true)
+		)
+	}
+
+const changeReplacers = [
+	changeReplacer('save-changes', 'save-changes'),
+	changeReplacer('set-name', 'set-name'),
+	changeReplacer('set-description', 'set-description'),
+	changeReplacer('node-move', 'node-move', (a, b) => a.id == b.id),
+	changeReplacer('node-rename', 'node-rename', (a, b) => a.id == b.id),
+	changeReplacer(
+		'node-set-property',
+		'node-set-property',
+		(a, b) => a.id == b.id && a.property == b.property,
+	),
+]
+
+function addCompChanges(
+	changeHistory: CompositionChange[],
+	...newChanges: CompositionChange[]
+): CompositionChange[] {
+	if (!changeHistory.length) {
+		return newChanges
+	}
+
+	if (!newChanges.length) {
+		return changeHistory
+	}
+
+	let historySlice = changeHistory
+
+	if (newChanges.length == 1) {
+		const lastChange = changeHistory[changeHistory.length - 1]
+		const incomingChange = newChanges[0]
+
+		if (changeReplacers.some(c => c(lastChange, incomingChange))) {
+			historySlice = changeHistory.slice(0, changeHistory.length - 1)
+		}
+	}
+
+	if (historySlice.length > MAX_HISTORY_LENGTH) {
+		// TODO: this might throw away very old & unsaved changes
+		// ...if you're willing to spam 100+ changes in a row
+		historySlice = historySlice.slice(
+			historySlice.length - MAX_HISTORY_LENGTH,
+			historySlice.length,
+		)
+	}
+
+	return historySlice.concat(newChanges)
 }
