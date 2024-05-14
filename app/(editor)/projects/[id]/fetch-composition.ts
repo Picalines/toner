@@ -1,7 +1,6 @@
 'use server'
 
 import { and, eq } from 'drizzle-orm'
-import { revalidatePath } from 'next/cache'
 import { notFound } from 'next/navigation'
 import { z } from 'zod'
 import { authenticateOrRedirect } from '@/lib/auth'
@@ -11,7 +10,6 @@ import {
 	nodeConnectionTable,
 	nodeTable,
 } from '@/lib/db'
-import { CompositionInfo } from './schemas'
 
 export async function fetchComposition(compositionId: number) {
 	const {
@@ -40,29 +38,6 @@ export async function fetchComposition(compositionId: number) {
 	return compositionQuery[0]
 }
 
-export async function updateCompositionInfo(
-	compositionId: number,
-	{ name, description }: CompositionInfo,
-) {
-	const {
-		user: { id: accountId },
-	} = await authenticateOrRedirect('/sign-in')
-
-	await database.transaction(async tx => {
-		await tx
-			.update(compositionTable)
-			.set({ name, description })
-			.where(
-				and(
-					eq(compositionTable.id, compositionId),
-					eq(compositionTable.authorId, accountId),
-				),
-			)
-	})
-
-	revalidatePath('/account')
-}
-
 type FetchedAudioNode = {
 	type: string
 	displayName: string | null
@@ -73,7 +48,11 @@ type FetchedAudioNode = {
 
 type FetchedAudioTree = {
 	nodes: Record<string, FetchedAudioNode>
-	connections: [output: [string, number], input: [string, number]][]
+	connections: {
+		id: string
+		output: [string, number]
+		input: [string, number]
+	}[]
 }
 
 export async function fetchAudioTree(
@@ -89,6 +68,7 @@ export async function fetchAudioTree(
 					centerX: nodeTable.centerX,
 					centerY: nodeTable.centerY,
 					properties: nodeTable.properties,
+					edgeId: nodeConnectionTable.id,
 					receiverId: nodeConnectionTable.receiverId,
 					outputSocket: nodeConnectionTable.outputSocket,
 					inputSocket: nodeConnectionTable.inputSocket,
@@ -122,11 +102,12 @@ export async function fetchAudioTree(
 		}
 
 		if (nodeRow.receiverId !== null) {
-			const { receiverId, outputSocket, inputSocket } = nodeRow
-			connections.push([
-				[id, outputSocket!],
-				[receiverId, inputSocket!],
-			])
+			const { edgeId, receiverId, outputSocket, inputSocket } = nodeRow
+			connections.push({
+				id: edgeId!,
+				output: [id, outputSocket!],
+				input: [receiverId, inputSocket!],
+			})
 		}
 	}
 
