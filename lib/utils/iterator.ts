@@ -31,3 +31,31 @@ export function* range(
 		yield current
 	}
 }
+
+export function* takeWhile<T>(
+	iterable: Iterable<T>,
+	predicate: (item: T) => boolean,
+): Generator<T> {
+	for (const item of iterable) {
+		if (!predicate(item)) {
+			break
+		}
+
+		yield item
+	}
+}
+
+export function* takeWhileFromEnd<T>(
+	array: readonly T[],
+	predicate: (item: T) => boolean,
+): Generator<T> {
+	for (let i = array.length - 1; i >= 0; i--) {
+		const item = array[i]
+
+		if (!predicate(item)) {
+			break
+		}
+
+		yield item
+	}
+}
