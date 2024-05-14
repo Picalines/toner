@@ -57,6 +57,7 @@ export default async function EditorPage({ params }: Props) {
 			<ToneStoreProvider>
 				<EditorStoreProvider
 					initialState={{
+						dirtyState: 'clean',
 						openedModal: null,
 						panelLayout: 'horizontal',
 					}}

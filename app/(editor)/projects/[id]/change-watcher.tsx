@@ -4,6 +4,7 @@ import { PropsWithChildren, useCallback, useEffect, useRef } from 'react'
 import { useDebouncedCallback } from 'use-debounce'
 import { useShallow } from 'zustand/react/shallow'
 import { useCompositionStore } from '@/components/providers/composition-store-provider'
+import { useEditorStore } from '@/components/providers/editor-store-provider'
 import { CompositionStore } from '@/stores/composition-store'
 import {
 	CompositionUpdateRequest,
@@ -21,12 +22,19 @@ const watchSelector = ({
 	saveChanges,
 })
 
+const beforeUnloadAlertHandler = (event: BeforeUnloadEvent) => {
+	event.preventDefault()
+}
+
 export default function ChangeWatcher({ children }: PropsWithChildren) {
 	const {
 		id: compositionId,
 		changeHistory,
 		saveChanges,
 	} = useCompositionStore(useShallow(watchSelector))
+
+	const dirtyState = useEditorStore(editor => editor.dirtyState)
+	const setDirtyState = useEditorStore(editor => editor.setDirtyState)
 
 	const updateRequestRef = useRef<CompositionUpdateRequest>({
 		id: compositionId,
@@ -38,7 +46,11 @@ export default function ChangeWatcher({ children }: PropsWithChildren) {
 		const request = updateRequestRef.current
 		const lastChange = changeHistory[changeHistory.length - 1] // TODO: watch for multiple last changes
 		mergeCompositionChangeToRequest(request, lastChange)
-	}, [changeHistory])
+
+		if (lastChange.type != 'save-changes') {
+			setDirtyState('waiting')
+		}
+	}, [changeHistory, setDirtyState])
 
 	const submitChanges = useDebouncedCallback(async () => {
 		const lastChange = changeHistory[changeHistory.length - 1]
@@ -46,13 +58,15 @@ export default function ChangeWatcher({ children }: PropsWithChildren) {
 			return
 		}
 
+		setDirtyState('saving')
 		saveChanges()
 		await updateComposition(updateRequestRef.current)
+		setDirtyState('clean')
 
 		const request = updateRequestRef.current
 		request.nodes = {}
 		request.edges = {}
-	}, 3000)
+	}, 1500)
 
 	useEffect(() => {
 		if (!changeHistory.length) {
@@ -62,6 +76,18 @@ export default function ChangeWatcher({ children }: PropsWithChildren) {
 		addChangesToRequest()
 		void submitChanges()
 	}, [changeHistory, addChangesToRequest, submitChanges])
+
+	useEffect(() => {
+		if (dirtyState == 'clean') {
+			return
+		}
+
+		// NOTICE: doesn't block nextjs navigation, need to persist unsaved
+		// changes in localStorage... and fix conflicts i guess
+		window.addEventListener('beforeunload', beforeUnloadAlertHandler)
+		return () =>
+			window.removeEventListener('beforeunload', beforeUnloadAlertHandler)
+	}, [dirtyState])
 
 	return <>{children}</>
 }

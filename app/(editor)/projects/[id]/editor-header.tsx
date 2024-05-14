@@ -37,6 +37,8 @@ type Props = Readonly<{
 export default function EditorHeader({ className }: Props) {
 	const compositionName = useCompositionStore(composition => composition.name)
 
+	const dirtyState = useEditorStore(editor => editor.dirtyState)
+
 	return (
 		<div
 			className={cn(
@@ -45,7 +47,15 @@ export default function EditorHeader({ className }: Props) {
 			)}
 		>
 			<title>{compositionName}</title>
-			<BackButton variant="outline" text={null} />
+			<BackButton
+				variant="outline"
+				text={null}
+				disabled={dirtyState != 'clean'}
+				className={cn(
+					'transition-all',
+					dirtyState == 'saving' && 'animate-pulse',
+				)}
+			/>
 			<EditorDropdownMenu>
 				<Button variant="outline">
 					<EllipsisIcon />
