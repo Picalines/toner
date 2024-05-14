@@ -5,14 +5,16 @@ export type ToneState = {
 	context: BaseToneContext
 	isAudioAvailable: boolean
 
-	nodes: ToneAudioNode[]
+	nodes: Map<string, ToneAudioNode>
 }
 
 export type ToneActions = {
 	resumeContext: () => Promise<void>
 
-	addNode: (node: ToneAudioNode) => void
-	disposeNode: (node: ToneAudioNode) => void
+	getNodeById: (id: string) => ToneAudioNode | null
+	addNode: (id: string, node: ToneAudioNode) => void
+	disposeNode: (id: string) => void
+
 	disposeAll: () => void
 }
 
@@ -27,25 +29,41 @@ export function createToneStore(initialState: ToneState) {
 			set({ isAudioAvailable: true })
 		},
 
-		addNode: node => {
+		getNodeById: id => get().nodes.get(id) ?? null,
+
+		addNode: (id, node) => {
 			if (node.name == 'Destination') {
 				return
 			}
 
-			set({ nodes: [...get().nodes, node] })
+			get().getNodeById(id)?.dispose()
+
+			const nodes = new Map(get().nodes)
+			nodes.set(id, node)
+
+			set({ nodes })
 		},
 
-		disposeNode: node => {
+		disposeNode: id => {
+			const node = get().getNodeById(id)
+			if (node === null) {
+				return
+			}
+
 			node.dispose()
-			set({ nodes: get().nodes.filter(n => n !== node) })
+
+			const nodes = new Map(get().nodes)
+			nodes.delete(id)
+
+			set({ nodes })
 		},
 
 		disposeAll: () => {
-			for (const node of get().nodes) {
+			for (const node of get().nodes.values()) {
 				node.dispose()
 			}
 
-			set({ nodes: [] })
+			set({ nodes: new Map() })
 		},
 	}))
 }
