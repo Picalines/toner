@@ -1,9 +1,9 @@
 import { z } from 'zod'
-import { displayNameSchema, loginSchema } from '@/schemas/user'
+import { userSchemas } from '@/schemas/user'
 
 export const editProfileSchema = z.object({
-	login: loginSchema,
-	displayName: displayNameSchema,
+	login: userSchemas.login,
+	displayName: userSchemas.displayName,
 })
 
 export type EditProfileFormData = z.infer<typeof editProfileSchema>

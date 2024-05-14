@@ -1,9 +1,9 @@
 import { z } from 'zod'
-import { loginSchema, passwordSchema } from '@/schemas/user'
+import { userSchemas } from '@/schemas/user'
 
 export const signInFormSchema = z.object({
-	login: loginSchema,
-	password: passwordSchema,
+	login: userSchemas.login,
+	password: userSchemas.password,
 })
 
 export type SignInFormData = z.infer<typeof signInFormSchema>

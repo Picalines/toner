@@ -1,11 +1,11 @@
 import { z } from 'zod'
-import { loginSchema, passwordSchema } from '@/schemas/user'
+import { userSchemas } from '@/schemas/user'
 
 export const signupFormSchema = z
 	.object({
-		login: loginSchema,
-		password: passwordSchema,
-		confirmPassword: z.string().min(1, 'required'),
+		login: userSchemas.login,
+		password: userSchemas.password,
+		confirmPassword: userSchemas.password,
 	})
 	.superRefine(({ password, confirmPassword }, { addIssue }) => {
 		if (password !== confirmPassword) {
