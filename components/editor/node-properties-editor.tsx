@@ -1,6 +1,6 @@
 'use client'
 
-import { ChangeEvent, useCallback } from 'react'
+import { ChangeEvent, useCallback, useState } from 'react'
 import { useShallow } from 'zustand/react/shallow'
 import { cn, tw } from '@/lib/utils'
 import {
@@ -60,8 +60,6 @@ export default function NodePropertiesEditor({ className }: Props) {
 type NodeNameInputProps = Readonly<{ nodeId: AudioNode['id'] }>
 
 function NodeNameInput({ nodeId }: NodeNameInputProps) {
-	// TODO: name is trimmed by zod, save it in state or smth
-
 	const renameNode = useCompositionStore(comp => comp.renameNode)
 	const { type, label } = useCompositionStore(
 		useShallow(comp => {
@@ -72,11 +70,14 @@ function NodeNameInput({ nodeId }: NodeNameInputProps) {
 		}),
 	)
 
+	const [inputLabel, setInputLabel] = useState(label)
+
 	const { group } = audioNodeDefinitions[type]
 
 	const onNameChange = useCallback(
 		(event: ChangeEvent<HTMLInputElement>) => {
 			renameNode(nodeId, event.target.value)
+			setInputLabel(event.target.value)
 		},
 		[renameNode, nodeId],
 	)
@@ -93,7 +94,7 @@ function NodeNameInput({ nodeId }: NodeNameInputProps) {
 				'h-9 rounded-none border-none text-white focus-visible:ring-0 focus-visible:ring-offset-0',
 				nodeGroupClassNames[group],
 			)}
-			value={label}
+			value={inputLabel}
 			onChange={onNameChange}
 		/>
 	)
