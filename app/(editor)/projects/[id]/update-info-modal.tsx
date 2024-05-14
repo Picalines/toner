@@ -3,7 +3,10 @@
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useCallback, useEffect } from 'react'
 import { useForm } from 'react-hook-form'
-import { useDebouncedCallback } from 'use-debounce'
+import { z } from 'zod'
+import { useShallow } from 'zustand/react/shallow'
+import { useConstant } from '@/lib/hooks'
+import { compositionSchemas } from '@/schemas/composition'
 import { useCompositionStore } from '@/components/providers/composition-store-provider'
 import { useEditorStore } from '@/components/providers/editor-store-provider'
 import {
@@ -22,8 +25,7 @@ import {
 } from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
 import { TextArea } from '@/components/ui/text-area'
-import { updateCompositionInfo } from './actions'
-import { compositionInfoSchema } from './schemas'
+import { CompositionStore } from '@/stores/composition-store'
 
 export default function UpdateInfoModal() {
 	const openedModal = useEditorStore(editor => editor.openedModal)
@@ -50,44 +52,53 @@ export default function UpdateInfoModal() {
 	)
 }
 
+const formSchema = z.object({
+	name: compositionSchemas.name,
+	description: compositionSchemas.description,
+})
+
+const formCompSelector = ({
+	name,
+	description,
+	setName,
+	setDescription,
+}: CompositionStore) => ({ name, description, setName, setDescription })
+
 function UpdateInfoForm() {
-	const compositionId = useCompositionStore(composition => composition.id)
-	const compositionName = useCompositionStore(composition => composition.name)
-	const compositionDescription = useCompositionStore(
-		composition => composition.description,
-	)
-	const updateInfo = useCompositionStore(
-		composition => composition.updateInfo,
+	const { name, description, setName, setDescription } = useCompositionStore(
+		useShallow(formCompSelector),
 	)
 
+	const initialData = useConstant(() => ({
+		name,
+		description,
+	}))
+
 	const form = useForm({
-		resolver: zodResolver(compositionInfoSchema),
+		resolver: zodResolver(formSchema),
 		defaultValues: {
-			name: compositionName,
-			description: compositionDescription,
+			...initialData,
 		},
 		mode: 'onChange',
 	})
 
-	const handleSubmit = useDebouncedCallback(
-		form.handleSubmit(async newInfo => {
-			await updateCompositionInfo(compositionId, newInfo)
-			updateInfo(newInfo)
-		}),
-		500,
+	const onSubmit = useCallback(
+		(data: z.infer<typeof formSchema>) => {
+			setName(data.name)
+			setDescription(data.description)
+		},
+		[setName, setDescription],
 	)
 
 	const {
-		formState: { isValidating, isValid, isDirty },
+		formState: { isValid, isValidating, isDirty },
 	} = form
 
 	useEffect(() => {
-		if (isDirty && !isValidating && isValid) {
-			void handleSubmit()
+		if (!isValidating && isDirty) {
+			onSubmit(isValid ? form.getValues() : initialData)
 		}
-	}, [isValidating, isValid, isDirty, handleSubmit])
-
-	useEffect(() => () => handleSubmit.flush(), [handleSubmit])
+	}, [isValid, isValidating, isDirty, form, onSubmit, initialData])
 
 	return (
 		<Form {...form}>
