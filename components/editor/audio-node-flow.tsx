@@ -46,6 +46,7 @@ export default function AudioNodeFlow({ className }: Props) {
 			colorMode={theme as ColorMode}
 			proOptions={{ hideAttribution: true }}
 			fitView
+			fitViewOptions={{ maxZoom: 1 }}
 		>
 			<Controls showInteractive={false} position="bottom-right" />
 			<Background variant={BackgroundVariant.Dots} gap={12} size={1} />
