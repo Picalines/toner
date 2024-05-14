@@ -6,7 +6,7 @@ import { cn, tw } from '@/lib/utils'
 import {
 	AudioNodeGroup,
 	AudioNodeProperty,
-	audioNodeSchemas,
+	audioNodeDefinitions,
 } from '@/schemas/nodes'
 import { AudioNode } from '@/stores/composition-store'
 import { useCompositionStore } from '../providers/composition-store-provider'
@@ -39,7 +39,7 @@ export default function NodePropertiesEditor({ className }: Props) {
 	}
 
 	const { type } = selectedNode
-	const { properties } = audioNodeSchemas[type]
+	const { properties } = audioNodeDefinitions[type]
 
 	return (
 		<ScrollArea className={cn('dark:bg-neutral-900', className)}>
@@ -60,6 +60,8 @@ export default function NodePropertiesEditor({ className }: Props) {
 type NodeNameInputProps = Readonly<{ nodeId: AudioNode['id'] }>
 
 function NodeNameInput({ nodeId }: NodeNameInputProps) {
+	// TODO: name is trimmed by zod, save it in state or smth
+
 	const renameNode = useCompositionStore(comp => comp.renameNode)
 	const { type, label } = useCompositionStore(
 		useShallow(comp => {
@@ -70,7 +72,7 @@ function NodeNameInput({ nodeId }: NodeNameInputProps) {
 		}),
 	)
 
-	const { group } = audioNodeSchemas[type]
+	const { group } = audioNodeDefinitions[type]
 
 	const onNameChange = useCallback(
 		(event: ChangeEvent<HTMLInputElement>) => {

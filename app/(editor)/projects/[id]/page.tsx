@@ -5,8 +5,9 @@ import CompositionEditor from '@/components/editor/composition-editor'
 import CompositionStoreProvider from '@/components/providers/composition-store-provider'
 import EditorStoreProvider from '@/components/providers/editor-store-provider'
 import ToneStoreProvider from '@/components/providers/tone-store-provider'
-import { fetchAudioTree, fetchComposition } from './actions'
+import ChangeWatcher from './change-watcher'
 import EditorHeader from './editor-header'
+import { fetchAudioTree, fetchComposition } from './fetch-composition'
 import { parseProjectId } from './parse-project-id'
 import UpdateInfoModal from './update-info-modal'
 
@@ -39,12 +40,17 @@ export default async function EditorPage({ params }: Props) {
 				},
 			}))}
 			edges={audioTree.connections.map(
-				// TODO: sockets
-				([[senderId, senderSocket], [receiverId, receiverSocket]]) => ({
-					id: `${senderId}.${senderSocket}-${receiverId}${receiverSocket}`,
+				({
+					id,
+					output: [source, sourceHandle],
+					input: [target, targetHandle],
+				}) => ({
+					id,
 					type: 'default',
-					source: senderId,
-					target: receiverId,
+					source,
+					target,
+					sourceHandle: String(sourceHandle),
+					targetHandle: String(targetHandle),
 				}),
 			)}
 		>
@@ -55,10 +61,12 @@ export default async function EditorPage({ params }: Props) {
 						panelLayout: 'horizontal',
 					}}
 				>
-					<div className="flex h-[100svh] max-h-[100svh] flex-col">
-						<EditorHeader />
-						<CompositionEditor className="w-full flex-grow" />
-					</div>
+					<ChangeWatcher>
+						<div className="flex h-[100svh] max-h-[100svh] flex-col">
+							<EditorHeader />
+							<CompositionEditor className="w-full flex-grow" />
+						</div>
+					</ChangeWatcher>
 					<UpdateInfoModal />
 				</EditorStoreProvider>
 			</ToneStoreProvider>

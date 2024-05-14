@@ -1,4 +1,26 @@
-export type AudioNodeType = 'output' | 'synth' | 'gain' | 'reverb'
+import { z } from 'zod'
+import { zodLiteralUnion } from '@/lib/utils'
+
+const propertySchema = z.string().trim().min(1).max(32)
+
+export const audioNodeSchemas = {
+	nodeId: z.string().min(1).max(36),
+	edgeId: z.string().min(1).max(36),
+	socketId: z.number().int().min(0).max(16),
+
+	label: z.string().trim().min(1).max(32),
+	position: z.tuple([z.number(), z.number()]),
+	property: propertySchema,
+	properties: z.record(propertySchema, z.number()), // TODO: limit amount of properties
+
+	type: zodLiteralUnion('output', 'synth', 'gain', 'reverb'),
+}
+
+export type AudioNodeId = z.infer<(typeof audioNodeSchemas)['nodeId']>
+
+export type AudioEdgeId = z.infer<(typeof audioNodeSchemas)['edgeId']>
+
+export type AudioNodeType = z.infer<(typeof audioNodeSchemas)['type']>
 
 export type AudioNodeGroup = 'instrument' | 'effect' | 'output'
 
@@ -10,7 +32,7 @@ export type AudioNodeProperty = {
 	valueLabels?: Record<number, string>
 }
 
-export type AudioNodeSchema = {
+export type AudioNodeDefinition = {
 	group: AudioNodeGroup
 	inputs: { name: string }[]
 	outputs: { name: string }[]
@@ -31,7 +53,7 @@ const wetProperty = {
 	max: 255,
 } as const satisfies AudioNodeProperty
 
-export const audioNodeSchemas = {
+export const audioNodeDefinitions = {
 	output: {
 		group: 'output',
 		inputs: [{ name: 'audio' }],
@@ -90,4 +112,4 @@ export const audioNodeSchemas = {
 			},
 		},
 	},
-} as const satisfies Record<AudioNodeType, AudioNodeSchema>
+} as const satisfies Record<AudioNodeType, AudioNodeDefinition>

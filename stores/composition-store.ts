@@ -13,8 +13,11 @@ import {
 import { nanoid } from 'nanoid'
 import { createStore } from 'zustand/vanilla'
 import { safeParseOr } from '@/lib/utils'
-import { compositionSchemas as schemas } from '@/schemas/composition'
-import { AudioNodeType } from '@/schemas/nodes'
+import {
+	CompositionChange,
+	compositionSchemas as compSchemas,
+} from '@/schemas/composition'
+import { AudioNodeType, audioNodeSchemas as nodeSchemas } from '@/schemas/nodes'
 
 export type AudioNode = Node<{
 	type: AudioNodeType
@@ -41,55 +44,12 @@ export type CompositionState = {
 
 const MAX_HISTORY_LENGTH = 100
 
-export type CompositionChange =
-	| { type: 'save-changes' }
-	| { type: 'set-name'; name: string }
-	| { type: 'set-description'; description: string }
-	| {
-			type: 'node-add'
-			id: AudioNode['id']
-			position: [x: number, y: number]
-			nodeType: AudioNodeType
-			label: string
-			properties: Record<string, number>
-	  }
-	| {
-			type: 'node-move'
-			id: AudioNode['id']
-			position: [x: number, y: number]
-	  }
-	| {
-			type: 'node-rename'
-			id: AudioNode['id']
-			label: AudioNode['data']['label']
-	  }
-	| {
-			type: 'node-set-property'
-			id: AudioNode['id']
-			property: string
-			value: number
-	  }
-	| {
-			type: 'node-remove'
-			id: AudioNode['id']
-	  }
-	| {
-			type: 'edge-add'
-			id: AudioEdge['id']
-			sender: AudioNode['id']
-			receiver: AudioNode['id']
-	  }
-	| {
-			type: 'edge-remove'
-			id: AudioEdge['id']
-	  }
-
 export type CompositionActions = {
 	setName: (name: string) => void
 	setDescription: (description: string) => void
 
 	getNodeById: (id: AudioNode['id']) => AudioNode | null
-	renameNode: (id: AudioNode['id'], displayName: string) => void
+	renameNode: (id: AudioNode['id'], label: string) => void
 	setNodeProperty: (
 		id: AudioNode['id'],
 		property: string,
@@ -108,157 +68,161 @@ export type CompositionStore = CompositionState & CompositionActions
 export function createCompositionStore(initialState: CompositionState) {
 	// TODO: validate initialState
 
-	return createStore<CompositionStore>()((set, get) => ({
-		...initialState,
-
-		setName: name => {
-			name = safeParseOr(schemas.name, name, null) ?? get().name
-
-			if (get().name != name) {
-				set({
-					name,
-					changeHistory: addCompChanges(get().changeHistory, {
-						type: 'set-name',
-						name,
-					}),
-				})
-			}
-		},
-
-		setDescription: description => {
-			description =
-				safeParseOr(schemas.description, description, null) ??
-				get().description
-
-			if (description != get().description) {
-				set({
-					description,
-					changeHistory: addCompChanges(get().changeHistory, {
-						type: 'set-description',
-						description,
-					}),
-				})
-			}
-		},
-
-		getNodeById: id => get().nodes.get(id) ?? null,
-
-		renameNode: (id, displayName) => {
-			const { nodes, changeHistory } = get()
-			const node = nodes.get(id)!
-			node.data.label = displayName
-
+	return createStore<CompositionStore>()((set, get) => {
+		const addChanges = (...changes: CompositionChange[]) =>
 			set({
-				nodes: new Map(nodes),
-				changeHistory: addCompChanges(changeHistory, {
+				changeHistory: mergeChanges(get().changeHistory, ...changes),
+			})
+
+		return {
+			...initialState,
+
+			setName: name => {
+				const { name: currentName } = get()
+				name = safeParseOr(compSchemas.name, name, currentName)
+
+				if (name != currentName) {
+					set({ name })
+					addChanges({ type: 'set-name', name })
+				}
+			},
+
+			setDescription: description => {
+				const { description: currentDescription } = get()
+				description = safeParseOr(
+					compSchemas.description,
+					description,
+					currentDescription,
+				)
+
+				if (description != currentDescription) {
+					set({ description })
+					addChanges({ type: 'set-description', description })
+				}
+			},
+
+			getNodeById: id => get().nodes.get(id) ?? null,
+
+			renameNode: (id, label) => {
+				const node = get().getNodeById(id)
+				if (!node) {
+					return
+				}
+
+				label = safeParseOr(nodeSchemas.label, label, node.data.label)
+				if (node.data.label == label) {
+					return
+				}
+
+				node.data.label = label
+
+				set({ nodes: new Map(get().nodes) })
+				addChanges({
 					type: 'node-rename',
 					id,
-					label: displayName,
-				}),
-			})
-		},
+					label,
+				})
+			},
 
-		setNodeProperty: (id, property, value) => {
-			const { nodes, changeHistory } = get()
-			const node = nodes.get(id)!
-			node.data.properties[property] = value
+			setNodeProperty: (id, property, value) => {
+				const node = get().nodes.get(id)
+				if (!node) {
+					return
+				}
 
-			set({
-				nodes: new Map(nodes),
-				changeHistory: addCompChanges(changeHistory, {
+				const safeProperty = safeParseOr(
+					nodeSchemas.property,
+					property,
+					null,
+				)
+				if (safeProperty === null) {
+					return
+				}
+
+				node.data.properties[safeProperty] = value
+
+				set({ nodes: new Map(get().nodes) })
+				addChanges({
 					type: 'node-set-property',
 					id,
-					property,
+					property: safeProperty,
 					value,
-				}),
-			})
-		},
-
-		applyNodeChanges: changes => {
-			const nodes = applyNodeChanges(changes, [...get().nodes.values()])
-			set({ nodes: new Map(nodes.map(node => [node.id, node])) })
-
-			const compChanges = changes
-				.map(change => nodeChangeToCompositionChange(change))
-				.filter(Boolean) as CompositionChange[]
-
-			if (compChanges.length) {
-				set({
-					changeHistory: addCompChanges(
-						get().changeHistory,
-						...compChanges,
-					),
 				})
-			}
+			},
 
-			const selectChanges = changes.filter(
-				(c): c is NodeSelectionChange => c.type == 'select',
-			)
+			applyNodeChanges: changes => {
+				const nodes = applyNodeChanges(changes, [
+					...get().nodes.values(),
+				])
+				set({ nodes: new Map(nodes.map(node => [node.id, node])) })
 
-			if (selectChanges.length) {
-				set({
-					selectedNodeId:
-						selectChanges.find(c => c.selected)?.id ?? null,
-				})
-			}
-		},
+				const compChanges = changes
+					.map(change => nodeChangeToCompositionChange(change))
+					.filter(Boolean) as CompositionChange[]
 
-		applyEdgeChanges: changes => {
-			const edges = applyEdgeChanges(changes, [...get().edges.values()])
-			set({ edges: new Map(edges.map(edge => [edge.id, edge])) })
+				if (compChanges.length) {
+					addChanges(...compChanges)
+				}
 
-			const compChanges = changes
-				.map(change => edgeChangeToCompositionChange(change))
-				.filter(Boolean) as CompositionChange[]
+				const selectChanges = changes.filter(
+					(c): c is NodeSelectionChange => c.type == 'select',
+				)
 
-			if (compChanges.length) {
-				set({
-					changeHistory: addCompChanges(
-						get().changeHistory,
-						...compChanges,
-					),
-				})
-			}
+				if (selectChanges.length) {
+					set({
+						selectedNodeId:
+							selectChanges.find(c => c.selected)?.id ?? null,
+					})
+				}
+			},
 
-			const selectChanges = changes.filter(
-				(c): c is EdgeSelectionChange => c.type == 'select',
-			)
+			applyEdgeChanges: changes => {
+				const edges = applyEdgeChanges(changes, [
+					...get().edges.values(),
+				])
+				set({ edges: new Map(edges.map(edge => [edge.id, edge])) })
 
-			if (selectChanges.length) {
-				set({
-					selectedEdgeId:
-						selectChanges.find(c => c.selected)?.id ?? null,
-				})
-			}
-		},
+				const compChanges = changes
+					.map(change => edgeChangeToCompositionChange(change))
+					.filter(Boolean) as CompositionChange[]
 
-		connect: ({ source, target }) => {
-			const prevEdges = get().edges
-			const newEdge: AudioEdge = { id: nanoid(), source, target }
-			const edges = addEdge(newEdge, [...prevEdges.values()])
+				if (compChanges.length) {
+					addChanges(...compChanges)
+				}
 
-			if (edges.length == prevEdges.size) {
-				return
-			}
+				const selectChanges = changes.filter(
+					(c): c is EdgeSelectionChange => c.type == 'select',
+				)
 
-			set({
-				edges: new Map(edges.map(edge => [edge.id, edge])),
-				changeHistory: addCompChanges(get().changeHistory, {
+				if (selectChanges.length) {
+					set({
+						selectedEdgeId:
+							selectChanges.find(c => c.selected)?.id ?? null,
+					})
+				}
+			},
+
+			connect: ({ source, target, sourceHandle, targetHandle }) => {
+				const prevEdges = get().edges
+				const newEdge: AudioEdge = { id: nanoid(), source, target }
+				const edges = addEdge(newEdge, [...prevEdges.values()])
+
+				if (edges.length == prevEdges.size) {
+					return
+				}
+
+				set({ edges: new Map(edges.map(edge => [edge.id, edge])) })
+				addChanges({
 					type: 'edge-add',
 					id: newEdge.id,
-					sender: source,
-					receiver: target,
-				}),
-			})
-		},
+					source: [source, parseInt(sourceHandle ?? '0')],
+					target: [target, parseInt(targetHandle ?? '0')],
+				})
+			},
 
-		saveChanges: () =>
-			set({
-				changeHistory: addCompChanges(get().changeHistory, {
-					type: 'save-changes',
-				}),
-			}),
-	}))
+			saveChanges: () => addChanges({ type: 'save-changes' }),
+		}
+	})
 }
 
 function nodeChangeToCompositionChange(
@@ -303,8 +267,8 @@ function edgeChangeToCompositionChange(
 		return {
 			type: 'edge-add',
 			id: edge.id,
-			sender: edge.source,
-			receiver: edge.target,
+			source: [edge.source, parseInt(edge.sourceHandle ?? '0')],
+			target: [edge.target, parseInt(edge.targetHandle ?? '0')],
 		}
 	}
 
@@ -332,11 +296,11 @@ const changeReplacer =
 		return (
 			historyChange.type == historyType &&
 			incomingChange.type == incomingType &&
-			(condition?.(
-				historyChange as CompositionChange & { type: H },
-				incomingChange as CompositionChange & { type: I },
-			) ??
-				true)
+			(!condition ||
+				condition(
+					historyChange as CompositionChange & { type: H },
+					incomingChange as CompositionChange & { type: I },
+				))
 		)
 	}
 
@@ -353,13 +317,24 @@ const changeReplacers = [
 	),
 ]
 
-function addCompChanges(
+function mergeChanges(
 	changeHistory: CompositionChange[],
 	...newChanges: CompositionChange[]
 ): CompositionChange[] {
 	if (!changeHistory.length) {
 		return newChanges
 	}
+
+	newChanges = newChanges.flatMap(c => {
+		const pc = safeParseOr(compSchemas.change, c, null)
+
+		if (!pc) {
+			console.warn('invalid composition change', c)
+			return []
+		}
+
+		return [pc]
+	})
 
 	if (!newChanges.length) {
 		return changeHistory
