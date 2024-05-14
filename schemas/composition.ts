@@ -1,5 +1,5 @@
 import { z } from 'zod'
-import { audioNodeSchemas } from './nodes'
+import { audioNodeSchemas } from './audio-node'
 
 const {
 	type: nodeType,

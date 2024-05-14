@@ -7,7 +7,7 @@ import {
 	AudioNodeGroup,
 	AudioNodeProperty,
 	audioNodeDefinitions,
-} from '@/schemas/nodes'
+} from '@/schemas/audio-node'
 import { AudioNode } from '@/stores/composition-store'
 import { useCompositionStore } from '../providers/composition-store-provider'
 import { Input } from '../ui/input'

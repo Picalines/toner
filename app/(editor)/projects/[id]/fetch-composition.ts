@@ -5,7 +5,7 @@ import { notFound } from 'next/navigation'
 import { authenticateOrRedirect } from '@/lib/auth'
 import { compositionTable, database, nodeEdgeTable, nodeTable } from '@/lib/db'
 import { zodIs } from '@/lib/utils'
-import { AudioNodeId, audioNodeSchemas } from '@/schemas/nodes'
+import { AudioNodeId, audioNodeSchemas } from '@/schemas/audio-node'
 
 export async function fetchComposition(compositionId: number) {
 	const {

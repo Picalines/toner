@@ -1,6 +1,6 @@
 import { Handle, NodeProps, Position } from '@xyflow/react'
 import { cn, tw } from '@/lib/utils'
-import { AudioNodeGroup, audioNodeDefinitions } from '@/schemas/nodes'
+import { AudioNodeGroup, audioNodeDefinitions } from '@/schemas/audio-node'
 import { AudioNode } from '@/stores/composition-store'
 import { Card, CardHeader } from '../ui/card'
 

@@ -1,7 +1,7 @@
 import { z } from 'zod'
 import { assertUnreachable } from '@/lib/utils'
+import { audioNodeSchemas } from '@/schemas/audio-node'
 import { CompositionChange, compositionSchemas } from '@/schemas/composition'
-import { audioNodeSchemas } from '@/schemas/nodes'
 
 export const compositionUpdateSchema = z.object({
 	id: compositionSchemas.id,

@@ -14,10 +14,13 @@ import { nanoid } from 'nanoid'
 import { createStore } from 'zustand/vanilla'
 import { safeParseOr } from '@/lib/utils'
 import {
+	AudioNodeType,
+	audioNodeSchemas as nodeSchemas,
+} from '@/schemas/audio-node'
+import {
 	CompositionChange,
 	compositionSchemas as compSchemas,
 } from '@/schemas/composition'
-import { AudioNodeType, audioNodeSchemas as nodeSchemas } from '@/schemas/nodes'
 
 export type AudioNode = Node<{
 	type: AudioNodeType
