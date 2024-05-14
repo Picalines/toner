@@ -12,6 +12,7 @@ import {
 } from '@/components/ui/resizable'
 import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area'
 import AudioNodeFlow from './audio-node-flow'
+import CompositionInfoModal from './composition-info-modal'
 import KeyEditor from './key-editor'
 import NodePropertiesEditor from './node-properties-editor'
 
@@ -57,6 +58,7 @@ export default function CompositionEditor({ className }: Props) {
 					</div>
 				</div>
 			)}
+			<CompositionInfoModal />
 		</div>
 	)
 }

@@ -9,7 +9,6 @@ import ChangeWatcher from './change-watcher'
 import EditorHeader from './editor-header'
 import { fetchAudioTree, fetchComposition } from './fetch-composition'
 import { parseProjectId } from './parse-project-id'
-import UpdateInfoModal from './update-info-modal'
 
 type Props = DeepReadonly<{
 	params: {
@@ -68,7 +67,6 @@ export default async function EditorPage({ params }: Props) {
 							<CompositionEditor className="w-full flex-grow" />
 						</div>
 					</ChangeWatcher>
-					<UpdateInfoModal />
 				</EditorStoreProvider>
 			</ToneStoreProvider>
 		</CompositionStoreProvider>

@@ -3,7 +3,7 @@ import { persist } from 'zustand/middleware'
 
 type EditorDirtyState = 'clean' | 'waiting' | 'saving'
 
-type EditorModal = 'updateInfo' | 'deleteComposition'
+type EditorModal = 'composition-info' | 'composition-delete'
 
 type EditorPanelLayout = 'horizontal' | 'vertical'
 

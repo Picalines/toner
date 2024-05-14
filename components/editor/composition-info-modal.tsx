@@ -27,7 +27,7 @@ import { Input } from '@/components/ui/input'
 import { TextArea } from '@/components/ui/text-area'
 import { CompositionStore } from '@/stores/composition-store'
 
-export default function UpdateInfoModal() {
+export default function CompositionInfoModal() {
 	const openedModal = useEditorStore(editor => editor.openedModal)
 	const closeModal = useEditorStore(editor => editor.closeModal)
 
@@ -41,7 +41,10 @@ export default function UpdateInfoModal() {
 	)
 
 	return (
-		<Dialog open={openedModal == 'updateInfo'} onOpenChange={onOpenChange}>
+		<Dialog
+			open={openedModal == 'composition-info'}
+			onOpenChange={onOpenChange}
+		>
 			<DialogContent>
 				<DialogHeader>
 					<DialogTitle>Update Information</DialogTitle>

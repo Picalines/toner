@@ -79,7 +79,7 @@ function EditorDropdownMenu({ children }: PropsWithChildren) {
 				<DropdownMenuSeparator />
 				<DropdownMenuItem
 					className="cursor-pointer space-x-2"
-					onClick={() => openModal('updateInfo')}
+					onClick={() => openModal('composition-info')}
 				>
 					<PencilIcon />
 					<span>Edit Info</span>
