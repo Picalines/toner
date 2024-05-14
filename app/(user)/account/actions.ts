@@ -3,12 +3,7 @@
 import { nanoid } from 'nanoid'
 import { redirect } from 'next/navigation'
 import { authenticateOrRedirect } from '@/lib/auth'
-import {
-	compositionTable,
-	database,
-	nodeConnectionTable,
-	nodeTable,
-} from '@/lib/db'
+import { compositionTable, database, nodeEdgeTable, nodeTable } from '@/lib/db'
 
 export async function createComposition() {
 	const {
@@ -46,12 +41,12 @@ export async function createComposition() {
 			},
 		])
 
-		await tx.insert(nodeConnectionTable).values([
+		await tx.insert(nodeEdgeTable).values([
 			{
 				compositionId,
 				id: nanoid(),
-				senderId: synthId,
-				receiverId: outputId,
+				sourceId: synthId,
+				targetId: outputId,
 			},
 		])
 

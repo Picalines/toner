@@ -2,14 +2,10 @@
 
 import { and, eq } from 'drizzle-orm'
 import { notFound } from 'next/navigation'
-import { z } from 'zod'
 import { authenticateOrRedirect } from '@/lib/auth'
-import {
-	compositionTable,
-	database,
-	nodeConnectionTable,
-	nodeTable,
-} from '@/lib/db'
+import { compositionTable, database, nodeEdgeTable, nodeTable } from '@/lib/db'
+import { zodIs } from '@/lib/utils'
+import { AudioNodeId, audioNodeSchemas } from '@/schemas/nodes'
 
 export async function fetchComposition(compositionId: number) {
 	const {
@@ -40,7 +36,7 @@ export async function fetchComposition(compositionId: number) {
 
 type FetchedAudioNode = {
 	type: string
-	displayName: string | null
+	label: string | null
 	centerX: number
 	centerY: number
 	properties: Record<string, number>
@@ -48,10 +44,10 @@ type FetchedAudioNode = {
 
 type FetchedAudioTree = {
 	nodes: Record<string, FetchedAudioNode>
-	connections: {
+	edges: {
 		id: string
-		output: [string, number]
-		input: [string, number]
+		source: [AudioNodeId, number]
+		target: [AudioNodeId, number]
 	}[]
 }
 
@@ -64,21 +60,21 @@ export async function fetchAudioTree(
 				.select({
 					id: nodeTable.id,
 					type: nodeTable.type,
-					displayName: nodeTable.label,
+					label: nodeTable.label,
 					centerX: nodeTable.centerX,
 					centerY: nodeTable.centerY,
 					properties: nodeTable.properties,
-					edgeId: nodeConnectionTable.id,
-					receiverId: nodeConnectionTable.receiverId,
-					outputSocket: nodeConnectionTable.outputSocket,
-					inputSocket: nodeConnectionTable.inputSocket,
+					edgeId: nodeEdgeTable.id,
+					targetId: nodeEdgeTable.targetId,
+					sourceSocket: nodeEdgeTable.sourceSocket,
+					targetSocket: nodeEdgeTable.targetSocket,
 				})
 				.from(nodeTable)
 				.leftJoin(
-					nodeConnectionTable,
+					nodeEdgeTable,
 					and(
-						eq(nodeConnectionTable.compositionId, compositionId),
-						eq(nodeTable.id, nodeConnectionTable.senderId),
+						eq(nodeEdgeTable.compositionId, compositionId),
+						eq(nodeTable.id, nodeEdgeTable.sourceId),
 					),
 				)
 				.where(eq(nodeTable.compositionId, compositionId))
@@ -89,35 +85,28 @@ export async function fetchAudioTree(
 	)
 
 	const nodes: FetchedAudioTree['nodes'] = {}
-	const connections: FetchedAudioTree['connections'] = []
+	const edges: FetchedAudioTree['edges'] = []
 
 	for (const { id, ...nodeRow } of nodeRows) {
-		if (!validateNodeProperties(nodeRow.properties)) {
+		const { properties } = nodeRow
+		if (!zodIs(audioNodeSchemas.properties, properties)) {
 			continue
 		}
 
 		if (!(id in nodes)) {
-			const { type, displayName, centerX, centerY, properties } = nodeRow
-			nodes[id] = { type, displayName, centerX, centerY, properties }
+			const { type, label, centerX, centerY } = nodeRow
+			nodes[id] = { type, label, centerX, centerY, properties }
 		}
 
-		if (nodeRow.receiverId !== null) {
-			const { edgeId, receiverId, outputSocket, inputSocket } = nodeRow
-			connections.push({
+		if (nodeRow.targetId !== null) {
+			const { edgeId, targetId, sourceSocket, targetSocket } = nodeRow
+			edges.push({
 				id: edgeId!,
-				output: [id, outputSocket!],
-				input: [receiverId, inputSocket!],
+				source: [id, sourceSocket!],
+				target: [targetId, targetSocket!],
 			})
 		}
 	}
 
-	return { nodes, connections }
-}
-
-const nodePropertiesSchema = z.record(z.string(), z.number())
-
-function validateNodeProperties(
-	properties: unknown,
-): properties is Record<string, number> {
-	return nodePropertiesSchema.safeParse(properties).success
+	return { nodes, edges }
 }

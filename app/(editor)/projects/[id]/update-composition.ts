@@ -4,12 +4,7 @@ import { and, eq, sql } from 'drizzle-orm'
 import { revalidatePath } from 'next/cache'
 import { RedirectType, redirect } from 'next/navigation'
 import { authenticateOrRedirect } from '@/lib/auth'
-import {
-	compositionTable,
-	database,
-	nodeConnectionTable,
-	nodeTable,
-} from '@/lib/db'
+import { compositionTable, database, nodeEdgeTable, nodeTable } from '@/lib/db'
 import { assertUnreachable } from '@/lib/utils'
 import { CompositionUpdateRequest, compositionUpdateSchema } from './schemas'
 
@@ -133,30 +128,27 @@ export async function updateComposition(
 			switch (edgeUpdate.operation) {
 				case 'create': {
 					const {
-						source: [senderId, outputSocket],
-						target: [receiverId, inputSocket],
+						source: [sourceId, sourceSocket],
+						target: [targetId, targetSocket],
 					} = edgeUpdate
-					await tx.insert(nodeConnectionTable).values({
+					await tx.insert(nodeEdgeTable).values({
 						id: edgeId,
 						compositionId,
-						senderId,
-						outputSocket,
-						receiverId,
-						inputSocket,
+						sourceId,
+						sourceSocket,
+						targetId,
+						targetSocket,
 					})
 					continue
 				}
 
 				case 'remove': {
 					await tx
-						.delete(nodeConnectionTable)
+						.delete(nodeEdgeTable)
 						.where(
 							and(
-								eq(
-									nodeConnectionTable.compositionId,
-									compositionId,
-								),
-								eq(nodeConnectionTable.id, edgeId),
+								eq(nodeEdgeTable.compositionId, compositionId),
+								eq(nodeEdgeTable.id, edgeId),
 							),
 						)
 					continue

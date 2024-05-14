@@ -35,15 +35,15 @@ export default async function EditorPage({ params }: Props) {
 				deletable: node.type != 'output',
 				data: {
 					type: node.type as AudioNodeType,
-					label: node.displayName ?? capitalize(node.type),
+					label: node.label ?? capitalize(node.type),
 					properties: node.properties,
 				},
 			}))}
-			edges={audioTree.connections.map(
+			edges={audioTree.edges.map(
 				({
 					id,
-					output: [source, sourceHandle],
-					input: [target, targetHandle],
+					source: [source, sourceHandle],
+					target: [target, targetHandle],
 				}) => ({
 					id,
 					type: 'default',

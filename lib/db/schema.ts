@@ -226,7 +226,7 @@ export const compositionRelations = relations(
 		}),
 		keyLayers: many(keyLayerTable),
 		nodes: many(nodeTable),
-		nodeConnections: many(nodeConnectionTable),
+		nodeConnections: many(nodeEdgeTable),
 	}),
 )
 
@@ -293,29 +293,26 @@ export const nodeRelations = relations(nodeTable, ({ one }) => ({
 	}),
 }))
 
-export const nodeConnectionTable = pgTable(
-	'node_connection',
+export const nodeEdgeTable = pgTable(
+	'node_edge',
 	{
 		compositionId: integer('composition_id')
 			.notNull()
 			.references(() => compositionTable.id, { onDelete: 'cascade' }),
 		id: varchar('id', { length: 36 }).notNull(),
-		senderId: varchar('sender_id', { length: 36 }).notNull(),
-		receiverId: varchar('receiver_id', { length: 36 }).notNull(),
-		outputSocket: integer('output_socket').notNull().default(0),
-		inputSocket: integer('input_socket').notNull().default(0),
+		sourceId: varchar('source_id', { length: 36 }).notNull(),
+		targetId: varchar('target_id', { length: 36 }).notNull(),
+		sourceSocket: integer('source_socket').notNull().default(0),
+		targetSocket: integer('target_socket').notNull().default(0),
 	},
 	table => ({
 		primaryKey: primaryKey({ columns: [table.compositionId, table.id] }),
 	}),
 )
 
-export const nodeConnectionRelations = relations(
-	nodeConnectionTable,
-	({ one }) => ({
-		composition: one(compositionTable, {
-			fields: [nodeConnectionTable.compositionId],
-			references: [compositionTable.id],
-		}),
+export const nodeEdgeRelations = relations(nodeEdgeTable, ({ one }) => ({
+	composition: one(compositionTable, {
+		fields: [nodeEdgeTable.compositionId],
+		references: [compositionTable.id],
 	}),
-)
+}))

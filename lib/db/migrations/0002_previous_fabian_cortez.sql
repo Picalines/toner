@@ -1,0 +1,1 @@
+ALTER TABLE "node_connection" RENAME TO "node_edge";
