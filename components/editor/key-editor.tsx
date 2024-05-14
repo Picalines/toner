@@ -2,7 +2,8 @@
 
 import { useCallback, useEffect, useRef } from 'react'
 import * as Tone from 'tone'
-import { cn, keyString } from '@/lib/utils'
+import { cn } from '@/lib/utils'
+import { musicNoteInfo } from '@/schemas/music'
 import KeyAreaBackground from '@/components/editor/key-area-background'
 import PianoRoll, { KeyEvent } from '@/components/editor/piano-roll'
 import { useToneStore } from '../providers/tone-store-provider'
@@ -22,26 +23,22 @@ export default function KeyEditor({ className }: Props) {
 		const reverb = new Tone.Reverb(1)
 		synth.connect(reverb)
 		reverb.toDestination()
-		addNode((debugSynthRef.current = synth))
-		return () => disposeNode(synth)
+		addNode('DEBUG', (debugSynthRef.current = synth))
+		return () => disposeNode('DEBUG')
 	}, [addNode, disposeNode])
 
 	const onKeyDown = useCallback(
-		async ({ note, octave, isAccidental }: KeyEvent) => {
+		async ({ note }: KeyEvent) => {
 			await resumeContext()
-			debugSynthRef.current!.triggerAttack(
-				keyString(note, octave, isAccidental),
-				Tone.now(),
-			)
+			const { keyString } = musicNoteInfo(note)
+			debugSynthRef.current!.triggerAttack(keyString, Tone.now())
 		},
 		[resumeContext],
 	)
 
-	const onKeyUp = useCallback(({ note, octave, isAccidental }: KeyEvent) => {
-		debugSynthRef.current!.triggerRelease(
-			[keyString(note, octave, isAccidental)],
-			Tone.now(),
-		)
+	const onKeyUp = useCallback(({ note }: KeyEvent) => {
+		const { keyString } = musicNoteInfo(note)
+		debugSynthRef.current!.triggerRelease([keyString], Tone.now())
 	}, [])
 
 	return (

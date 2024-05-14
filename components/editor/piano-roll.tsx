@@ -1,12 +1,9 @@
-import { ComponentProps, memo } from 'react'
+import { MouseEvent, MouseEventHandler, useCallback } from 'react'
 import { cn, range, tw } from '@/lib/utils'
+import { MAX_OCTAVE, OCTAVE_LENGTH, musicNoteInfo } from '@/schemas/music'
 
 export type KeyEvent = {
-	note: string
-	isAccidental: boolean
-	octave: number
-	chromaticHalfStep: number
-	absoluteHalfStep: number
+	note: number
 }
 
 type PianoRollProps = Readonly<{
@@ -23,7 +20,7 @@ type PianoRollProps = Readonly<{
 
 export default function PianoRoll({
 	minOctave = 0,
-	maxOctave = 9,
+	maxOctave = MAX_OCTAVE,
 	lineHeight = 16,
 	keyClassName = tw`select-none rounded-br rounded-tr pr-1 text-right outline outline-2 -outline-offset-1 outline-border [&.down]:text-opacity-50`,
 	naturalKeyClassName = tw`bg-white text-black dark:bg-neutral-600 dark:text-neutral-900 [&.down]:bg-neutral-100 dark:[&.down]:bg-neutral-700`,
@@ -50,17 +47,16 @@ export default function PianoRoll({
 	)
 }
 
-const keyLetters = 'CCDDEFFGGAAB'
-const numberOfKeys = keyLetters.length
-const accidentalKeys = new Set([1, 3, 6, 8, 10])
 const stepSizedKeys = new Set([2, 7, 9])
 
-const octaveKeys = [...range(numberOfKeys)].map(keyIndex => ({
-	letter: keyLetters[keyIndex],
-	isAccidental: accidentalKeys.has(keyIndex),
-	lineScale: stepSizedKeys.has(keyIndex) ? 2 : 1.5,
-	chromaticHalfStep: keyIndex,
-}))
+const octaveKeys = [...range(OCTAVE_LENGTH)].map(keyIndex => {
+	const { symbol, accidental } = musicNoteInfo(keyIndex)
+	return {
+		letter: symbol[0],
+		accidental,
+		lineScale: stepSizedKeys.has(keyIndex) ? 2 : 1.5,
+	}
+})
 
 type PianoRollOctaveProps = Readonly<{
 	octave: number
@@ -72,97 +68,87 @@ type PianoRollOctaveProps = Readonly<{
 	onKeyUp?: (event: KeyEvent) => void
 }>
 
-const PianoRollOctave = memo(
-	({
-		octave,
-		lineHeight,
-		keyClassName,
-		naturalKeyClassName,
-		accidentalKeyClassName,
-		onKeyDown,
-		onKeyUp,
-	}: PianoRollOctaveProps) => {
-		const onMouseEvent = (
-			button: HTMLButtonElement,
-			callbackProp?: (event: KeyEvent) => void,
-		) => {
-			const {
-				letter: note,
-				isAccidental,
-				chromaticHalfStep,
-			} = octaveKeys[parseInt(button.getAttribute('data-index')!)]
-			callbackProp?.({
-				note,
-				isAccidental,
-				octave,
-				chromaticHalfStep,
-				absoluteHalfStep: numberOfKeys * octave + chromaticHalfStep,
-			})
+function PianoRollOctave({
+	octave,
+	lineHeight,
+	keyClassName,
+	naturalKeyClassName,
+	accidentalKeyClassName,
+	onKeyDown,
+	onKeyUp,
+}: PianoRollOctaveProps) {
+	const onMouseEvent = useCallback(
+		(event: MouseEvent, isDown: boolean) => {
+			event.preventDefault()
+			const button = event.target as HTMLButtonElement
+			const keyIndex = parseInt(button.getAttribute('data-index')!)
+			const callbackProp = isDown ? onKeyDown : onKeyUp
+			callbackProp?.({ note: octave * OCTAVE_LENGTH + keyIndex })
+			button.classList.toggle('down', isDown)
+		},
+		[octave, onKeyDown, onKeyUp],
+	)
 
-			button.classList.toggle('down', callbackProp == onKeyDown)
-		}
+	const onMouseDown = useCallback<MouseEventHandler<HTMLDivElement>>(
+		event => onMouseEvent(event, true),
+		[onMouseEvent],
+	)
 
-		const onMouseDown: ComponentProps<'div'>['onMouseDown'] = event => {
-			onMouseEvent(event.target as HTMLButtonElement, onKeyDown)
-		}
+	const onMouseUp = useCallback<MouseEventHandler<HTMLDivElement>>(
+		event => onMouseEvent(event, false),
+		[onMouseEvent],
+	)
 
-		const onMouseUp: ComponentProps<'div'>['onMouseUp'] = event => {
-			onMouseEvent(event.target as HTMLButtonElement, onKeyUp)
-		}
-
-		const onMouseEnterKey: ComponentProps<'button'>['onMouseEnter'] =
-			event => {
-				if (event.buttons > 0) {
-					onMouseEvent(event.target as HTMLButtonElement, onKeyDown)
-					;(event.target as HTMLElement).classList.add('down')
-				}
+	const onMouseEnterKey = useCallback<MouseEventHandler<HTMLButtonElement>>(
+		event => {
+			if (event.buttons > 0) {
+				onMouseEvent(event, true)
+				;(event.target as HTMLElement).classList.add('down')
 			}
+		},
+		[onMouseEvent],
+	)
 
-		const onMouseLeaveKey: ComponentProps<'button'>['onMouseLeave'] =
-			event => {
-				if (event.buttons > 0) {
-					onMouseEvent(event.target as HTMLButtonElement, onKeyUp)
-				}
-				;(event.target as HTMLElement).classList.remove('down')
-			}
+	const onMouseLeaveKey = useCallback<MouseEventHandler<HTMLButtonElement>>(
+		event => {
+			if (event.buttons > 0) onMouseEvent(event, false)
+			;(event.target as HTMLElement).classList.remove('down')
+		},
+		[onMouseEvent],
+	)
 
-		return (
-			<div
-				className="relative flex flex-col-reverse"
-				style={{ height: lineHeight * numberOfKeys }}
-				onMouseDown={onMouseDown}
-				onMouseUp={onMouseUp}
-			>
-				{octaveKeys.map(({ isAccidental, lineScale }, keyIndex) => (
-					<button
-						key={keyIndex}
-						data-index={keyIndex}
-						className={cn(
-							'block flex-grow',
-							keyClassName,
-							isAccidental
-								? cn(
-										'absolute w-full max-w-[calc(100%-0.5rem-2ch)]',
-										accidentalKeyClassName,
-									)
-								: naturalKeyClassName,
-						)}
-						style={{
-							maxHeight: lineHeight * lineScale,
-							bottom: isAccidental
-								? keyIndex * lineHeight
-								: 'auto',
-						}}
-						onMouseEnter={onMouseEnterKey}
-						onMouseLeave={onMouseLeaveKey}
-					>
-						{keyLetters[keyIndex]}
-						{octave}
-					</button>
-				))}
-			</div>
-		)
-	},
-)
-
-PianoRollOctave.displayName = 'PianoRollOctave'
+	return (
+		<div
+			className="relative flex flex-col-reverse"
+			style={{ height: lineHeight * OCTAVE_LENGTH }}
+			onMouseDown={onMouseDown}
+			onMouseUp={onMouseUp}
+		>
+			{octaveKeys.map(({ letter, accidental, lineScale }, keyIndex) => (
+				<button
+					key={keyIndex}
+					data-index={keyIndex}
+					className={cn(
+						'block flex-grow',
+						keyClassName,
+						accidental
+							? cn(
+									'absolute w-full max-w-[calc(100%-0.5rem-2ch)]',
+									accidentalKeyClassName,
+								)
+							: naturalKeyClassName,
+					)}
+					style={{
+						maxHeight: lineHeight * lineScale,
+						bottom: accidental ? keyIndex * lineHeight : 'auto',
+					}}
+					onMouseEnter={onMouseEnterKey}
+					onMouseLeave={onMouseLeaveKey}
+				>
+					{letter}
+					{octave}
+				</button>
+			))}
+		</div>
+	)
+}
