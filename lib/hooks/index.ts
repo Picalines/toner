@@ -1,3 +1,4 @@
+export { useConstant } from './useConstant'
 export { useFocus } from './useFocus'
 export { useHover } from './useHover'
 export { useIsMountedRef } from './useIsMountedRef'
