@@ -1,6 +1,6 @@
 import { Handle, NodeProps, Position } from '@xyflow/react'
 import { cn, tw } from '@/lib/utils'
-import { AudioNodeGroup, audioNodeSchemas } from '@/schemas/nodes'
+import { AudioNodeGroup, audioNodeDefinitions } from '@/schemas/nodes'
 import { AudioNode } from '@/stores/composition-store'
 import { Card, CardHeader } from '../ui/card'
 
@@ -14,7 +14,7 @@ export default function AudioNodeDisplay({
 	selected,
 	data: { type, label },
 }: NodeProps<AudioNode>) {
-	const { group, inputs, outputs } = audioNodeSchemas[type]
+	const { group, inputs, outputs } = audioNodeDefinitions[type]
 
 	return (
 		<Card
@@ -24,11 +24,21 @@ export default function AudioNodeDisplay({
 				selected && 'outline-2',
 			)}
 		>
-			{inputs.map(({ name }) => (
-				<Handle key={name} type="target" position={Position.Left} />
+			{inputs.map(({ name }, i) => (
+				<Handle
+					key={name}
+					type="target"
+					id={String(i)}
+					position={Position.Left}
+				/>
 			))}
-			{outputs.map(({ name }) => (
-				<Handle key={name} type="source" position={Position.Right} />
+			{outputs.map(({ name }, i) => (
+				<Handle
+					key={name}
+					type="source"
+					id={String(i)}
+					position={Position.Right}
+				/>
 			))}
 			<CardHeader className="p-0 text-white">{label}</CardHeader>
 		</Card>
