@@ -110,9 +110,7 @@ function NodePropertySlider({
 	propertySchema: { name, default: defaultValue, min, max, valueLabels },
 	className,
 }: PropertySliderProps) {
-	const setNodeProperties = useCompositionStore(
-		comp => comp.setNodeProperties,
-	)
+	const setNodeProperty = useCompositionStore(comp => comp.setNodeProperty)
 
 	const propertyValue = useCompositionStore(
 		comp =>
@@ -121,9 +119,8 @@ function NodePropertySlider({
 	)
 
 	const onValueChange = useCallback(
-		(values: number[]) =>
-			setNodeProperties(nodeId, { [propertyKey]: values[0] }),
-		[setNodeProperties, nodeId, propertyKey],
+		(values: number[]) => setNodeProperty(nodeId, propertyKey, values[0]),
+		[setNodeProperty, nodeId, propertyKey],
 	)
 
 	return (
