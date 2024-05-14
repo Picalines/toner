@@ -1,6 +1,7 @@
 'use server'
 
 import { and, eq, sql } from 'drizzle-orm'
+import { revalidatePath } from 'next/cache'
 import { RedirectType, redirect } from 'next/navigation'
 import { authenticateOrRedirect } from '@/lib/auth'
 import {
@@ -25,6 +26,8 @@ export async function updateComposition(
 	} = await authenticateOrRedirect('/sign-in')
 
 	const { replaceUri } = await database.transaction(async tx => {
+		let hadChanges = false
+
 		const {
 			id: compositionId,
 			name,
@@ -48,13 +51,19 @@ export async function updateComposition(
 		}
 
 		if (name || description) {
+			hadChanges = true
+
 			await tx
 				.update(compositionTable)
 				.set({ name, description })
 				.where(eq(compositionTable.id, compositionId))
+
+			revalidatePath('/account')
 		}
 
 		for (const [nodeId, nodeUpdate] of Object.entries(nodes)) {
+			hadChanges = true
+
 			switch (nodeUpdate.operation) {
 				case 'create': {
 					const {
@@ -119,6 +128,8 @@ export async function updateComposition(
 		}
 
 		for (const [edgeId, edgeUpdate] of Object.entries(edges)) {
+			hadChanges = true
+
 			switch (edgeUpdate.operation) {
 				case 'create': {
 					const {
@@ -154,6 +165,10 @@ export async function updateComposition(
 				default:
 					assertUnreachable(edgeUpdate)
 			}
+		}
+
+		if (hadChanges) {
+			revalidatePath(`/projects/${compositionId}`)
 		}
 
 		return { replaceUri: null }
