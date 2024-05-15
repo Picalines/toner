@@ -79,7 +79,9 @@ export function createToneStore(initialState: ToneState) {
 
 		disposeAll: () => {
 			for (const node of get().nodes.values()) {
-				node.dispose()
+				if (node.name != 'Destination') {
+					node.dispose()
+				}
 			}
 
 			set({ nodes: new Map() })
