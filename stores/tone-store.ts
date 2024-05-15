@@ -1,18 +1,24 @@
 import type { BaseContext as BaseToneContext, ToneAudioNode } from 'tone'
 import { createStore } from 'zustand/vanilla'
 
+export type ToneNodeId = string
+
 export type ToneState = {
 	context: BaseToneContext
 	isAudioAvailable: boolean
 
-	nodes: Map<string, ToneAudioNode>
+	nodes: Map<ToneNodeId, ToneAudioNode>
 }
 
 export type ToneActions = {
 	resumeContext: () => Promise<void>
 
-	getNodeById: (id: string) => ToneAudioNode | null
-	addNode: (id: string, node: ToneAudioNode) => void
+	getNodeById: (id: ToneNodeId) => ToneAudioNode | null
+	addNode: (id: ToneNodeId, node: ToneAudioNode) => void
+	connect: (
+		source: [ToneNodeId, number],
+		target: [ToneNodeId, number],
+	) => (() => void) | null
 	disposeNode: (id: string) => void
 
 	disposeAll: () => void
@@ -32,10 +38,6 @@ export function createToneStore(initialState: ToneState) {
 		getNodeById: id => get().nodes.get(id) ?? null,
 
 		addNode: (id, node) => {
-			if (node.name == 'Destination') {
-				return
-			}
-
 			get().getNodeById(id)?.dispose()
 
 			const nodes = new Map(get().nodes)
@@ -44,13 +46,30 @@ export function createToneStore(initialState: ToneState) {
 			set({ nodes })
 		},
 
+		connect: ([sourceId, sourceSocket], [targetId, targetSocket]) => {
+			const { getNodeById } = get()
+			const source = getNodeById(sourceId)
+			const target = getNodeById(targetId)
+
+			if (!source || !target) {
+				return null
+			}
+
+			source.connect(target, sourceSocket, targetSocket)
+			return () => source.disconnect(target, sourceSocket, targetSocket)
+		},
+
 		disposeNode: id => {
 			const node = get().getNodeById(id)
 			if (node === null) {
 				return
 			}
 
-			node.dispose()
+			if (node.name == 'Destination') {
+				node.disconnect()
+			} else {
+				node.dispose()
+			}
 
 			const nodes = new Map(get().nodes)
 			nodes.delete(id)

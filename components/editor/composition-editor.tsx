@@ -15,6 +15,7 @@ import AudioNodeFlow from './audio-node-flow'
 import CompositionInfoModal from './composition-info-modal'
 import KeyEditor from './key-editor'
 import NodePropertiesEditor from './node-properties-editor'
+import { useToneEditorWatcher } from './use-tone-editor-watcher'
 
 type Props = Readonly<{
 	className?: string
@@ -27,6 +28,8 @@ export default function CompositionEditor({ className }: Props) {
 
 	const nodeEditorDirection =
 		panelLayout == 'vertical' ? 'horizontal' : 'vertical'
+
+	useToneEditorWatcher()
 
 	return (
 		<div className={cn('relative min-h-0 min-w-0', className)}>
