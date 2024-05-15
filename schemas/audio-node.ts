@@ -29,6 +29,7 @@ export type AudioNodeProperty = {
 	default: number
 	min: number
 	max: number
+	step: number
 	valueLabels?: Record<number, string>
 }
 
@@ -41,16 +42,18 @@ type DefinitionShape = {
 
 const volumeProperty = {
 	name: 'volume',
-	default: 128,
-	min: 0,
-	max: 255,
+	default: 0,
+	min: -50,
+	max: 10,
+	step: 0.5,
 } as const satisfies AudioNodeProperty
 
 const wetProperty = {
 	name: 'mix',
-	default: 255,
+	default: 1,
 	min: 0,
-	max: 255,
+	max: 1,
+	step: 0.001,
 } as const satisfies AudioNodeProperty
 
 export const audioNodeDefinitions = {
@@ -72,6 +75,7 @@ export const audioNodeDefinitions = {
 				default: 0,
 				min: 0,
 				max: 3,
+				step: 1,
 				valueLabels: {
 					0: 'triangle',
 					1: 'sawtooth',
@@ -90,8 +94,9 @@ export const audioNodeDefinitions = {
 			gain: {
 				name: 'decibels',
 				default: 0,
-				min: 0,
-				max: 255,
+				min: -50,
+				max: 10,
+				step: 0.5,
 			},
 		},
 	},
@@ -104,9 +109,10 @@ export const audioNodeDefinitions = {
 			wet: wetProperty,
 			decay: {
 				name: 'decay',
-				default: 0,
-				min: 0,
+				default: 0.001,
+				min: 0.001,
 				max: 255,
+				step: 0.001,
 			},
 		},
 	},

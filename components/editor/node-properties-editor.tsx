@@ -110,7 +110,14 @@ type PropertySliderProps = Readonly<{
 function NodePropertySlider({
 	nodeId,
 	propertyKey,
-	propertySchema: { name, default: defaultValue, min, max, valueLabels },
+	propertySchema: {
+		name,
+		default: defaultValue,
+		min,
+		max,
+		step,
+		valueLabels,
+	},
 	className,
 }: PropertySliderProps) {
 	const setNodeProperty = useCompositionStore(comp => comp.setNodeProperty)
@@ -140,7 +147,7 @@ function NodePropertySlider({
 				trackClassName="rounded-none bg-neutral-600"
 				min={min}
 				max={max}
-				step={1}
+				step={step}
 				value={[propertyValue]}
 				onValueChange={onValueChange}
 			/>

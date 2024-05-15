@@ -4,7 +4,6 @@ import { useEffect, useRef } from 'react'
 import * as Tone from 'tone'
 import { useStore } from 'zustand'
 import { useShallow } from 'zustand/react/shallow'
-import { mapRange } from '@/lib/utils'
 import {
 	AudioNodeDefinition,
 	AudioNodeType,
@@ -145,10 +144,17 @@ type ToneNodeMapping<T extends AudioNodeType> = {
 	}
 }
 
-const mapVolume = (volume: number) => mapRange(volume, [0, 255], [-50, 50])
+type ToneUnit = 'decibels' | 'normalRange' // TODO: Tone.Unit is not exported
 
-const decibelSetter = (volume: Tone.Param<'decibels'>) => (v: number) =>
-	(volume.value = mapVolume(v))
+const paramSetter =
+	<U extends ToneUnit>(param: Tone.Param<U>) =>
+	(value: number) =>
+		(param.value = value)
+
+const signalSetter =
+	<U extends ToneUnit>(signal: Tone.Signal<U>) =>
+	(value: number) =>
+		(signal.value = value)
 
 const TONEJS_MAPPINGS: {
 	[T in AudioNodeType]: (def: AudioNodeDefinition<T>) => ToneNodeMapping<T>
@@ -158,7 +164,7 @@ const TONEJS_MAPPINGS: {
 		return {
 			toneNode,
 			setters: {
-				volume: decibelSetter(toneNode.volume),
+				volume: paramSetter(toneNode.volume),
 			},
 		}
 	},
@@ -169,7 +175,7 @@ const TONEJS_MAPPINGS: {
 		return {
 			toneNode: synth,
 			setters: {
-				volume: decibelSetter(synth.volume),
+				volume: paramSetter(synth.volume),
 				'osc.type': t =>
 					synth.set({ oscillator: { type: oscType(t) } }),
 			},
@@ -181,7 +187,7 @@ const TONEJS_MAPPINGS: {
 		return {
 			toneNode: gain,
 			setters: {
-				gain: decibelSetter(gain.gain),
+				gain: paramSetter(gain.gain),
 			},
 		}
 	},
@@ -191,7 +197,7 @@ const TONEJS_MAPPINGS: {
 		return {
 			toneNode: reverb,
 			setters: {
-				wet: w => (reverb.wet.value = w),
+				wet: signalSetter(reverb.wet),
 				decay: d => (reverb.decay = d),
 			},
 		}
