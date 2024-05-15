@@ -287,20 +287,22 @@ function nodeChangeToCompositionChange(
 function edgeChangeToCompositionChange(
 	change: EdgeChange<AudioEdge>,
 ): CompositionChange | null {
-	if (change.type == 'add') {
-		const edge = change.item
-		return {
-			type: 'edge-add',
-			id: edge.id,
-			source: [edge.source, parseInt(edge.sourceHandle ?? '0')],
-			target: [edge.target, parseInt(edge.targetHandle ?? '0')],
+	switch (change.type) {
+		case 'add': {
+			const edge = change.item
+			return {
+				type: 'edge-add',
+				id: edge.id,
+				source: [edge.source, parseInt(edge.sourceHandle ?? '0')],
+				target: [edge.target, parseInt(edge.targetHandle ?? '0')],
+			}
 		}
-	}
 
-	if (change.type == 'remove') {
-		return {
-			type: 'edge-remove',
-			id: change.id,
+		case 'remove': {
+			return {
+				type: 'edge-remove',
+				id: change.id,
+			}
 		}
 	}
 
