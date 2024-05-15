@@ -1,6 +1,6 @@
 'use client'
 
-import { ChangeEvent, useCallback, useState } from 'react'
+import { ChangeEvent, useCallback, useEffect, useState } from 'react'
 import { useShallow } from 'zustand/react/shallow'
 import { cn, tw } from '@/lib/utils'
 import {
@@ -61,18 +61,15 @@ type NodeNameInputProps = Readonly<{ nodeId: AudioNodeId }>
 
 function NodeNameInput({ nodeId }: NodeNameInputProps) {
 	const renameNode = useCompositionStore(comp => comp.renameNode)
-	const { type, label } = useCompositionStore(
-		useShallow(comp => {
-			const {
-				data: { type, label },
-			} = comp.getNodeById(nodeId)!
-			return { type, label }
-		}),
-	)
+	const getNodeById = useCompositionStore(comp => comp.getNodeById)
 
-	const [inputLabel, setInputLabel] = useState(label)
+	const [inputLabel, setInputLabel] = useState('')
 
-	const { group } = audioNodeDefinitions[type]
+	useEffect(() => {
+		setInputLabel(getNodeById(nodeId)!.data.label)
+	}, [nodeId, getNodeById])
+
+	const { group } = audioNodeDefinitions[getNodeById(nodeId)!.data.type]
 
 	const onNameChange = useCallback(
 		(event: ChangeEvent<HTMLInputElement>) => {
