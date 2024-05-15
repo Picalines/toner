@@ -6,6 +6,7 @@ import { useShallow } from 'zustand/react/shallow'
 import { useCompositionStore } from '@/components/providers/composition-store-provider'
 import { useEditorStore } from '@/components/providers/editor-store-provider'
 import { CompositionStore } from '@/stores/composition-store'
+import { EditorStore } from '@/stores/editor-store'
 import {
 	CompositionUpdateRequest,
 	mergeCompositionChangeToRequest,
@@ -22,6 +23,11 @@ const watchSelector = ({
 	saveChanges,
 })
 
+const editorSelector = ({ dirtyState, setDirtyState }: EditorStore) => ({
+	dirtyState,
+	setDirtyState,
+})
+
 const beforeUnloadAlertHandler = (event: BeforeUnloadEvent) => {
 	event.preventDefault()
 }
@@ -33,8 +39,9 @@ export default function ChangeWatcher({ children }: PropsWithChildren) {
 		saveChanges,
 	} = useCompositionStore(useShallow(watchSelector))
 
-	const dirtyState = useEditorStore(editor => editor.dirtyState)
-	const setDirtyState = useEditorStore(editor => editor.setDirtyState)
+	const { dirtyState, setDirtyState } = useEditorStore(
+		useShallow(editorSelector),
+	)
 
 	const updateRequestRef = useRef<CompositionUpdateRequest>({
 		id: compositionId,
