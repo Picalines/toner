@@ -59,6 +59,7 @@ export default async function EditorPage({ params }: Props) {
 						dirtyState: 'clean',
 						openedModal: null,
 						panelLayout: 'horizontal',
+						nodeCursor: [0, 0],
 					}}
 				>
 					<ChangeWatcher>

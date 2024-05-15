@@ -3,7 +3,7 @@ import { persist } from 'zustand/middleware'
 
 type EditorDirtyState = 'clean' | 'waiting' | 'saving'
 
-type EditorModal = 'composition-info' | 'composition-delete'
+type EditorModal = 'composition-info' | 'composition-delete' | 'node-add'
 
 type EditorPanelLayout = 'horizontal' | 'vertical'
 
@@ -11,6 +11,8 @@ export type EditorState = {
 	dirtyState: EditorDirtyState
 	openedModal: EditorModal | null
 	panelLayout: EditorPanelLayout
+
+	nodeCursor: [x: number, y: number]
 }
 
 export type EditorActions = {
@@ -20,6 +22,8 @@ export type EditorActions = {
 	closeModal: () => void
 
 	setPanelLayout: (layout: EditorPanelLayout) => void
+
+	setNodeCursor: (x: number, y: number) => void
 }
 
 export type EditorStore = EditorState & EditorActions
@@ -38,6 +42,8 @@ export function createEditorStore(initialState: EditorState) {
 				closeModal: () => set({ openedModal: null }),
 
 				setPanelLayout: layout => set({ panelLayout: layout }),
+
+				setNodeCursor: (x, y) => set({ nodeCursor: [x, y] }),
 			}),
 			{
 				name: 'composition-editor',
