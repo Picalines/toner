@@ -12,7 +12,7 @@ import {
 } from '@xyflow/react'
 import { nanoid } from 'nanoid'
 import { createStore } from 'zustand/vanilla'
-import { safeParseOr, zodIs } from '@/lib/utils'
+import { capitalize, safeParseOr, zodIs } from '@/lib/utils'
 import {
 	AudioEdgeId,
 	AudioNodeId,
@@ -125,7 +125,7 @@ export function createCompositionStore(initialState: CompositionState) {
 					type: 'audio',
 					id,
 					position: { x: position[0], y: position[1] },
-					data: { type, label: type, properties },
+					data: { type, label: capitalize(type), properties },
 				}
 
 				get().applyNodeChanges([{ type: 'add', item: newNode }])

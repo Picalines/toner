@@ -2,7 +2,7 @@ import { Handle, NodeProps, Position } from '@xyflow/react'
 import { cn, tw } from '@/lib/utils'
 import { AudioNodeGroup, audioNodeDefinitions } from '@/schemas/audio-node'
 import { AudioNode } from '@/stores/composition-store'
-import { Card, CardHeader } from '../ui/card'
+import { Card } from '../ui/card'
 
 const nodeGroupClassNames: Record<AudioNodeGroup, string> = {
 	instrument: tw`bg-red-500`,
@@ -19,7 +19,7 @@ export default function AudioNodeDisplay({
 	return (
 		<Card
 			className={cn(
-				'p-2 outline outline-0 outline-primary transition-all',
+				'h-16 w-24 p-2 outline outline-0 outline-primary transition-all',
 				nodeGroupClassNames[group],
 				selected && 'outline-2',
 			)}
@@ -40,7 +40,9 @@ export default function AudioNodeDisplay({
 					position={Position.Right}
 				/>
 			))}
-			<CardHeader className="p-0 text-white">{label}</CardHeader>
+			<span className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 text-white">
+				{label}
+			</span>
 		</Card>
 	)
 }

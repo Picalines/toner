@@ -5,15 +5,16 @@ import {
 	Background,
 	BackgroundVariant,
 	ColorMode,
+	ControlButton,
 	Controls,
 	ReactFlow,
 	ReactFlowProvider,
 	ViewportPortal,
 	useReactFlow,
 } from '@xyflow/react'
-import { PlusIcon } from 'lucide-react'
+import { PlusIcon, SquarePlusIcon } from 'lucide-react'
 import { useTheme } from 'next-themes'
-import { MouseEvent, useCallback } from 'react'
+import { MouseEvent, useCallback, useEffect, useRef } from 'react'
 import { useShallow } from 'zustand/react/shallow'
 import { CompositionStore } from '@/stores/composition-store'
 import { EditorStore } from '@/stores/editor-store'
@@ -45,9 +46,14 @@ const compositionSelector = ({
 	connect,
 })
 
-const editorSelector = ({ nodeCursor, setNodeCursor }: EditorStore) => ({
+const editorSelector = ({
 	nodeCursor,
 	setNodeCursor,
+	openModal,
+}: EditorStore) => ({
+	nodeCursor,
+	setNodeCursor,
+	openModal,
 })
 
 function AudioReactFlow() {
@@ -63,7 +69,11 @@ function AudioReactFlow() {
 		connect,
 	} = useCompositionStore(useShallow(compositionSelector))
 
-	const { setNodeCursor } = useEditorStore(useShallow(editorSelector))
+	const { setNodeCursor, openModal } = useEditorStore(
+		useShallow(editorSelector),
+	)
+
+	const isMouseInsideFlow = useRef(false)
 
 	const setCursorOnClick = useCallback(
 		(event: MouseEvent) => {
@@ -76,6 +86,19 @@ function AudioReactFlow() {
 		[reactFlow, setNodeCursor],
 	)
 
+	const openAddNode = useCallback(() => openModal('node-add'), [openModal])
+
+	useEffect(() => {
+		const onKeyUp = (event: KeyboardEvent) => {
+			if (isMouseInsideFlow.current && event.key == 'a') {
+				openAddNode()
+			}
+		}
+
+		document.addEventListener('keyup', onKeyUp)
+		return () => document.removeEventListener('keyup', onKeyUp)
+	}, [openAddNode])
+
 	return (
 		<ReactFlow
 			nodeTypes={nodeTypes}
@@ -85,6 +108,8 @@ function AudioReactFlow() {
 			onEdgesChange={applyEdgeChanges}
 			onConnect={connect}
 			onPaneClick={setCursorOnClick}
+			onMouseEnter={() => (isMouseInsideFlow.current = true)}
+			onMouseLeave={() => (isMouseInsideFlow.current = false)}
 			colorMode={theme as ColorMode}
 			nodeOrigin={[0.5, 0.5]}
 			proOptions={{ hideAttribution: true }}
@@ -94,6 +119,19 @@ function AudioReactFlow() {
 			selectionKeyCode={null}
 		>
 			<Controls showInteractive={false} position="bottom-right" />
+			<Controls
+				position="top-right"
+				showZoom={false}
+				showFitView={false}
+				showInteractive={false}
+			>
+				<ControlButton onClick={openAddNode}>
+					<SquarePlusIcon
+						className="scale-125"
+						style={{ fill: 'none' }}
+					/>
+				</ControlButton>
+			</Controls>
 			<Background variant={BackgroundVariant.Dots} gap={12} size={1} />
 			<ViewportPortal>
 				<NodeCursor />

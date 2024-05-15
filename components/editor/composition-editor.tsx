@@ -13,6 +13,7 @@ import {
 import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area'
 import AudioNodeFlow from './audio-node-flow'
 import CompositionInfoModal from './composition-info-modal'
+import CreateNodeModal from './create-node-modal'
 import KeyEditor from './key-editor'
 import NodePropertiesEditor from './node-properties-editor'
 import { useToneEditorWatcher } from './use-tone-editor-watcher'
@@ -62,6 +63,7 @@ export default function CompositionEditor({ className }: Props) {
 				</div>
 			)}
 			<CompositionInfoModal />
+			<CreateNodeModal />
 		</div>
 	)
 }
