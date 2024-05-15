@@ -20,6 +20,12 @@ import { CompositionStore } from '@/stores/composition-store'
 import { EditorStore } from '@/stores/editor-store'
 import { useCompositionStore } from '../providers/composition-store-provider'
 import { useEditorStore } from '../providers/editor-store-provider'
+import {
+	Tooltip,
+	TooltipArrow,
+	TooltipContent,
+	TooltipTrigger,
+} from '../ui/tooltip'
 import AudioNodeDisplay from './audio-node-display'
 
 export default function AudioNodeFlow() {
@@ -125,12 +131,22 @@ function AudioReactFlow() {
 				showFitView={false}
 				showInteractive={false}
 			>
-				<ControlButton onClick={openAddNode}>
-					<SquarePlusIcon
-						className="scale-125"
-						style={{ fill: 'none' }}
-					/>
-				</ControlButton>
+				<Tooltip>
+					<TooltipTrigger asChild>
+						<div>
+							<ControlButton onClick={openAddNode}>
+								<SquarePlusIcon
+									className="scale-125"
+									style={{ fill: 'none' }}
+								/>
+							</ControlButton>
+						</div>
+					</TooltipTrigger>
+					<TooltipContent side="left">
+						<span>Add Node (A)</span>
+						<TooltipArrow />
+					</TooltipContent>
+				</Tooltip>
 			</Controls>
 			<Background variant={BackgroundVariant.Dots} gap={12} size={1} />
 			<ViewportPortal>
