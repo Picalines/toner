@@ -55,6 +55,8 @@ export type CompositionActions = {
 	setDescription: (description: string) => void
 
 	getNodeById: (id: AudioNodeId) => AudioNode | null
+	getEdgeById: (id: AudioEdgeId) => AudioEdge | null
+
 	createNode: (type: AudioNodeType, position: [number, number]) => AudioNodeId
 	renameNode: (id: AudioNodeId, label: string) => void
 	setNodeProperty: (id: AudioNodeId, property: string, value: number) => void
@@ -108,6 +110,8 @@ export function createCompositionStore(initialState: CompositionState) {
 			},
 
 			getNodeById: id => get().nodes.get(id) ?? null,
+
+			getEdgeById: id => get().edges.get(id) ?? null,
 
 			createNode: (type, position) => {
 				const properties = Object.fromEntries(
@@ -176,14 +180,14 @@ export function createCompositionStore(initialState: CompositionState) {
 			},
 
 			applyNodeChanges: changes => {
+				const compChanges = changes
+					.map(change => nodeChangeToCompositionChange(get(), change))
+					.filter(Boolean) as CompositionChange[]
+
 				const nodes = applyNodeChanges(changes, [
 					...get().nodes.values(),
 				])
 				set({ nodes: new Map(nodes.map(node => [node.id, node])) })
-
-				const compChanges = changes
-					.map(change => nodeChangeToCompositionChange(change))
-					.filter(Boolean) as CompositionChange[]
 
 				if (compChanges.length) {
 					addChanges(...compChanges)
@@ -202,14 +206,14 @@ export function createCompositionStore(initialState: CompositionState) {
 			},
 
 			applyEdgeChanges: changes => {
+				const compChanges = changes
+					.map(change => edgeChangeToCompositionChange(get(), change))
+					.filter(Boolean) as CompositionChange[]
+
 				const edges = applyEdgeChanges(changes, [
 					...get().edges.values(),
 				])
 				set({ edges: new Map(edges.map(edge => [edge.id, edge])) })
-
-				const compChanges = changes
-					.map(change => edgeChangeToCompositionChange(change))
-					.filter(Boolean) as CompositionChange[]
 
 				if (compChanges.length) {
 					addChanges(...compChanges)
@@ -251,33 +255,48 @@ export function createCompositionStore(initialState: CompositionState) {
 }
 
 function nodeChangeToCompositionChange(
+	{ getNodeById }: CompositionStore,
 	change: NodeChange<AudioNode>,
 ): CompositionChange | null {
-	if (change.type == 'add') {
-		const node = change.item
-		return {
-			type: 'node-add',
-			id: node.id,
-			label: node.data.label,
-			nodeType: node.data.type,
-			position: [node.position.x, node.position.y],
-			properties: { ...node.data.properties },
-		}
-	}
+	switch (change.type) {
+		case 'add': {
+			const node = change.item
+			if (node.type != 'audio' || getNodeById(node.id) !== null) {
+				break
+			}
 
-	if (change.type == 'remove') {
-		return {
-			type: 'node-remove',
-			id: change.id,
+			return {
+				type: 'node-add',
+				id: node.id,
+				label: node.data.label,
+				nodeType: node.data.type,
+				position: [node.position.x, node.position.y],
+				properties: { ...node.data.properties },
+			}
 		}
-	}
 
-	if (change.type == 'position' && change.position && !change.dragging) {
-		const { x, y } = change.position
-		return {
-			type: 'node-move',
-			id: change.id,
-			position: [x, y],
+		case 'remove': {
+			if (!getNodeById(change.id)) {
+				break
+			}
+
+			return {
+				type: 'node-remove',
+				id: change.id,
+			}
+		}
+
+		case 'position': {
+			if (!change.position || change.dragging) {
+				break
+			}
+
+			const { x, y } = change.position
+			return {
+				type: 'node-move',
+				id: change.id,
+				position: [x, y],
+			}
 		}
 	}
 
@@ -285,24 +304,39 @@ function nodeChangeToCompositionChange(
 }
 
 function edgeChangeToCompositionChange(
+	{ getNodeById, getEdgeById }: CompositionStore,
 	change: EdgeChange<AudioEdge>,
 ): CompositionChange | null {
 	switch (change.type) {
 		case 'add': {
-			const edge = change.item
+			const {
+				item: { id, source, target, sourceHandle, targetHandle },
+			} = change
+
+			if (
+				getEdgeById(id) ||
+				!getNodeById(source) ||
+				!getNodeById(target)
+			) {
+				break
+			}
+
 			return {
 				type: 'edge-add',
-				id: edge.id,
-				source: [edge.source, parseInt(edge.sourceHandle ?? '0')],
-				target: [edge.target, parseInt(edge.targetHandle ?? '0')],
+				id,
+				source: [source, parseInt(sourceHandle ?? '0')],
+				target: [target, parseInt(targetHandle ?? '0')],
 			}
 		}
 
 		case 'remove': {
-			return {
-				type: 'edge-remove',
-				id: change.id,
+			const { id } = change
+
+			if (!getEdgeById(id)) {
+				break
 			}
+
+			return { type: 'edge-remove', id }
 		}
 	}
 
