@@ -32,7 +32,7 @@ export type AudioNodeProperty = {
 	valueLabels?: Record<number, string>
 }
 
-export type AudioNodeDefinition = {
+type DefinitionShape = {
 	group: AudioNodeGroup
 	inputs: { name: string }[]
 	outputs: { name: string }[]
@@ -58,7 +58,7 @@ export const audioNodeDefinitions = {
 		group: 'output',
 		inputs: [{ name: 'audio' }],
 		outputs: [],
-		properties: {},
+		properties: { volume: volumeProperty },
 	},
 
 	synth: {
@@ -71,13 +71,12 @@ export const audioNodeDefinitions = {
 				name: 'type',
 				default: 0,
 				min: 0,
-				max: 4,
+				max: 3,
 				valueLabels: {
 					0: 'triangle',
 					1: 'sawtooth',
 					2: 'square',
-					3: 'noise',
-					4: 'sin',
+					3: 'sine',
 				},
 			},
 		},
@@ -88,7 +87,6 @@ export const audioNodeDefinitions = {
 		inputs: [{ name: 'audio' }],
 		outputs: [{ name: 'audio' }],
 		properties: {
-			wet: wetProperty,
 			gain: {
 				name: 'decibels',
 				default: 0,
@@ -112,4 +110,7 @@ export const audioNodeDefinitions = {
 			},
 		},
 	},
-} as const satisfies Record<AudioNodeType, AudioNodeDefinition>
+} as const satisfies Record<AudioNodeType, DefinitionShape>
+
+export type AudioNodeDefinition<T extends AudioNodeType> =
+	(typeof audioNodeDefinitions)[T]
