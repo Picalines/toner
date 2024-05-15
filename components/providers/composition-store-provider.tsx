@@ -48,16 +48,20 @@ export default function CompositionStoreProvider({
 	)
 }
 
-export function useCompositionStore<T>(
-	selector: (store: CompositionStore) => T,
-): T {
-	const editorStoreContext = useContext(CompositionStoreContext)
+export function useCompositionStoreApi(): StoreApi<CompositionStore> {
+	const editorStoreApi = useContext(CompositionStoreContext)
 
-	if (!editorStoreContext) {
+	if (!editorStoreApi) {
 		throw new Error(
 			`${useCompositionStore.name} must be used within ${CompositionStoreProvider.name}`,
 		)
 	}
 
-	return useStore(editorStoreContext, selector)
+	return editorStoreApi
+}
+
+export function useCompositionStore<T>(
+	selector: (store: CompositionStore) => T,
+): T {
+	return useStore(useCompositionStoreApi(), selector)
 }

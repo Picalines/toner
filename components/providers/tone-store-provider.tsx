@@ -20,7 +20,7 @@ export default function ToneStoreProvider({ children }: PropsWithChildren) {
 		toneStoreRef.current = createToneStore({
 			context: Tone.getContext(),
 			isAudioAvailable: false,
-			nodes: [],
+			nodes: new Map(),
 		})
 	}
 
@@ -37,14 +37,18 @@ export default function ToneStoreProvider({ children }: PropsWithChildren) {
 	)
 }
 
-export function useToneStore<T>(selector: (store: ToneStore) => T): T {
-	const toneStoreContext = useContext(ToneStoreContext)
+export function useToneStoreApi(): StoreApi<ToneStore> {
+	const toneStoreApi = useContext(ToneStoreContext)
 
-	if (!toneStoreContext) {
+	if (!toneStoreApi) {
 		throw new Error(
 			`${useToneStore.name} must be used within ${ToneStoreProvider.name}`,
 		)
 	}
 
-	return useStore(toneStoreContext, selector)
+	return toneStoreApi
+}
+
+export function useToneStore<T>(selector: (store: ToneStore) => T): T {
+	return useStore(useToneStoreApi(), selector)
 }
