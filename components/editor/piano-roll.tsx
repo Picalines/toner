@@ -82,6 +82,10 @@ function PianoRollOctave({
 			event.preventDefault()
 			const button = event.target as HTMLButtonElement
 			const keyIndex = parseInt(button.getAttribute('data-index')!)
+			if (isNaN(keyIndex)) {
+				return
+			}
+
 			const callbackProp = isDown ? onKeyDown : onKeyUp
 			callbackProp?.({ note: octave * OCTAVE_LENGTH + keyIndex })
 			button.classList.toggle('down', isDown)
