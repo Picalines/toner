@@ -47,6 +47,8 @@ export default function AudioNodeFlow({ className }: Props) {
 			proOptions={{ hideAttribution: true }}
 			fitView
 			fitViewOptions={{ maxZoom: 1 }}
+			multiSelectionKeyCode={null} // TODO: work out bugs with multiple changes
+			selectionKeyCode={null}
 		>
 			<Controls showInteractive={false} position="bottom-right" />
 			<Background variant={BackgroundVariant.Dots} gap={12} size={1} />
