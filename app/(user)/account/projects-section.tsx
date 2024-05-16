@@ -1,4 +1,4 @@
-import { asc, eq } from 'drizzle-orm'
+import { desc, eq } from 'drizzle-orm'
 import { User } from 'lucia'
 import { Loader2Icon, PlusCircleIcon } from 'lucide-react'
 import { Suspense } from 'react'
@@ -40,7 +40,7 @@ async function ProjectList({ accountId }: { accountId: User['id'] }) {
 		})
 		.from(compositionTable)
 		.where(eq(compositionTable.authorId, accountId))
-		.orderBy(asc(compositionTable.createdAt))
+		.orderBy(desc(compositionTable.createdAt))
 
 	return compositions.length > 0 ? (
 		<div className="grid gap-2 md:grid-cols-2 lg:grid-cols-4 2xl:grid-cols-6">
