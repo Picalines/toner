@@ -191,14 +191,22 @@ export function createCompositionStore(initialState: CompositionState) {
 			},
 
 			applyNodeChanges: changes => {
+				const prevState = get()
 				const compChanges = changes
-					.map(change => nodeChangeToCompositionChange(get(), change))
+					.map(change =>
+						nodeChangeToCompositionChange(prevState, change),
+					)
 					.filter(Boolean) as CompositionChange[]
 
-				const nodes = applyNodeChanges(changes, [
-					...get().nodes.values(),
-				])
-				set({ nodes: new Map(nodes.map(node => [node.id, node])) })
+				const nodes: CompositionState['nodes'] = new Map()
+				for (const changedNode of applyNodeChanges(
+					changes,
+					Array.from(prevState.nodes.values()),
+				)) {
+					nodes.set(changedNode.id, changedNode)
+				}
+
+				set({ nodes })
 
 				if (compChanges.length) {
 					addChanges(...compChanges)
@@ -213,18 +221,31 @@ export function createCompositionStore(initialState: CompositionState) {
 						selectedNodeId:
 							selectChanges.find(c => c.selected)?.id ?? null,
 					})
+				} else if (
+					prevState.selectedNodeId &&
+					!nodes.has(prevState.selectedNodeId)
+				) {
+					set({ selectedNodeId: null })
 				}
 			},
 
 			applyEdgeChanges: changes => {
+				const prevState = get()
 				const compChanges = changes
-					.map(change => edgeChangeToCompositionChange(get(), change))
+					.map(change =>
+						edgeChangeToCompositionChange(prevState, change),
+					)
 					.filter(Boolean) as CompositionChange[]
 
-				const edges = applyEdgeChanges(changes, [
-					...get().edges.values(),
-				])
-				set({ edges: new Map(edges.map(edge => [edge.id, edge])) })
+				const edges: CompositionState['edges'] = new Map()
+				for (const changedEdge of applyEdgeChanges(
+					changes,
+					Array.from(prevState.edges.values()),
+				)) {
+					edges.set(changedEdge.id, changedEdge)
+				}
+
+				set({ edges })
 
 				if (compChanges.length) {
 					addChanges(...compChanges)
@@ -239,6 +260,11 @@ export function createCompositionStore(initialState: CompositionState) {
 						selectedEdgeId:
 							selectChanges.find(c => c.selected)?.id ?? null,
 					})
+				} else if (
+					prevState.selectedEdgeId &&
+					!edges.has(prevState.selectedEdgeId)
+				) {
+					set({ selectedEdgeId: null })
 				}
 			},
 
