@@ -67,6 +67,10 @@ const TONE_NODE_MAPPINGS: ToneNodeMappings = {
 				'osc.type': t =>
 					// @ts-expect-error TODO: figure out Tone.js typing
 					synth.set({ oscillator: { type: oscType(t) } }),
+				'env.attack': a => synth.set({ envelope: { attack: a } }),
+				'env.decay': d => synth.set({ envelope: { decay: d } }),
+				'env.sustain': s => synth.set({ envelope: { sustain: s } }),
+				'env.release': r => synth.set({ envelope: { release: r } }),
 			},
 		}
 	},

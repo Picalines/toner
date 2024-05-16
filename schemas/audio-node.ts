@@ -91,6 +91,34 @@ export const audioNodeDefinitions = {
 		properties: {
 			volume: volumeProperty,
 			'osc.type': oscillatorType,
+			'env.attack': {
+				name: 'attack',
+				default: 0.1,
+				min: 0,
+				max: 2,
+				step: 0.001,
+			},
+			'env.decay': {
+				name: 'decay',
+				default: 0.1,
+				min: 0,
+				max: 2,
+				step: 0.001,
+			},
+			'env.sustain': {
+				name: 'sustain',
+				default: 1,
+				min: 0,
+				max: 1,
+				step: 0.001,
+			},
+			'env.release': {
+				name: 'release',
+				default: 0.1,
+				min: 0,
+				max: 5,
+				step: 0.001,
+			},
 		},
 	},
 
