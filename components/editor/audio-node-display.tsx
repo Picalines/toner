@@ -27,22 +27,22 @@ export default function AudioNodeDisplay({
 	return (
 		<Card
 			className={cn(
-				'h-16 w-24 p-2 outline outline-0 outline-primary transition-all',
+				'h-16 w-24 border-2 border-black border-opacity-30 p-2 outline outline-0 outline-primary transition-all',
 				nodeGroupClassNames[group],
 				selected && 'outline-2',
 			)}
 		>
-			{inputs.map(({ name }, i) => (
+			{inputs.map((_, i) => (
 				<Handle
-					key={name}
+					key={i}
 					type="target"
 					id={String(i)}
 					position={Position.Left}
 				/>
 			))}
-			{outputs.map(({ name }, i) => (
+			{outputs.map((_, i) => (
 				<Handle
-					key={name}
+					key={i}
 					type="source"
 					id={String(i)}
 					position={Position.Right}
