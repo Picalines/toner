@@ -6,6 +6,8 @@ export type DeepReadonly<T> = T extends {
 	? { readonly [K in keyof T]: DeepReadonly<T[K]> }
 	: T
 
+export type KeyOfUnion<T> = T extends T ? keyof T : never
+
 type TupleImpl<Item, Length extends number, Acc extends Item[]> = Acc extends {
 	length: Length
 }

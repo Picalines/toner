@@ -33,6 +33,12 @@ export type AudioNodeProperty = {
 	valueLabels?: Record<number, string>
 }
 
+export type AudioNodeDefinition<T extends AudioNodeType = AudioNodeType> =
+	(typeof audioNodeDefinitions)[T]
+
+export type AudioNodeProperties<T extends AudioNodeType = AudioNodeType> =
+	AudioNodeDefinition<T>['properties']
+
 type DefinitionShape = {
 	group: AudioNodeGroup
 	inputs: { name: string }[]
@@ -117,6 +123,3 @@ export const audioNodeDefinitions = {
 		},
 	},
 } as const satisfies Record<AudioNodeType, DefinitionShape>
-
-export type AudioNodeDefinition<T extends AudioNodeType> =
-	(typeof audioNodeDefinitions)[T]
