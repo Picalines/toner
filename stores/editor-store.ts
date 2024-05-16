@@ -1,5 +1,5 @@
-import { create } from 'zustand'
-import { persist } from 'zustand/middleware'
+import { StoreApi, create } from 'zustand'
+import { persist, subscribeWithSelector } from 'zustand/middleware'
 
 type EditorDirtyState = 'clean' | 'waiting' | 'saving'
 
@@ -28,28 +28,31 @@ export type EditorActions = {
 
 export type EditorStore = EditorState & EditorActions
 
+export type EditorStoreApi = ReturnType<typeof createEditorStore>
+
 export function createEditorStore(initialState: EditorState) {
+	const initStore = (
+		set: StoreApi<EditorStore>['setState'],
+	): EditorStore => ({
+		...initialState,
+
+		setDirtyState: dirtyState => {
+			set({ dirtyState })
+		},
+
+		openModal: modal => set({ openedModal: modal }),
+		closeModal: () => set({ openedModal: null }),
+
+		setPanelLayout: layout => set({ panelLayout: layout }),
+
+		setNodeCursor: (x, y) => set({ nodeCursor: [x, y] }),
+	})
+
 	return create(
-		persist<EditorStore>(
-			set => ({
-				...initialState,
-
-				setDirtyState: dirtyState => {
-					set({ dirtyState })
-				},
-
-				openModal: modal => set({ openedModal: modal }),
-				closeModal: () => set({ openedModal: null }),
-
-				setPanelLayout: layout => set({ panelLayout: layout }),
-
-				setNodeCursor: (x, y) => set({ nodeCursor: [x, y] }),
-			}),
-			{
-				name: 'composition-editor',
-				partialize: state =>
-					({ panelLayout: state.panelLayout }) as EditorStore,
-			},
-		),
+		persist(subscribeWithSelector(initStore), {
+			name: 'composition-editor',
+			partialize: state =>
+				({ panelLayout: state.panelLayout }) as EditorStore,
+		}),
 	)
 }

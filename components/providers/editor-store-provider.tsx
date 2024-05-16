@@ -1,14 +1,15 @@
 'use client'
 
 import { PropsWithChildren, createContext, useContext, useRef } from 'react'
-import { StoreApi, useStore } from 'zustand'
+import { useStore } from 'zustand'
 import {
 	EditorState,
 	EditorStore,
+	EditorStoreApi,
 	createEditorStore,
 } from '@/stores/editor-store'
 
-const EditorStoreContext = createContext<StoreApi<EditorStore> | null>(null)
+const EditorStoreContext = createContext<EditorStoreApi | null>(null)
 
 type Props = PropsWithChildren<
 	Readonly<{
@@ -17,7 +18,7 @@ type Props = PropsWithChildren<
 >
 
 export default function EditorStoreProvider({ initialState, children }: Props) {
-	const storeRef = useRef<StoreApi<EditorStore>>()
+	const storeRef = useRef<EditorStoreApi>()
 
 	if (!storeRef.current) {
 		storeRef.current = createEditorStore(initialState)
@@ -30,14 +31,18 @@ export default function EditorStoreProvider({ initialState, children }: Props) {
 	)
 }
 
-export function useEditorStore<T>(selector: (store: EditorStore) => T): T {
-	const editorStoreContext = useContext(EditorStoreContext)
+export function useEditorStoreApi(): EditorStoreApi {
+	const editorStoreApi = useContext(EditorStoreContext)
 
-	if (!editorStoreContext) {
+	if (!editorStoreApi) {
 		throw new Error(
 			`${useEditorStore.name} must be used within ${EditorStoreProvider.name}`,
 		)
 	}
 
-	return useStore(editorStoreContext, selector)
+	return editorStoreApi
+}
+
+export function useEditorStore<T>(selector: (store: EditorStore) => T): T {
+	return useStore(useEditorStoreApi(), selector)
 }
