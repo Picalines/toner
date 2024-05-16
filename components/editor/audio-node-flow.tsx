@@ -12,10 +12,11 @@ import {
 	ViewportPortal,
 	useReactFlow,
 } from '@xyflow/react'
-import { PlusIcon, SquarePlusIcon } from 'lucide-react'
+import { Loader2Icon, PlusIcon, SquarePlusIcon } from 'lucide-react'
 import { useTheme } from 'next-themes'
 import { MouseEvent, useCallback, useEffect, useRef } from 'react'
 import { useShallow } from 'zustand/react/shallow'
+import { useIsMountedState } from '@/lib/hooks'
 import { CompositionStore } from '@/stores/composition-store'
 import { EditorStore } from '@/stores/editor-store'
 import { useCompositionStore } from '../providers/composition-store-provider'
@@ -66,14 +67,13 @@ function AudioReactFlow() {
 	const reactFlow = useReactFlow()
 
 	const { theme } = useTheme()
+	const isMounted = useIsMountedState()
 
-	const {
-		nodes: nodes,
-		edges,
-		applyNodeChanges,
-		applyEdgeChanges,
-		connect,
-	} = useCompositionStore(useShallow(compositionSelector))
+	const colorMode: ColorMode =
+		(isMounted ? (theme as ColorMode) : null) ?? 'light'
+
+	const { nodes, edges, applyNodeChanges, applyEdgeChanges, connect } =
+		useCompositionStore(useShallow(compositionSelector))
 
 	const { setNodeCursor, openModal } = useEditorStore(
 		useShallow(editorSelector),
@@ -107,6 +107,7 @@ function AudioReactFlow() {
 
 	return (
 		<ReactFlow
+			className="relative"
 			nodeTypes={nodeTypes}
 			nodes={[...nodes.values()]}
 			edges={[...edges.values()]}
@@ -116,39 +117,52 @@ function AudioReactFlow() {
 			onPaneClick={setCursorOnClick}
 			onMouseEnter={() => (isMouseInsideFlow.current = true)}
 			onMouseLeave={() => (isMouseInsideFlow.current = false)}
-			colorMode={theme as ColorMode}
+			colorMode={colorMode}
 			nodeOrigin={[0.5, 0.5]}
 			proOptions={{ hideAttribution: true }}
 			fitView
-			fitViewOptions={{ maxZoom: 1 }}
+			fitViewOptions={{ maxZoom: 1, duration: 500 }}
 			multiSelectionKeyCode={null} // TODO: work out bugs with multiple changes
 			selectionKeyCode={null}
 		>
-			<Controls showInteractive={false} position="bottom-right" />
-			<Controls
-				position="top-right"
-				showZoom={false}
-				showFitView={false}
-				showInteractive={false}
-			>
-				<Tooltip>
-					<TooltipTrigger asChild>
-						<div>
-							<ControlButton onClick={openAddNode}>
-								<SquarePlusIcon
-									className="scale-125"
-									style={{ fill: 'none' }}
-								/>
-							</ControlButton>
-						</div>
-					</TooltipTrigger>
-					<TooltipContent side="left">
-						<span>Add Node (A)</span>
-						<TooltipArrow />
-					</TooltipContent>
-				</Tooltip>
-			</Controls>
-			<Background variant={BackgroundVariant.Dots} gap={12} size={1} />
+			{isMounted ? (
+				<>
+					<Controls showInteractive={false} position="bottom-right" />
+					<Controls
+						position="top-right"
+						showZoom={false}
+						showFitView={false}
+						showInteractive={false}
+					>
+						<Tooltip>
+							<TooltipTrigger asChild>
+								<div>
+									<ControlButton onClick={openAddNode}>
+										<SquarePlusIcon
+											className="scale-125"
+											style={{ fill: 'none' }}
+										/>
+									</ControlButton>
+								</div>
+							</TooltipTrigger>
+							<TooltipContent side="left">
+								<span>Add Node (A)</span>
+								<TooltipArrow />
+							</TooltipContent>
+						</Tooltip>
+					</Controls>
+				</>
+			) : (
+				<div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2">
+					<Loader2Icon className="animate-spin" />
+				</div>
+			)}
+			<Background
+				variant={BackgroundVariant.Dots}
+				gap={12}
+				size={1}
+				className="!bg-neutral-900"
+			/>
 			<ViewportPortal>
 				<NodeCursor />
 			</ViewportPortal>

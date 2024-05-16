@@ -112,7 +112,7 @@ export default function KeyEditor({ className }: Props) {
 				/>
 			</ResizablePanel>
 			<ResizableHandle />
-			<ResizablePanel>
+			<ResizablePanel defaultSize={80}>
 				<KeyAreaBackground
 					className="w-full"
 					lineHeight={24}
