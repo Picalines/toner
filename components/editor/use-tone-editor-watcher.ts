@@ -110,7 +110,6 @@ export function useToneEditorWatcher() {
 
 			edgeDisconnects.current?.clear()
 			toneStore.getState().disposeAll()
-			console.log('disposed')
 		}
 	}, [compositionStore, toneStore])
 }
