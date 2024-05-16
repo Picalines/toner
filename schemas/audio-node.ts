@@ -13,7 +13,7 @@ export const audioNodeSchemas = {
 	property: propertySchema,
 	properties: z.record(propertySchema, z.number()), // TODO: limit amount of properties
 
-	type: zodLiteralUnion('output', 'synth', 'gain', 'reverb'),
+	type: zodLiteralUnion('output', 'synth', 'gain', 'reverb', 'vibrato'),
 }
 
 export type AudioNodeId = z.infer<(typeof audioNodeSchemas)['nodeId']>
@@ -46,21 +46,35 @@ type DefinitionShape = {
 	properties: Record<string, AudioNodeProperty>
 }
 
-const volumeProperty = {
+const volumeProperty: AudioNodeProperty = {
 	name: 'volume',
 	default: 0,
 	min: -50,
 	max: 10,
 	step: 0.5,
-} as const satisfies AudioNodeProperty
+}
 
-const wetProperty = {
+const wetProperty: AudioNodeProperty = {
 	name: 'mix',
 	default: 1,
 	min: 0,
 	max: 1,
 	step: 0.001,
-} as const satisfies AudioNodeProperty
+}
+
+const oscillatorType: AudioNodeProperty = {
+	name: 'type',
+	default: 0,
+	min: 0,
+	max: 3,
+	step: 1,
+	valueLabels: {
+		0: 'triangle',
+		1: 'sawtooth',
+		2: 'square',
+		3: 'sine',
+	},
+}
 
 export const audioNodeDefinitions = {
 	output: {
@@ -76,19 +90,7 @@ export const audioNodeDefinitions = {
 		outputs: [{ name: 'audio' }],
 		properties: {
 			volume: volumeProperty,
-			'osc.type': {
-				name: 'type',
-				default: 0,
-				min: 0,
-				max: 3,
-				step: 1,
-				valueLabels: {
-					0: 'triangle',
-					1: 'sawtooth',
-					2: 'square',
-					3: 'sine',
-				},
-			},
+			'osc.type': oscillatorType,
 		},
 	},
 
@@ -118,6 +120,30 @@ export const audioNodeDefinitions = {
 				default: 0.001,
 				min: 0.001,
 				max: 255,
+				step: 0.001,
+			},
+		},
+	},
+
+	vibrato: {
+		group: 'effect',
+		inputs: [{ name: 'audio' }],
+		outputs: [{ name: 'audio' }],
+		properties: {
+			wet: wetProperty,
+			frequency: {
+				name: 'frequencry',
+				default: 255,
+				min: 1,
+				max: 2048,
+				step: 1,
+			},
+			type: oscillatorType,
+			depth: {
+				name: 'depth',
+				default: 0.5,
+				min: 0,
+				max: 1,
 				step: 0.001,
 			},
 		},

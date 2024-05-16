@@ -91,9 +91,24 @@ const TONE_NODE_MAPPINGS: ToneNodeMappings = {
 			},
 		}
 	},
+
+	vibrato: vibratoDef => {
+		const vibrato = new Tone.Vibrato()
+		const type = labelGetter(vibratoDef, 'type')
+		return {
+			toneNode: vibrato,
+			setters: {
+				wet: signalSetter(vibrato.wet),
+				frequency: signalSetter(vibrato.frequency),
+				// @ts-expect-error TODO: figure out Tone.js typing
+				type: t => (vibrato.type = type(t)),
+				depth: paramSetter(vibrato.depth),
+			},
+		}
+	},
 }
 
-type ToneUnit = 'decibels' | 'normalRange' // TODO: Tone.Unit is not exported
+type ToneUnit = 'decibels' | 'normalRange' | 'frequency' // TODO: Tone.Unit is not exported
 
 function paramSetter<U extends ToneUnit>(param: Tone.Param<U>) {
 	return (value: number) => (param.value = value)
@@ -106,7 +121,7 @@ function signalSetter<U extends ToneUnit>(signal: Tone.Signal<U>) {
 function labelGetter<
 	T extends AudioNodeType,
 	D extends AudioNodeDefinition<T>,
-	P extends KeyOfUnion<AudioNodeProperties<T>> & string,
+	P extends KeyOfUnion<D['properties']> & string,
 >(nodeDefinition: D, property: P): (value: number) => string {
 	const { valueLabels } =
 		nodeDefinition.properties[
