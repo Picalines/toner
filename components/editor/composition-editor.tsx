@@ -39,7 +39,10 @@ export default function CompositionEditor({
 }: Props) {
 	return (
 		<div
-			className={cn('relative flex min-h-0 min-w-0 flex-col', className)}
+			className={cn(
+				'relative flex h-full min-h-0 min-w-0 flex-col',
+				className,
+			)}
 		>
 			<EditorStoreProvider
 				initialState={{
