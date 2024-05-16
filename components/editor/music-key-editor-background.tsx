@@ -10,7 +10,7 @@ type Props = PropsWithoutChildren<ComponentProps<'div'>> &
 		accidentalClassName?: string
 	}>
 
-export default function KeyAreaBackground({
+export default function MusicKeyEditorBackground({
 	lineHeight = 16,
 	numberOfLines = 12,
 	naturalClassName = tw`fill-white dark:fill-neutral-900`,

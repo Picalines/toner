@@ -17,7 +17,7 @@ import AudioNodeFlow from './audio-node-flow'
 import CompositionEditorHeader from './composition-editor-header'
 import CompositionInfoModal from './composition-info-modal'
 import CreateNodeModal from './create-node-modal'
-import KeyEditor from './key-editor'
+import MusicKeyEditor from './music-key-editor'
 import NodePropertiesEditor from './node-properties-editor'
 import { useCompositionChangeWatcher } from './use-composition-change-watcher'
 import { useToneEditorWatcher } from './use-tone-editor-watcher'
@@ -90,7 +90,7 @@ function CompositionEditorPanels({
 			className="flex min-h-0 flex-grow"
 		>
 			<ResizablePanel defaultSize={50}>
-				<KeyEditorPanel />
+				<MusicKeyEditorPanel />
 			</ResizablePanel>
 			<ResizableHandle withHandle />
 			<ResizablePanel defaultSize={50}>
@@ -108,7 +108,7 @@ function CompositionEditorPanels({
 	)
 }
 
-function KeyEditorPanel() {
+function MusicKeyEditorPanel() {
 	const keyPanelViewport = useRef<HTMLDivElement>(null)
 
 	useEffect(() => {
@@ -121,7 +121,7 @@ function KeyEditorPanel() {
 
 	return (
 		<ScrollArea viewportRef={keyPanelViewport} className="h-full">
-			<KeyEditor />
+			<MusicKeyEditor />
 			<ScrollBar orientation="vertical" />
 		</ScrollArea>
 	)

@@ -6,7 +6,7 @@ import { useShallow } from 'zustand/react/shallow'
 import { cn } from '@/lib/utils'
 import { AudioNodeId, audioNodeDefinitions } from '@/schemas/audio-node'
 import { musicNoteInfo } from '@/schemas/music'
-import KeyAreaBackground from '@/components/editor/key-area-background'
+import MusicKeyEditorBackground from '@/components/editor/music-key-editor-background'
 import PianoRoll, { KeyEvent } from '@/components/editor/piano-roll'
 import { CompositionStore } from '@/stores/composition-store'
 import { ToneStore } from '@/stores/tone-store'
@@ -40,7 +40,7 @@ const compositionSelector = ({
 	getNodeById,
 })
 
-export default function KeyEditor({ className }: Props) {
+export default function MusicKeyEditor({ className }: Props) {
 	const {
 		isAudioAvailable,
 		resumeContext,
@@ -113,7 +113,7 @@ export default function KeyEditor({ className }: Props) {
 			</ResizablePanel>
 			<ResizableHandle />
 			<ResizablePanel defaultSize={80}>
-				<KeyAreaBackground
+				<MusicKeyEditorBackground
 					className="w-full"
 					lineHeight={24}
 					numberOfLines={120}
