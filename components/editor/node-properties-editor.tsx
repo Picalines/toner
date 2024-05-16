@@ -2,7 +2,7 @@
 
 import { ChangeEvent, useCallback, useState } from 'react'
 import { useShallow } from 'zustand/react/shallow'
-import { KeyOfUnion, cn, tw } from '@/lib/utils'
+import { KeyOfUnion, cn, mapRange, trimFraction, tw } from '@/lib/utils'
 import {
 	AudioNodeGroup,
 	AudioNodeProperties,
@@ -34,7 +34,7 @@ export default function NodePropertiesEditor({ className }: Props) {
 		? getNodeById(selectedNodeId)?.data
 		: null
 
-	const bgClassName = tw`relative bg-neutral-300 dark:bg-neutral-900`
+	const bgClassName = tw`relative bg-neutral-300 dark:bg-neutral-800`
 
 	if (!selectedNodeId || !selectedNode) {
 		return (
@@ -50,16 +50,19 @@ export default function NodePropertiesEditor({ className }: Props) {
 	const { properties } = audioNodeDefinitions[nodeType]
 
 	return (
-		<ScrollArea className={cn(bgClassName, className)}>
+		<div className={cn(bgClassName, 'flex flex-col', className)}>
 			<NodeNameInput key={selectedNodeId} />
-			{Object.keys(properties).map(property => (
-				<NodePropertySlider
-					key={property}
-					property={property as KeyOfUnion<AudioNodeProperties>}
-				/>
-			))}
-			<ScrollBar />
-		</ScrollArea>
+			<ScrollArea>
+				{Object.keys(properties).map(property => (
+					<NodePropertySlider
+						className="m-1 overflow-hidden rounded-sm"
+						key={property}
+						property={property as KeyOfUnion<AudioNodeProperties>}
+					/>
+				))}
+				<ScrollBar />
+			</ScrollArea>
+		</div>
 	)
 }
 
@@ -102,7 +105,7 @@ function NodeNameInput() {
 	return (
 		<Input
 			className={cn(
-				'h-9 rounded-none border-x-0 border-y-0 border-b text-white focus-visible:ring-0 focus-visible:ring-offset-0',
+				'h-9 rounded-none border-none text-white focus-visible:ring-0 focus-visible:ring-offset-0',
 				group && nodeGroupClassNames[group],
 			)}
 			value={labelInput}
@@ -155,11 +158,12 @@ function NodePropertySlider<T extends AudioNodeType>({
 
 	const {
 		name,
-		min,
-		max,
-		step,
-		valueLabels,
 		default: defaultValue,
+		step,
+		range: [min, max],
+		displayRange: [displayMin, displayMax] = [min, max],
+		units,
+		valueLabels,
 	} = nodeProperties[property] as AudioNodeProperty
 
 	propertyValue ??= defaultValue
@@ -167,27 +171,37 @@ function NodePropertySlider<T extends AudioNodeType>({
 	return (
 		<div
 			className={cn(
+				'relative h-min cursor-ew-resize text-nowrap p-1 shadow-[0_0_2px_rgba(0,0,0,0.2)]',
 				className,
-				'relative h-8 cursor-ew-resize text-nowrap p-0',
 			)}
 		>
 			<Slider
 				thumb={false}
-				className="h-full"
-				rangeClassName="bg-neutral-100 dark:bg-neutral-500 shadow-lg"
-				trackClassName="rounded-none bg-neutral-300 dark:bg-neutral-600"
+				className="absolute inset-0 h-full"
+				rangeClassName={tw`bg-neutral-100 shadow-[5px_0_10px_rgba(0,0,0,0.1)] dark:bg-neutral-500`}
+				trackClassName={tw`rounded-none bg-neutral-200 dark:bg-neutral-600`}
 				min={min}
 				max={max}
 				step={step}
 				value={[propertyValue]}
 				onValueChange={onSliderChange}
 			/>
-			<div className="pointer-events-none absolute inset-0 flex items-center justify-between gap-2 p-2 dark:text-white">
-				<span>{name}</span>
-				<span>
+			<div className="pointer-events-none relative flex flex-col items-start gap-0.5 text-sm">
+				<span className="text-slate-700 dark:text-slate-100">
+					{name}
+				</span>
+				<span className="text-slate-500 dark:text-slate-300">
 					{valueLabels && propertyValue in valueLabels
 						? valueLabels[propertyValue]
-						: propertyValue}
+						: trimFraction(
+								mapRange(
+									propertyValue,
+									[min, max],
+									[displayMin, displayMax],
+								),
+								2,
+							)}
+					{units ? ' ' + units : null}
 				</span>
 			</div>
 		</div>

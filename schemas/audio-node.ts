@@ -27,9 +27,10 @@ export type AudioNodeGroup = 'instrument' | 'effect' | 'output'
 export type AudioNodeProperty = {
 	name: string
 	default: number
-	min: number
-	max: number
 	step: number
+	range: [min: number, max: number]
+	displayRange?: [min: number, max: number]
+	units?: string
 	valueLabels?: Readonly<Record<number, string>>
 }
 
@@ -46,28 +47,30 @@ type DefinitionShape = {
 	properties: Record<string, AudioNodeProperty>
 }
 
+const UNITS = { decibels: 'db', hertz: 'hz', seconds: 'sec', percentage: '%' }
+
 const volumeProperty: AudioNodeProperty = {
 	name: 'volume',
 	default: 0,
-	min: -50,
-	max: 10,
 	step: 0.5,
+	range: [-50, 50],
+	units: UNITS.decibels,
 }
 
 const wetProperty: AudioNodeProperty = {
 	name: 'mix',
 	default: 1,
-	min: 0,
-	max: 1,
 	step: 0.001,
+	range: [0, 1],
+	displayRange: [0, 100],
+	units: UNITS.percentage,
 }
 
 const oscillatorType: AudioNodeProperty = {
 	name: 'type',
 	default: 0,
-	min: 0,
-	max: 3,
 	step: 1,
+	range: [0, 3],
 	valueLabels: {
 		0: 'triangle',
 		1: 'sawtooth',
@@ -94,30 +97,31 @@ export const audioNodeDefinitions = {
 			'env.attack': {
 				name: 'attack',
 				default: 0.1,
-				min: 0,
-				max: 2,
 				step: 0.001,
+				range: [0, 2],
+				units: UNITS.seconds,
 			},
 			'env.decay': {
 				name: 'decay',
 				default: 0.1,
-				min: 0,
-				max: 2,
 				step: 0.001,
+				range: [0, 2],
+				units: UNITS.seconds,
 			},
 			'env.sustain': {
 				name: 'sustain',
 				default: 1,
-				min: 0,
-				max: 1,
 				step: 0.001,
+				range: [0, 1],
+				displayRange: [0, 100],
+				units: UNITS.percentage,
 			},
 			'env.release': {
 				name: 'release',
 				default: 0.1,
-				min: 0,
-				max: 5,
 				step: 0.001,
+				range: [0, 5],
+				units: UNITS.seconds,
 			},
 		},
 	},
@@ -130,9 +134,9 @@ export const audioNodeDefinitions = {
 			gain: {
 				name: 'decibels',
 				default: 0,
-				min: -50,
-				max: 10,
 				step: 0.5,
+				range: [-50, 10],
+				units: UNITS.decibels,
 			},
 		},
 	},
@@ -145,10 +149,10 @@ export const audioNodeDefinitions = {
 			wet: wetProperty,
 			decay: {
 				name: 'decay',
-				default: 0.001,
-				min: 0.001,
-				max: 255,
+				default: 1,
 				step: 0.001,
+				range: [0.001, 100],
+				units: UNITS.seconds,
 			},
 		},
 	},
@@ -162,17 +166,18 @@ export const audioNodeDefinitions = {
 			frequency: {
 				name: 'frequencry',
 				default: 255,
-				min: 1,
-				max: 2048,
 				step: 1,
+				range: [1, 2048],
+				units: UNITS.hertz,
 			},
 			type: oscillatorType,
 			depth: {
 				name: 'depth',
 				default: 0.5,
-				min: 0,
-				max: 1,
 				step: 0.001,
+				range: [0, 1],
+				displayRange: [0, 100],
+				units: UNITS.percentage,
 			},
 		},
 	},
