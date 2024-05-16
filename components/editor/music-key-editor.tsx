@@ -1,17 +1,13 @@
 'use client'
 
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback } from 'react'
 import * as Tone from 'tone'
-import { useShallow } from 'zustand/react/shallow'
 import { cn } from '@/lib/utils'
-import { AudioNodeId, audioNodeDefinitions } from '@/schemas/audio-node'
 import { musicNoteInfo } from '@/schemas/music'
 import MusicKeyEditorBackground from '@/components/editor/music-key-editor-background'
 import PianoRoll, { KeyEvent } from '@/components/editor/piano-roll'
-import { CompositionStore } from '@/stores/composition-store'
-import { ToneStore } from '@/stores/tone-store'
-import { useCompositionStore } from '../providers/composition-store-provider'
-import { useToneStore } from '../providers/tone-store-provider'
+import { useEditorStoreApi } from '../providers/editor-store-provider'
+import { useToneStoreApi } from '../providers/tone-store-provider'
 import {
 	ResizableHandle,
 	ResizablePanel,
@@ -22,55 +18,17 @@ type Props = Readonly<{
 	className?: string
 }>
 
-const toneSelector = ({
-	isAudioAvailable,
-	resumeContext,
-	getNodeById,
-}: ToneStore) => ({
-	isAudioAvailable,
-	resumeContext,
-	getNodeById,
-})
-
-const compositionSelector = ({
-	selectedNodeId,
-	getNodeById,
-}: CompositionStore) => ({
-	selectedNodeId,
-	getNodeById,
-})
-
 export default function MusicKeyEditor({ className }: Props) {
-	const {
-		isAudioAvailable,
-		resumeContext,
-		getNodeById: getToneNode,
-	} = useToneStore(useShallow(toneSelector))
-
-	const { selectedNodeId, getNodeById: getAudioNode } = useCompositionStore(
-		useShallow(compositionSelector),
-	)
-
-	const [instrumentId, setInstrumentId] = useState<AudioNodeId | null>(null)
-
-	useEffect(() => {
-		const audioNode = selectedNodeId ? getAudioNode(selectedNodeId) : null
-		if (!audioNode) {
-			return
-		}
-
-		const {
-			data: { type: nodeType },
-		} = audioNode
-		const { group } = audioNodeDefinitions[nodeType]
-
-		if (group == 'instrument') {
-			setInstrumentId(selectedNodeId)
-		}
-	}, [isAudioAvailable, selectedNodeId, getAudioNode])
+	const editorStore = useEditorStoreApi()
+	const toneStore = useToneStoreApi()
 
 	const onKeyDown = useCallback(
 		async ({ note }: KeyEvent) => {
+			const { selectedInstrumentId: instrumentId } =
+				editorStore.getState()
+			const { resumeContext, getNodeById: getToneNode } =
+				toneStore.getState()
+
 			await resumeContext()
 
 			const synthNode = instrumentId ? getToneNode(instrumentId) : null
@@ -80,11 +38,15 @@ export default function MusicKeyEditor({ className }: Props) {
 
 			synthNode.triggerAttack(musicNoteInfo(note).keyString, Tone.now())
 		},
-		[resumeContext, instrumentId, getToneNode],
+		[editorStore, toneStore],
 	)
 
 	const onKeyUp = useCallback(
 		({ note }: KeyEvent) => {
+			const { selectedInstrumentId: instrumentId } =
+				editorStore.getState()
+			const { getNodeById: getToneNode } = toneStore.getState()
+
 			const synthNode = instrumentId ? getToneNode(instrumentId) : null
 			if (!(synthNode instanceof Tone.PolySynth) || synthNode.disposed) {
 				return
@@ -95,7 +57,7 @@ export default function MusicKeyEditor({ className }: Props) {
 				Tone.now(),
 			)
 		},
-		[instrumentId, getToneNode],
+		[editorStore, toneStore],
 	)
 
 	return (

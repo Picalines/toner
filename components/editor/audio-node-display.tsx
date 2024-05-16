@@ -1,7 +1,10 @@
 import { Handle, NodeProps, Position } from '@xyflow/react'
+import { Volume2Icon } from 'lucide-react'
 import { cn, tw } from '@/lib/utils'
 import { AudioNodeGroup, audioNodeDefinitions } from '@/schemas/audio-node'
 import { AudioNode } from '@/stores/composition-store'
+import { EditorStore } from '@/stores/editor-store'
+import { useEditorStore } from '../providers/editor-store-provider'
 import { Card } from '../ui/card'
 
 const nodeGroupClassNames: Record<AudioNodeGroup, string> = {
@@ -10,10 +13,15 @@ const nodeGroupClassNames: Record<AudioNodeGroup, string> = {
 	output: tw`bg-neutral-500`,
 }
 
+const instrumentSelector = ({ selectedInstrumentId }: EditorStore) =>
+	selectedInstrumentId
+
 export default function AudioNodeDisplay({
+	id: nodeId,
 	selected,
 	data: { type, label },
 }: NodeProps<AudioNode>) {
+	const selectedInstrumentId = useEditorStore(instrumentSelector)
 	const { group, inputs, outputs } = audioNodeDefinitions[type]
 
 	return (
@@ -40,9 +48,12 @@ export default function AudioNodeDisplay({
 					position={Position.Right}
 				/>
 			))}
-			<span className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 text-white">
-				{label}
-			</span>
+			<div className="absolute inset-1 flex flex-row gap-1">
+				<span className="flex-grow text-white">{label}</span>
+				{selectedInstrumentId == nodeId ? (
+					<Volume2Icon className="h-4 w-4 text-white animate-in zoom-in" />
+				) : null}
+			</div>
 		</Card>
 	)
 }

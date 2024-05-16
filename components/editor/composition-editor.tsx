@@ -20,6 +20,7 @@ import CreateNodeModal from './create-node-modal'
 import MusicKeyEditor from './music-key-editor'
 import NodePropertiesEditor from './node-properties-editor'
 import { useCompositionChangeWatcher } from './use-composition-change-watcher'
+import { useSelectedInstrumentWatcher } from './use-selected-instrument-watcher'
 import { useToneEditorWatcher } from './use-tone-editor-watcher'
 
 type Props = Readonly<{
@@ -50,6 +51,7 @@ export default function CompositionEditor({
 				panelLayout={panelLayout}
 				nodeCursorX={0}
 				nodeCursorY={0}
+				selectedInstrumentId={null}
 			>
 				<CompositionEditorHeader />
 				<CompositionEditorPanels
@@ -75,7 +77,7 @@ function CompositionEditorPanels({
 	onCompositionUpdate,
 }: EditorPanelsProps) {
 	useCompositionChangeWatcher({ submitDelay, onCompositionUpdate })
-
+	useSelectedInstrumentWatcher()
 	useToneEditorWatcher()
 
 	const panelLayout = useEditorStore(panelLayoutSelector)
