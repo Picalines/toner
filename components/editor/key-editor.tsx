@@ -12,6 +12,11 @@ import { CompositionStore } from '@/stores/composition-store'
 import { ToneStore } from '@/stores/tone-store'
 import { useCompositionStore } from '../providers/composition-store-provider'
 import { useToneStore } from '../providers/tone-store-provider'
+import {
+	ResizableHandle,
+	ResizablePanel,
+	ResizablePanelGroup,
+} from '../ui/resizable'
 
 type Props = Readonly<{
 	className?: string
@@ -94,18 +99,26 @@ export default function KeyEditor({ className }: Props) {
 	)
 
 	return (
-		<div className={cn('relative', className)}>
-			<PianoRoll
-				className="absolute left-0 w-20"
-				lineHeight={24}
-				onKeyDown={onKeyDown}
-				onKeyUp={onKeyUp}
-			/>
-			<KeyAreaBackground
-				className="w-full"
-				lineHeight={24}
-				numberOfLines={120}
-			/>
-		</div>
+		<ResizablePanelGroup
+			className={cn('relative', className)}
+			direction="horizontal"
+		>
+			<ResizablePanel defaultSize={20} minSize={18} maxSize={40}>
+				<PianoRoll
+					className="left-0 w-full"
+					lineHeight={24}
+					onKeyDown={onKeyDown}
+					onKeyUp={onKeyUp}
+				/>
+			</ResizablePanel>
+			<ResizableHandle />
+			<ResizablePanel>
+				<KeyAreaBackground
+					className="w-full"
+					lineHeight={24}
+					numberOfLines={120}
+				/>
+			</ResizablePanel>
+		</ResizablePanelGroup>
 	)
 }

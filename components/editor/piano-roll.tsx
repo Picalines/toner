@@ -137,7 +137,7 @@ function PianoRollOctave({
 						keyClassName,
 						accidental
 							? cn(
-									'absolute w-full max-w-[calc(100%-0.5rem-2ch)]',
+									'absolute w-full max-w-[calc(100%-0.5rem-2.5ch)]',
 									accidentalKeyClassName,
 								)
 							: naturalKeyClassName,
