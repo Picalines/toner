@@ -30,7 +30,7 @@ export type AudioNodeProperty = {
 	min: number
 	max: number
 	step: number
-	valueLabels?: Record<number, string>
+	valueLabels?: Readonly<Record<number, string>>
 }
 
 export type AudioNodeDefinition<T extends AudioNodeType = AudioNodeType> =
@@ -122,4 +122,4 @@ export const audioNodeDefinitions = {
 			},
 		},
 	},
-} as const satisfies Record<AudioNodeType, DefinitionShape>
+} satisfies Record<AudioNodeType, DefinitionShape>
