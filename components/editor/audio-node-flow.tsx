@@ -161,7 +161,7 @@ function AudioReactFlow() {
 				variant={BackgroundVariant.Dots}
 				gap={12}
 				size={1}
-				className="!bg-neutral-900"
+				className="!bg-neutral-100 dark:!bg-neutral-900"
 			/>
 			<ViewportPortal>
 				<NodeCursor />

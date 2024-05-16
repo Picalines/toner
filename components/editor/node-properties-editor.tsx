@@ -48,7 +48,9 @@ export default function NodePropertiesEditor({ className }: Props) {
 	const { properties } = audioNodeDefinitions[nodeType]
 
 	return (
-		<ScrollArea className={cn('dark:bg-neutral-900', className)}>
+		<ScrollArea
+			className={cn('bg-neutral-300 dark:bg-neutral-900', className)}
+		>
 			<NodeNameInput key={selectedNodeId} />
 			{Object.keys(properties).map(property => (
 				<NodePropertySlider
@@ -100,7 +102,7 @@ function NodeNameInput() {
 	return (
 		<Input
 			className={cn(
-				'h-9 rounded-none border-none text-white focus-visible:ring-0 focus-visible:ring-offset-0',
+				'h-9 rounded-none border-x-0 border-y-0 border-b text-white focus-visible:ring-0 focus-visible:ring-offset-0',
 				group && nodeGroupClassNames[group],
 			)}
 			value={labelInput}
@@ -166,21 +168,21 @@ function NodePropertySlider<T extends AudioNodeType>({
 		<div
 			className={cn(
 				className,
-				'relative h-8 cursor-ew-resize text-nowrap border-t p-0',
+				'relative h-8 cursor-ew-resize text-nowrap p-0',
 			)}
 		>
 			<Slider
 				thumb={false}
 				className="h-full"
-				rangeClassName="bg-neutral-500 shadow-lg"
-				trackClassName="rounded-none bg-neutral-600"
+				rangeClassName="bg-neutral-100 dark:bg-neutral-500 shadow-lg"
+				trackClassName="rounded-none bg-neutral-300 dark:bg-neutral-600"
 				min={min}
 				max={max}
 				step={step}
 				value={[propertyValue]}
 				onValueChange={onSliderChange}
 			/>
-			<div className="pointer-events-none absolute inset-0 flex items-center justify-between gap-2 p-2 text-white">
+			<div className="pointer-events-none absolute inset-0 flex items-center justify-between gap-2 p-2 dark:text-white">
 				<span>{name}</span>
 				<span>
 					{valueLabels && propertyValue in valueLabels
