@@ -1,0 +1,1 @@
+ALTER TABLE "composition" ADD COLUMN "updated_at" timestamp;

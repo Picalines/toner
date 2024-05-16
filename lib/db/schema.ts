@@ -215,6 +215,7 @@ export const compositionTable = pgTable('composition', {
 	name: varchar('name', { length: 64 }).notNull(),
 	description: text('description').notNull().default(''),
 	createdAt: timestamp('created_at').notNull().defaultNow(),
+	updatedAt: timestamp('updated_at'),
 })
 
 export const compositionRelations = relations(
