@@ -7,7 +7,7 @@ export const OCTAVE_LENGTH = 12
 
 export const MAX_OCTAVE = 9
 
-export const NUMBER_OF_NOTES = OCTAVE_LENGTH * MAX_OCTAVE
+export const NUMBER_OF_NOTES = OCTAVE_LENGTH * (MAX_OCTAVE + 1)
 
 const noteSchema = z.number().int().min(0).max(NUMBER_OF_NOTES)
 
