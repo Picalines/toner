@@ -45,12 +45,11 @@ export default function CompositionEditor({
 			)}
 		>
 			<EditorStoreProvider
-				initialState={{
-					dirtyState: 'clean',
-					openedModal: null,
-					panelLayout,
-					nodeCursor: [0, 0],
-				}}
+				dirtyState="clean"
+				openedModal={null}
+				panelLayout={panelLayout}
+				nodeCursorX={0}
+				nodeCursorY={0}
 			>
 				<CompositionEditorHeader />
 				<CompositionEditorPanels

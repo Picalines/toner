@@ -12,16 +12,27 @@ import {
 const EditorStoreContext = createContext<EditorStoreApi | null>(null)
 
 type Props = PropsWithChildren<
-	Readonly<{
-		initialState: EditorState
-	}>
+	Readonly<
+		Omit<EditorState, 'nodeCursor'> & {
+			nodeCursorX: number
+			nodeCursorY: number
+		}
+	>
 >
 
-export default function EditorStoreProvider({ initialState, children }: Props) {
+export default function EditorStoreProvider({
+	children,
+	nodeCursorX,
+	nodeCursorY,
+	...initialState
+}: Props) {
 	const storeRef = useRef<EditorStoreApi>()
 
 	if (!storeRef.current) {
-		storeRef.current = createEditorStore(initialState)
+		storeRef.current = createEditorStore({
+			...initialState,
+			nodeCursor: [nodeCursorX, nodeCursorY],
+		})
 	}
 
 	return (
