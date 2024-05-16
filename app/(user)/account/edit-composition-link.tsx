@@ -15,6 +15,7 @@ type Props = Omit<ComponentProps<typeof Link>, 'children' | 'id' | 'href'> &
 		name: string
 		description?: string
 		createdAt: Date
+		updatedAt: Date | null
 	}>
 
 export default function EditCompositionLink({
@@ -22,6 +23,7 @@ export default function EditCompositionLink({
 	name,
 	description,
 	createdAt,
+	updatedAt,
 	className,
 	...linkProps
 }: Props) {
@@ -35,7 +37,8 @@ export default function EditCompositionLink({
 				<CardHeader>
 					<CardTitle>{name}</CardTitle>
 					<CardDescription>
-						Created {getRelativeTimeString(createdAt)}
+						{updatedAt ? 'Updated' : 'Created'}{' '}
+						{getRelativeTimeString(updatedAt ?? createdAt)}
 					</CardDescription>
 				</CardHeader>
 				<CardContent className="truncate">

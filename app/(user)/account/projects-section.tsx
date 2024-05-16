@@ -1,4 +1,4 @@
-import { desc, eq } from 'drizzle-orm'
+import { desc, eq, sql } from 'drizzle-orm'
 import { User } from 'lucia'
 import { Loader2Icon, PlusCircleIcon } from 'lucide-react'
 import { Suspense } from 'react'
@@ -37,10 +37,15 @@ async function ProjectList({ accountId }: { accountId: User['id'] }) {
 			name: compositionTable.name,
 			description: compositionTable.description,
 			createdAt: compositionTable.createdAt,
+			updatedAt: compositionTable.updatedAt,
 		})
 		.from(compositionTable)
 		.where(eq(compositionTable.authorId, accountId))
-		.orderBy(desc(compositionTable.createdAt))
+		.orderBy(
+			desc(
+				sql`CASE WHEN ${compositionTable.updatedAt} IS NOT NULL THEN ${compositionTable.updatedAt} ELSE ${compositionTable.createdAt} END`,
+			),
+		)
 
 	return compositions.length > 0 ? (
 		<div className="grid gap-2 md:grid-cols-2 lg:grid-cols-4 2xl:grid-cols-6">

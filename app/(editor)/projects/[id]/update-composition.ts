@@ -163,6 +163,11 @@ export async function updateComposition(
 		}
 
 		if (hadChanges) {
+			await tx
+				.update(compositionTable)
+				.set({ updatedAt: sql`now()` })
+				.where(eq(compositionTable.id, compositionId))
+
 			revalidatePath(`/projects/${compositionId}`)
 		}
 
