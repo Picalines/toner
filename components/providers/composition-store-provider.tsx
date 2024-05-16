@@ -1,17 +1,17 @@
 'use client'
 
 import { PropsWithChildren, createContext, useContext, useRef } from 'react'
-import { StoreApi, useStore } from 'zustand'
+import { useStore } from 'zustand'
 import {
 	AudioEdge,
 	AudioNode,
 	CompositionState,
 	CompositionStore,
+	CompositionStoreApi,
 	createCompositionStore,
 } from '@/stores/composition-store'
 
-const CompositionStoreContext =
-	createContext<StoreApi<CompositionStore> | null>(null)
+const CompositionStoreContext = createContext<CompositionStoreApi | null>(null)
 
 type Props = PropsWithChildren<
 	Readonly<
@@ -28,7 +28,7 @@ export default function CompositionStoreProvider({
 	edges,
 	...compositionState
 }: Props) {
-	const storeRef = useRef<StoreApi<CompositionStore>>()
+	const storeRef = useRef<CompositionStoreApi>()
 
 	if (!storeRef.current) {
 		storeRef.current = createCompositionStore({
@@ -48,7 +48,7 @@ export default function CompositionStoreProvider({
 	)
 }
 
-export function useCompositionStoreApi(): StoreApi<CompositionStore> {
+export function useCompositionStoreApi(): CompositionStoreApi {
 	const editorStoreApi = useContext(CompositionStoreContext)
 
 	if (!editorStoreApi) {

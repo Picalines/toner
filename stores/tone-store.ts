@@ -1,5 +1,6 @@
 import type { BaseContext as BaseToneContext, ToneAudioNode } from 'tone'
-import { createStore } from 'zustand/vanilla'
+import { StoreApi, create } from 'zustand'
+import { subscribeWithSelector } from 'zustand/middleware'
 
 export type ToneNodeId = string
 
@@ -26,8 +27,13 @@ export type ToneActions = {
 
 export type ToneStore = ToneState & ToneActions
 
+export type ToneStoreApi = ReturnType<typeof createToneStore>
+
 export function createToneStore(initialState: ToneState) {
-	return createStore<ToneStore>()((set, get) => ({
+	const initStore = (
+		set: StoreApi<ToneStore>['setState'],
+		get: StoreApi<ToneStore>['getState'],
+	): ToneStore => ({
 		...initialState,
 
 		resumeContext: async () => {
@@ -86,5 +92,7 @@ export function createToneStore(initialState: ToneState) {
 
 			set({ nodes: new Map() })
 		},
-	}))
+	})
+
+	return create(subscribeWithSelector(initStore))
 }

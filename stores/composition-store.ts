@@ -11,7 +11,8 @@ import {
 	applyNodeChanges,
 } from '@xyflow/react'
 import { nanoid } from 'nanoid'
-import { createStore } from 'zustand/vanilla'
+import { StoreApi, create } from 'zustand'
+import { subscribeWithSelector } from 'zustand/middleware'
 import { capitalize, safeParseOr, zodIs } from '@/lib/utils'
 import {
 	AudioEdgeId,
@@ -71,10 +72,15 @@ export type CompositionActions = {
 
 export type CompositionStore = CompositionState & CompositionActions
 
+export type CompositionStoreApi = ReturnType<typeof createCompositionStore>
+
 export function createCompositionStore(initialState: CompositionState) {
 	// TODO: validate initialState
 
-	return createStore<CompositionStore>()((set, get) => {
+	const initStore = (
+		set: StoreApi<CompositionStore>['setState'],
+		get: StoreApi<CompositionStore>['getState'],
+	): CompositionStore => {
 		const addChanges = (...changes: CompositionChange[]) => {
 			let changeHistory = get().changeHistory
 			for (const change of changes) {
@@ -252,7 +258,9 @@ export function createCompositionStore(initialState: CompositionState) {
 
 			saveChanges: () => addChanges({ type: 'save-changes' }),
 		}
-	})
+	}
+
+	return create(subscribeWithSelector(initStore))
 }
 
 function nodeChangeToCompositionChange(

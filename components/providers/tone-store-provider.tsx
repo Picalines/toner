@@ -8,13 +8,13 @@ import {
 	useRef,
 } from 'react'
 import * as Tone from 'tone'
-import { StoreApi, useStore } from 'zustand'
-import { ToneStore, createToneStore } from '@/stores/tone-store'
+import { useStore } from 'zustand'
+import { ToneStore, ToneStoreApi, createToneStore } from '@/stores/tone-store'
 
-const ToneStoreContext = createContext<StoreApi<ToneStore> | null>(null)
+const ToneStoreContext = createContext<ToneStoreApi | null>(null)
 
 export default function ToneStoreProvider({ children }: PropsWithChildren) {
-	const toneStoreRef = useRef<StoreApi<ToneStore>>()
+	const toneStoreRef = useRef<ToneStoreApi>()
 
 	if (!toneStoreRef.current) {
 		toneStoreRef.current = createToneStore({
@@ -37,7 +37,7 @@ export default function ToneStoreProvider({ children }: PropsWithChildren) {
 	)
 }
 
-export function useToneStoreApi(): StoreApi<ToneStore> {
+export function useToneStoreApi(): ToneStoreApi {
 	const toneStoreApi = useContext(ToneStoreContext)
 
 	if (!toneStoreApi) {
