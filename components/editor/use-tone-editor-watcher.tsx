@@ -4,8 +4,10 @@ import { useEffect, useRef } from 'react'
 import * as Tone from 'tone'
 import { useStore } from 'zustand'
 import { useShallow } from 'zustand/react/shallow'
+import { KeyOfUnion } from '@/lib/utils'
 import {
 	AudioNodeDefinition,
+	AudioNodeProperties,
 	AudioNodeType,
 	audioNodeDefinitions as nodeDefs,
 } from '@/schemas/audio-node'
@@ -177,6 +179,7 @@ const TONEJS_MAPPINGS: {
 			setters: {
 				volume: paramSetter(synth.volume),
 				'osc.type': t =>
+					// @ts-expect-error TODO: figure out Tone.js typing
 					synth.set({ oscillator: { type: oscType(t) } }),
 			},
 		}
@@ -233,25 +236,18 @@ function createToneNode<T extends AudioNodeType>(
 const labelGetter = <
 	T extends AudioNodeType,
 	D extends AudioNodeDefinition<T>,
-	PS extends D['properties'],
-	PVL extends {
-		[PP in keyof PS]: PS[PP] extends {
-			valueLabels: infer VL extends object // TODO: sorry
-		}
-			? [PP, VL]
-			: never
-	}[keyof PS],
-	P extends PVL[0],
-	VL extends PVL[1],
+	P extends KeyOfUnion<AudioNodeProperties<T>> & string,
 >(
-	def: D,
+	nodeDefinition: D,
 	property: P,
-): ((value: number) => VL[keyof VL]) => {
-	const { valueLabels } = (def.properties as PS)[property] as {
-		valueLabels: VL
-	}
+): ((value: number) => string) => {
+	const { valueLabels } =
+		nodeDefinition.properties[
+			property as keyof typeof nodeDefinition.properties
+		]
 
-	const defaultKey = Object.keys(valueLabels)[0] as keyof VL
+	const defaultKey = Object.keys(valueLabels)[0]
 
-	return value => valueLabels[value as keyof VL] ?? valueLabels[defaultKey]
+	return value =>
+		value in valueLabels ? valueLabels[value] : valueLabels[defaultKey]
 }
