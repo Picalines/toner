@@ -5,13 +5,16 @@ import { revalidatePath } from 'next/cache'
 import { RedirectType, redirect } from 'next/navigation'
 import { authenticateOrRedirect } from '@/lib/auth'
 import { compositionTable, database, nodeEdgeTable, nodeTable } from '@/lib/db'
-import { assertUnreachable } from '@/lib/utils'
-import { CompositionUpdateRequest, compositionUpdateSchema } from './schemas'
+import { assertUnreachable, zodIs } from '@/lib/utils'
+import {
+	CompositionChangeSummary,
+	compositionSchemas,
+} from '@/schemas/composition'
 
 export async function updateComposition(
-	updateRequest: CompositionUpdateRequest,
+	changeSummary: CompositionChangeSummary,
 ) {
-	if (!compositionUpdateSchema.safeParse(updateRequest).success) {
+	if (!zodIs(compositionSchemas.changeSummary, changeSummary)) {
 		// TODO: error response
 		return
 	}
@@ -29,7 +32,7 @@ export async function updateComposition(
 			description,
 			nodes,
 			edges,
-		} = updateRequest
+		} = changeSummary
 
 		const { length: compCount } = await tx
 			.select({ id: compositionTable.id })

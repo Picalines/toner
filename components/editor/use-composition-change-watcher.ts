@@ -1,17 +1,14 @@
-'use client'
-
 import { useEffect, useRef } from 'react'
 import { useDebouncedCallback } from 'use-debounce'
 import { shallow } from 'zustand/shallow'
+import {
+	CompositionChangeSummary,
+	applyCompositionChangeToSummary,
+} from '@/schemas/composition'
 import { useCompositionStoreApi } from '@/components/providers/composition-store-provider'
 import { useEditorStoreApi } from '@/components/providers/editor-store-provider'
 import { CompositionStore } from '@/stores/composition-store'
 import { EditorStore } from '@/stores/editor-store'
-import {
-	CompositionUpdateRequest,
-	mergeCompositionChangeToRequest,
-} from './schemas'
-import { updateComposition } from './update-composition'
 
 const compSelector = ({ id, changeHistory }: CompositionStore) => ({
 	id,
@@ -25,13 +22,21 @@ const editorSelector = ({ dirtyState, setDirtyState }: EditorStore) => ({
 
 const preventDefault = (event: Event) => event.preventDefault()
 
-type Props = { submitDelay: number }
+type Props = {
+	submitDelay: number
+	onCompositionUpdate?: (
+		changeSummary: CompositionChangeSummary,
+	) => Promise<void>
+}
 
-export default function ChangeWatcher({ submitDelay }: Props) {
+export function useCompositionChangeWatcher({
+	submitDelay,
+	onCompositionUpdate,
+}: Props) {
 	const compositionStore = useCompositionStoreApi()
 	const editorStore = useEditorStoreApi()
 
-	const updateRequestRef = useRef<CompositionUpdateRequest>({
+	const updateRequestRef = useRef<CompositionChangeSummary>({
 		id: compositionStore.getState().id,
 		nodes: {},
 		edges: {},
@@ -50,7 +55,7 @@ export default function ChangeWatcher({ submitDelay }: Props) {
 
 		setDirtyState('saving')
 		saveChanges()
-		await updateComposition(updateRequestRef.current)
+		await onCompositionUpdate?.(updateRequestRef.current)
 		setDirtyState('clean')
 
 		const request = updateRequestRef.current
@@ -72,7 +77,7 @@ export default function ChangeWatcher({ submitDelay }: Props) {
 				request.id = compositionId
 
 				const lastChange = changeHistory[changeHistory.length - 1]
-				mergeCompositionChangeToRequest(request, lastChange)
+				applyCompositionChangeToSummary(request, lastChange)
 
 				if (lastChange.type != 'save-changes') {
 					setDirtyState('waiting')
@@ -102,6 +107,4 @@ export default function ChangeWatcher({ submitDelay }: Props) {
 			unsubscribeEditor()
 		}
 	}, [compositionStore, editorStore, submitChanges])
-
-	return <></>
 }

@@ -24,19 +24,23 @@ import {
 import {
 	CompositionChange,
 	CompositionChangeType,
+	CompositionId,
 	compositionSchemas as compSchemas,
 } from '@/schemas/composition'
 
-export type AudioNode = Node<{
-	type: AudioNodeType
-	label: string
-	properties: Record<string, number>
-}>
+export type AudioNode = Node<
+	{
+		type: AudioNodeType
+		label: string
+		properties: Record<string, number>
+	},
+	'audio'
+>
 
 export type AudioEdge = Edge<{}>
 
 export type CompositionState = {
-	id: number
+	id: CompositionId
 
 	changeHistory: CompositionChange[]
 

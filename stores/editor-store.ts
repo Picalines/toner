@@ -1,11 +1,11 @@
 import { StoreApi, create } from 'zustand'
 import { persist, subscribeWithSelector } from 'zustand/middleware'
 
-type EditorDirtyState = 'clean' | 'waiting' | 'saving'
+export type EditorDirtyState = 'clean' | 'waiting' | 'saving'
 
-type EditorModal = 'composition-info' | 'composition-delete' | 'node-add'
+export type EditorModal = 'composition-info' | 'composition-delete' | 'node-add'
 
-type EditorPanelLayout = 'horizontal' | 'vertical'
+export type EditorPanelLayout = 'horizontal' | 'vertical'
 
 export type EditorState = {
 	dirtyState: EditorDirtyState
@@ -36,9 +36,7 @@ export function createEditorStore(initialState: EditorState) {
 	): EditorStore => ({
 		...initialState,
 
-		setDirtyState: dirtyState => {
-			set({ dirtyState })
-		},
+		setDirtyState: dirtyState => set({ dirtyState }),
 
 		openModal: modal => set({ openedModal: modal }),
 		closeModal: () => set({ openedModal: null }),

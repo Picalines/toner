@@ -3,12 +3,10 @@ import { DeepReadonly, capitalize } from '@/lib/utils'
 import { AudioNodeType } from '@/schemas/audio-node'
 import CompositionEditor from '@/components/editor/composition-editor'
 import CompositionStoreProvider from '@/components/providers/composition-store-provider'
-import EditorStoreProvider from '@/components/providers/editor-store-provider'
 import ToneStoreProvider from '@/components/providers/tone-store-provider'
-import ChangeWatcher from './change-watcher'
-import EditorHeader from './editor-header'
 import { fetchAudioTree, fetchComposition } from './fetch-composition'
 import { parseProjectId } from './parse-project-id'
+import { updateComposition } from './update-composition'
 
 type Props = DeepReadonly<{
 	params: {
@@ -54,20 +52,11 @@ export default async function EditorPage({ params }: Props) {
 			)}
 		>
 			<ToneStoreProvider>
-				<EditorStoreProvider
-					initialState={{
-						dirtyState: 'clean',
-						openedModal: null,
-						panelLayout: 'horizontal',
-						nodeCursor: [0, 0],
-					}}
-				>
-					<ChangeWatcher submitDelay={3000} />
-					<div className="flex h-[100svh] max-h-[100svh] flex-col">
-						<EditorHeader />
-						<CompositionEditor className="w-full flex-grow" />
-					</div>
-				</EditorStoreProvider>
+				<div className="flex h-[100svh] max-h-[100svh] flex-col">
+					<CompositionEditor
+						onCompositionUpdate={updateComposition}
+					/>
+				</div>
 			</ToneStoreProvider>
 		</CompositionStoreProvider>
 	)

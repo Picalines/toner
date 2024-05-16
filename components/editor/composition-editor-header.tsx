@@ -34,7 +34,7 @@ type Props = Readonly<{
 	className?: string
 }>
 
-export default function EditorHeader({ className }: Props) {
+export default function CompositionEditorHeader({ className }: Props) {
 	const compositionName = useCompositionStore(composition => composition.name)
 
 	const dirtyState = useEditorStore(editor => editor.dirtyState)
