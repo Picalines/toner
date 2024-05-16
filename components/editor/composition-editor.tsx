@@ -99,7 +99,7 @@ function CompositionEditorPanels({
 					<ResizablePanel defaultSize={30}>
 						<NodePropertiesEditor className="h-full" />
 					</ResizablePanel>
-					<ResizableHandle withHandle />
+					<ResizableHandle />
 					<ResizablePanel defaultSize={70}>
 						<AudioNodeFlow />
 					</ResizablePanel>

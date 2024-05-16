@@ -34,9 +34,11 @@ export default function NodePropertiesEditor({ className }: Props) {
 		? getNodeById(selectedNodeId)?.data
 		: null
 
+	const bgClassName = tw`relative bg-neutral-300 dark:bg-neutral-900`
+
 	if (!selectedNodeId || !selectedNode) {
 		return (
-			<div className={cn('relative dark:bg-neutral-900', className)}>
+			<div className={cn(bgClassName, className)}>
 				<div className="absolute left-1/2 top-1/2 w-fit -translate-x-1/2 -translate-y-1/2 text-nowrap italic">
 					Select node
 				</div>
@@ -48,9 +50,7 @@ export default function NodePropertiesEditor({ className }: Props) {
 	const { properties } = audioNodeDefinitions[nodeType]
 
 	return (
-		<ScrollArea
-			className={cn('bg-neutral-300 dark:bg-neutral-900', className)}
-		>
+		<ScrollArea className={cn(bgClassName, className)}>
 			<NodeNameInput key={selectedNodeId} />
 			{Object.keys(properties).map(property => (
 				<NodePropertySlider
