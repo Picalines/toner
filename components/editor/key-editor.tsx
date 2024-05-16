@@ -103,7 +103,7 @@ export default function KeyEditor({ className }: Props) {
 			className={cn('relative', className)}
 			direction="horizontal"
 		>
-			<ResizablePanel defaultSize={20} minSize={18} maxSize={40}>
+			<ResizablePanel defaultSize={20} maxSize={40}>
 				<PianoRoll
 					className="left-0 w-full"
 					lineHeight={24}
