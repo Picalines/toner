@@ -62,12 +62,11 @@ export default async function EditorPage({ params }: Props) {
 						nodeCursor: [0, 0],
 					}}
 				>
-					<ChangeWatcher>
-						<div className="flex h-[100svh] max-h-[100svh] flex-col">
-							<EditorHeader />
-							<CompositionEditor className="w-full flex-grow" />
-						</div>
-					</ChangeWatcher>
+					<ChangeWatcher submitDelay={3000} />
+					<div className="flex h-[100svh] max-h-[100svh] flex-col">
+						<EditorHeader />
+						<CompositionEditor className="w-full flex-grow" />
+					</div>
 				</EditorStoreProvider>
 			</ToneStoreProvider>
 		</CompositionStoreProvider>
