@@ -142,18 +142,25 @@ function NodePropertySlider<T extends AudioNodeType>({
 
 	const node = nodeId ? getNodeById(nodeId)?.data : null
 
-	const propertyValue = useCompositionStore(() => node?.properties[property])
+	let propertyValue = useCompositionStore(() => node?.properties[property])
 
-	if (!node || propertyValue === undefined) {
+	if (!node) {
 		return null
 	}
 
 	const nodeProperties = audioNodeDefinitions[node.type as T]
 		.properties as AudioNodeProperties<T>
 
-	const { name, min, max, step, valueLabels } = nodeProperties[
-		property
-	] as AudioNodeProperty
+	const {
+		name,
+		min,
+		max,
+		step,
+		valueLabels,
+		default: defaultValue,
+	} = nodeProperties[property] as AudioNodeProperty
+
+	propertyValue ??= defaultValue
 
 	return (
 		<div
@@ -175,7 +182,11 @@ function NodePropertySlider<T extends AudioNodeType>({
 			/>
 			<div className="pointer-events-none absolute inset-0 flex items-center justify-between gap-2 p-2 text-white">
 				<span>{name}</span>
-				<span>{valueLabels?.[propertyValue] ?? propertyValue}</span>
+				<span>
+					{valueLabels && propertyValue in valueLabels
+						? valueLabels[propertyValue]
+						: propertyValue}
+				</span>
 			</div>
 		</div>
 	)
