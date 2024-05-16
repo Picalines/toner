@@ -1,6 +1,16 @@
 import { z } from 'zod'
 import { audioNodeSchemas } from './audio-node'
 
+export type CompositionId = z.infer<(typeof compositionSchemas)['id']>
+
+type AnyCompositionChange = z.infer<(typeof compositionSchemas)['change']>
+
+export type CompositionChangeType = AnyCompositionChange['type']
+
+export type CompositionChange<
+	T extends CompositionChangeType = CompositionChangeType,
+> = AnyCompositionChange & { type: T }
+
 const {
 	type: nodeType,
 	nodeId,
@@ -77,7 +87,3 @@ export const compositionSchemas = {
 		}),
 	]),
 }
-
-export type CompositionId = z.infer<(typeof compositionSchemas)['id']>
-
-export type CompositionChange = z.infer<(typeof compositionSchemas)['change']>

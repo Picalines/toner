@@ -22,6 +22,7 @@ import {
 } from '@/schemas/audio-node'
 import {
 	CompositionChange,
+	CompositionChangeType,
 	compositionSchemas as compSchemas,
 } from '@/schemas/composition'
 
@@ -343,27 +344,35 @@ function edgeChangeToCompositionChange(
 	return null
 }
 
-const changeReplacer =
-	<H extends CompositionChange['type'], I extends CompositionChange['type']>(
-		historyType: H,
-		incomingType: I,
+function compChangeIs<T extends CompositionChangeType>(
+	change: CompositionChange,
+	changeType: T,
+): change is CompositionChange<T> {
+	return change.type == changeType
+}
 
-		condition?: (
-			historyChange: CompositionChange & { type: H },
-			incomingChange: CompositionChange & { type: I },
-		) => boolean,
-	) =>
-	(historyChange: CompositionChange, incomingChange: CompositionChange) => {
+function changeReplacer<
+	H extends CompositionChangeType,
+	I extends CompositionChangeType,
+>(
+	historyType: H,
+	incomingType: I,
+	condition?: (
+		historyChange: CompositionChange<H>,
+		incomingChange: CompositionChange<I>,
+	) => boolean,
+) {
+	return (
+		historyChange: CompositionChange,
+		incomingChange: CompositionChange,
+	) => {
 		return (
-			historyChange.type == historyType &&
-			incomingChange.type == incomingType &&
-			(!condition ||
-				condition(
-					historyChange as CompositionChange & { type: H },
-					incomingChange as CompositionChange & { type: I },
-				))
+			compChangeIs(historyChange, historyType) &&
+			compChangeIs(incomingChange, incomingType) &&
+			(!condition || condition(historyChange, incomingChange))
 		)
 	}
+}
 
 const changeReplacers = [
 	changeReplacer('save-changes', 'save-changes'),
