@@ -226,14 +226,14 @@ export const compositionRelations = relations(
 			fields: [compositionTable.authorId],
 			references: [authorTable.accountId],
 		}),
-		musicKeyLayers: many(musicKeyLayerTable),
+		musicLayers: many(musicLayerTable),
 		audioNodes: many(audioNodeTable),
 		audioNodeEdges: many(audioEdgeTable),
 	}),
 )
 
-export const musicKeyLayerTable = pgTable(
-	'music_key_layer',
+export const musicLayerTable = pgTable(
+	'music_layer',
 	{
 		compositionId: integer('composition_id')
 			.notNull()
@@ -246,11 +246,11 @@ export const musicKeyLayerTable = pgTable(
 	}),
 )
 
-export const musicKeyLayerRelations = relations(
-	musicKeyLayerTable,
+export const musicLayerRelations = relations(
+	musicLayerTable,
 	({ one, many }) => ({
 		composition: one(compositionTable, {
-			fields: [musicKeyLayerTable.compositionId],
+			fields: [musicLayerTable.compositionId],
 			references: [compositionTable.id],
 		}),
 		musicKeys: many(musicKeyTable),
@@ -273,10 +273,7 @@ export const musicKeyTable = pgTable(
 		foreignKey: foreignKey({
 			name: 'composition_layer_key',
 			columns: [table.compositionId, table.layerId],
-			foreignColumns: [
-				musicKeyLayerTable.compositionId,
-				musicKeyLayerTable.id,
-			],
+			foreignColumns: [musicLayerTable.compositionId, musicLayerTable.id],
 		}).onDelete('cascade'),
 		primaryKey: primaryKey({
 			columns: [table.compositionId, table.layerId, table.id],
@@ -289,9 +286,9 @@ export const musicKeyRelations = relations(musicKeyTable, ({ one }) => ({
 		fields: [musicKeyTable.id],
 		references: [compositionTable.id],
 	}),
-	layer: one(musicKeyLayerTable, {
+	layer: one(musicLayerTable, {
 		fields: [musicKeyTable.layerId],
-		references: [musicKeyLayerTable.id],
+		references: [musicLayerTable.id],
 	}),
 }))
 
