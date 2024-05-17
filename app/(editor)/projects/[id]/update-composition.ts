@@ -4,7 +4,12 @@ import { and, eq, sql } from 'drizzle-orm'
 import { revalidatePath } from 'next/cache'
 import { RedirectType, redirect } from 'next/navigation'
 import { authenticateOrRedirect } from '@/lib/auth'
-import { compositionTable, database, nodeEdgeTable, nodeTable } from '@/lib/db'
+import {
+	audioEdgeTable,
+	audioNodeTable,
+	compositionTable,
+	database,
+} from '@/lib/db'
 import { assertUnreachable, zodIs } from '@/lib/utils'
 import {
 	CompositionChangeSummary,
@@ -70,7 +75,7 @@ export async function updateComposition(
 						position: [centerX, centerY],
 						properties,
 					} = nodeUpdate
-					await tx.insert(nodeTable).values({
+					await tx.insert(audioNodeTable).values({
 						id: nodeId,
 						compositionId,
 						type,
@@ -90,7 +95,7 @@ export async function updateComposition(
 					} = nodeUpdate
 
 					await tx
-						.update(nodeTable)
+						.update(audioNodeTable)
 						.set({
 							label: displayName,
 							centerX,
@@ -101,8 +106,8 @@ export async function updateComposition(
 						})
 						.where(
 							and(
-								eq(nodeTable.compositionId, compositionId),
-								eq(nodeTable.id, nodeId),
+								eq(audioNodeTable.compositionId, compositionId),
+								eq(audioNodeTable.id, nodeId),
 							),
 						)
 					continue
@@ -110,11 +115,11 @@ export async function updateComposition(
 
 				case 'remove': {
 					await tx
-						.delete(nodeTable)
+						.delete(audioNodeTable)
 						.where(
 							and(
-								eq(nodeTable.compositionId, compositionId),
-								eq(nodeTable.id, nodeId),
+								eq(audioNodeTable.compositionId, compositionId),
+								eq(audioNodeTable.id, nodeId),
 							),
 						)
 					continue
@@ -134,7 +139,7 @@ export async function updateComposition(
 						source: [sourceId, sourceSocket],
 						target: [targetId, targetSocket],
 					} = edgeUpdate
-					await tx.insert(nodeEdgeTable).values({
+					await tx.insert(audioEdgeTable).values({
 						id: edgeId,
 						compositionId,
 						sourceId,
@@ -147,11 +152,11 @@ export async function updateComposition(
 
 				case 'remove': {
 					await tx
-						.delete(nodeEdgeTable)
+						.delete(audioEdgeTable)
 						.where(
 							and(
-								eq(nodeEdgeTable.compositionId, compositionId),
-								eq(nodeEdgeTable.id, edgeId),
+								eq(audioEdgeTable.compositionId, compositionId),
+								eq(audioEdgeTable.id, edgeId),
 							),
 						)
 					continue

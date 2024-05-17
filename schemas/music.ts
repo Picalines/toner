@@ -9,12 +9,17 @@ export const MAX_OCTAVE = 9
 
 export const NUMBER_OF_NOTES = OCTAVE_LENGTH * (MAX_OCTAVE + 1)
 
+const keyId = z.string().min(1).max(36)
+
 const noteSchema = z.number().int().min(0).max(NUMBER_OF_NOTES)
 
 export const musicSchemas = {
 	note: noteSchema,
 
+	keyId,
+
 	key: z.object({
+		id: keyId,
 		note: noteSchema,
 		time: z.number().min(0),
 		duration: z.number().min(0.001),

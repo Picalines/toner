@@ -3,7 +3,12 @@
 import { nanoid } from 'nanoid'
 import { redirect } from 'next/navigation'
 import { authenticateOrRedirect } from '@/lib/auth'
-import { compositionTable, database, nodeEdgeTable, nodeTable } from '@/lib/db'
+import {
+	audioEdgeTable,
+	audioNodeTable,
+	compositionTable,
+	database,
+} from '@/lib/db'
 
 export async function createComposition() {
 	const {
@@ -25,7 +30,7 @@ export async function createComposition() {
 		const synthId = nanoid()
 		const outputId = nanoid()
 
-		await tx.insert(nodeTable).values([
+		await tx.insert(audioNodeTable).values([
 			{
 				compositionId,
 				id: synthId,
@@ -41,7 +46,7 @@ export async function createComposition() {
 			},
 		])
 
-		await tx.insert(nodeEdgeTable).values([
+		await tx.insert(audioEdgeTable).values([
 			{
 				compositionId,
 				id: nanoid(),

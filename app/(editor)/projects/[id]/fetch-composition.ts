@@ -3,7 +3,12 @@
 import { and, eq } from 'drizzle-orm'
 import { notFound } from 'next/navigation'
 import { authenticateOrRedirect } from '@/lib/auth'
-import { compositionTable, database, nodeEdgeTable, nodeTable } from '@/lib/db'
+import {
+	compositionTable,
+	database,
+	audioEdgeTable as edgeEdgeTable,
+	audioNodeTable as nodeTable,
+} from '@/lib/db'
 import { zodIs } from '@/lib/utils'
 import { AudioNodeId, audioNodeSchemas } from '@/schemas/audio-node'
 
@@ -64,17 +69,17 @@ export async function fetchAudioTree(
 					centerX: nodeTable.centerX,
 					centerY: nodeTable.centerY,
 					properties: nodeTable.properties,
-					edgeId: nodeEdgeTable.id,
-					targetId: nodeEdgeTable.targetId,
-					sourceSocket: nodeEdgeTable.sourceSocket,
-					targetSocket: nodeEdgeTable.targetSocket,
+					edgeId: edgeEdgeTable.id,
+					targetId: edgeEdgeTable.targetId,
+					sourceSocket: edgeEdgeTable.sourceSocket,
+					targetSocket: edgeEdgeTable.targetSocket,
 				})
 				.from(nodeTable)
 				.leftJoin(
-					nodeEdgeTable,
+					edgeEdgeTable,
 					and(
-						eq(nodeEdgeTable.compositionId, compositionId),
-						eq(nodeTable.id, nodeEdgeTable.sourceId),
+						eq(edgeEdgeTable.compositionId, compositionId),
+						eq(nodeTable.id, edgeEdgeTable.sourceId),
 					),
 				)
 				.where(eq(nodeTable.compositionId, compositionId))

@@ -225,13 +225,13 @@ export const compositionRelations = relations(
 			fields: [compositionTable.authorId],
 			references: [authorTable.accountId],
 		}),
-		keyLayers: many(keyLayerTable),
-		nodes: many(nodeTable),
-		nodeConnections: many(nodeEdgeTable),
+		musicKeyLayers: many(musicKeyLayerTable),
+		audioNodes: many(audioNodeTable),
+		audioNodeEdges: many(audioEdgeTable),
 	}),
 )
 
-export const keyLayerTable = pgTable('key_layer', {
+export const musicKeyLayerTable = pgTable('music_key_layer', {
 	id: serial('id').primaryKey(),
 	compositionId: integer('composition_id')
 		.notNull()
@@ -239,19 +239,22 @@ export const keyLayerTable = pgTable('key_layer', {
 	name: varchar('name', { length: 32 }).notNull(),
 })
 
-export const keyLayerRelations = relations(keyLayerTable, ({ one, many }) => ({
-	composition: one(compositionTable, {
-		fields: [keyLayerTable.compositionId],
-		references: [compositionTable.id],
+export const musicKeyLayerRelations = relations(
+	musicKeyLayerTable,
+	({ one, many }) => ({
+		composition: one(compositionTable, {
+			fields: [musicKeyLayerTable.compositionId],
+			references: [compositionTable.id],
+		}),
+		musicKeys: many(musicKeyTable),
 	}),
-	keys: many(keyTable),
-}))
+)
 
-export const keyTable = pgTable('key', {
+export const musicKeyTable = pgTable('music_key', {
 	id: serial('id').primaryKey(),
 	layerId: integer('layer_id')
 		.notNull()
-		.references(() => keyLayerTable.id, { onDelete: 'cascade' }),
+		.references(() => musicKeyLayerTable.id, { onDelete: 'cascade' }),
 	instrumentId: integer('instrument_id').notNull(),
 	time: integer('time').notNull(),
 	duration: integer('duration').notNull(),
@@ -259,15 +262,15 @@ export const keyTable = pgTable('key', {
 	note: smallint('note').notNull(), // number of half steps from C0
 })
 
-export const keyRelations = relations(keyTable, ({ one }) => ({
-	layer: one(keyLayerTable, {
-		fields: [keyTable.layerId],
-		references: [keyLayerTable.id],
+export const musicKeyRelations = relations(musicKeyTable, ({ one }) => ({
+	layer: one(musicKeyLayerTable, {
+		fields: [musicKeyTable.layerId],
+		references: [musicKeyLayerTable.id],
 	}),
 }))
 
-export const nodeTable = pgTable(
-	'node',
+export const audioNodeTable = pgTable(
+	'audio_node',
 	{
 		compositionId: integer('composition_id')
 			.notNull()
@@ -287,15 +290,15 @@ export const nodeTable = pgTable(
 	}),
 )
 
-export const nodeRelations = relations(nodeTable, ({ one }) => ({
+export const audioNodeRelations = relations(audioNodeTable, ({ one }) => ({
 	composition: one(compositionTable, {
-		fields: [nodeTable.compositionId],
+		fields: [audioNodeTable.compositionId],
 		references: [compositionTable.id],
 	}),
 }))
 
-export const nodeEdgeTable = pgTable(
-	'node_edge',
+export const audioEdgeTable = pgTable(
+	'audio_edge',
 	{
 		compositionId: integer('composition_id')
 			.notNull()
@@ -311,9 +314,9 @@ export const nodeEdgeTable = pgTable(
 	}),
 )
 
-export const nodeEdgeRelations = relations(nodeEdgeTable, ({ one }) => ({
+export const audioNodeEdgeRelations = relations(audioEdgeTable, ({ one }) => ({
 	composition: one(compositionTable, {
-		fields: [nodeEdgeTable.compositionId],
+		fields: [audioEdgeTable.compositionId],
 		references: [compositionTable.id],
 	}),
 }))
