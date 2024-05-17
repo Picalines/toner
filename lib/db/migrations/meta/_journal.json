@@ -78,6 +78,13 @@
       "when": 1715978570974,
       "tag": "0010_harsh_yellow_claw",
       "breakpoints": true
+    },
+    {
+      "idx": 11,
+      "version": "6",
+      "when": 1715982959450,
+      "tag": "0011_clumsy_phil_sheldon",
+      "breakpoints": true
     }
   ]
 }

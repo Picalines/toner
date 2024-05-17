@@ -1,0 +1,1 @@
+ALTER TABLE "music_key" ALTER COLUMN "instrument_id" SET DATA TYPE varchar(36);

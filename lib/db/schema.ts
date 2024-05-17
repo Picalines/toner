@@ -263,7 +263,7 @@ export const musicKeyTable = pgTable(
 		compositionId: integer('composition_id').notNull(),
 		layerId: varchar('layer_id', { length: 36 }).notNull(),
 		id: varchar('id', { length: 36 }).notNull(),
-		instrumentId: integer('instrument_id').notNull(),
+		instrumentId: varchar('instrument_id', { length: 36 }).notNull(),
 		time: integer('time').notNull(),
 		duration: integer('duration').notNull(),
 		velocity: real('velocity').notNull(),
