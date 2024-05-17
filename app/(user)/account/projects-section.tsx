@@ -4,7 +4,7 @@ import { Loader2Icon, PlusCircleIcon } from 'lucide-react'
 import { Suspense } from 'react'
 import { compositionTable, database } from '@/lib/db'
 import { Button } from '@/components/ui/button'
-import { createComposition } from './actions'
+import { createComposition } from './create-composition'
 import EditCompositionLink from './edit-composition-link'
 
 type Props = Readonly<{
