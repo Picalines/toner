@@ -50,7 +50,7 @@ export type CompositionState = {
 	nodes: Map<AudioNodeId, AudioNode>
 	edges: Map<AudioNodeId, AudioEdge>
 
-	selectedNodeId: AudioNodeId | null
+	selectedNodeId: AudioNodeId | null // TODO: move selected state to editor store
 	selectedEdgeId: AudioEdgeId | null
 }
 
