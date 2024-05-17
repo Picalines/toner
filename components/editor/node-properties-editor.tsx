@@ -1,5 +1,6 @@
 'use client'
 
+import { MousePointerClickIcon } from 'lucide-react'
 import { ChangeEvent, useCallback, useState } from 'react'
 import { useShallow } from 'zustand/react/shallow'
 import { KeyOfUnion, cn, mapRange, trimFraction, tw } from '@/lib/utils'
@@ -39,8 +40,11 @@ export default function NodePropertiesEditor({ className }: Props) {
 	if (!selectedNodeId || !selectedNode) {
 		return (
 			<div className={cn(bgClassName, className)}>
-				<div className="absolute left-1/2 top-1/2 w-fit -translate-x-1/2 -translate-y-1/2 text-nowrap italic">
-					Select node
+				<div className="absolute left-1/2 top-1/2 w-fit -translate-x-1/2 -translate-y-1/2">
+					<div className="flex select-none flex-col items-center text-nowrap text-xs opacity-50">
+						<MousePointerClickIcon />
+						<span>select node</span>
+					</div>
 				</div>
 			</div>
 		)
