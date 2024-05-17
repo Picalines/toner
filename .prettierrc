@@ -26,5 +26,5 @@
 		"^\\..*$"
 	],
 
-	"tailwindFunctions": ["cn", "tw", "buttonVariants"]
+	"tailwindFunctions": ["cn", "cva", "tw", "buttonVariants"]
 }
