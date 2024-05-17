@@ -13,7 +13,14 @@ export const audioNodeSchemas = {
 	property: propertySchema,
 	properties: z.record(propertySchema, z.number()), // TODO: limit amount of properties
 
-	type: zodLiteralUnion('output', 'synth', 'gain', 'reverb', 'vibrato'),
+	type: zodLiteralUnion(
+		'output',
+		'synth',
+		'gain',
+		'reverb',
+		'vibrato',
+		'panner',
+	),
 }
 
 export type AudioNodeId = z.infer<(typeof audioNodeSchemas)['nodeId']>
@@ -22,7 +29,7 @@ export type AudioEdgeId = z.infer<(typeof audioNodeSchemas)['edgeId']>
 
 export type AudioNodeType = z.infer<(typeof audioNodeSchemas)['type']>
 
-export type AudioNodeGroup = 'instrument' | 'effect' | 'output'
+export type AudioNodeGroup = 'instrument' | 'effect' | 'component' | 'output'
 
 export type AudioNodeProperty = {
 	name: string
@@ -177,6 +184,22 @@ export const audioNodeDefinitions = {
 				step: 0.001,
 				range: [0, 1],
 				displayRange: [0, 100],
+				units: UNITS.percentage,
+			},
+		},
+	},
+
+	panner: {
+		group: 'component',
+		inputs: [{ name: 'audio' }],
+		outputs: [{ name: 'audio' }],
+		properties: {
+			pan: {
+				name: 'pan',
+				default: 0,
+				step: 0.001,
+				range: [-1, 1],
+				displayRange: [-100, 100],
 				units: UNITS.percentage,
 			},
 		},

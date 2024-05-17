@@ -110,9 +110,19 @@ const TONE_NODE_MAPPINGS: ToneNodeMappings = {
 			},
 		}
 	},
+
+	panner: () => {
+		const panner = new Tone.Panner()
+		return {
+			toneNode: panner,
+			setters: {
+				pan: paramSetter(panner.pan),
+			},
+		}
+	},
 }
 
-type ToneUnit = 'decibels' | 'normalRange' | 'frequency' // TODO: Tone.Unit is not exported
+type ToneUnit = 'decibels' | 'normalRange' | 'audioRange' | 'frequency' // TODO: Tone.Unit is not exported
 
 function paramSetter<U extends ToneUnit>(param: Tone.Param<U>) {
 	return (value: number) => (param.value = value)

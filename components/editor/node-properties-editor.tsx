@@ -97,9 +97,10 @@ function NodeNameInput() {
 	)
 
 	const nodeGroupClassNames: Record<AudioNodeGroup, string> = {
+		output: tw`bg-neutral-500`,
 		instrument: tw`bg-red-500`,
 		effect: tw`bg-orange-500`,
-		output: tw`bg-neutral-500`,
+		component: tw`bg-cyan-500`,
 	}
 
 	return (
