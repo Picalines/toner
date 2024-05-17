@@ -43,6 +43,20 @@
       "when": 1715972695610,
       "tag": "0005_petite_blue_marvel",
       "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "6",
+      "when": 1715975238408,
+      "tag": "0006_spotty_machine_man",
+      "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "6",
+      "when": 1715976094314,
+      "tag": "0007_unique_the_hand",
+      "breakpoints": true
     }
   ]
 }

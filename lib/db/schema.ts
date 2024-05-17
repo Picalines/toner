@@ -1,6 +1,7 @@
 import { relations } from 'drizzle-orm'
 import {
 	doublePrecision,
+	foreignKey,
 	integer,
 	jsonb,
 	pgEnum,
@@ -231,13 +232,19 @@ export const compositionRelations = relations(
 	}),
 )
 
-export const musicKeyLayerTable = pgTable('music_key_layer', {
-	id: serial('id').primaryKey(),
-	compositionId: integer('composition_id')
-		.notNull()
-		.references(() => compositionTable.id, { onDelete: 'cascade' }),
-	name: varchar('name', { length: 32 }).notNull(),
-})
+export const musicKeyLayerTable = pgTable(
+	'music_key_layer',
+	{
+		compositionId: integer('composition_id')
+			.notNull()
+			.references(() => compositionTable.id, { onDelete: 'cascade' }),
+		id: varchar('id', { length: 36 }).notNull(),
+		name: varchar('name', { length: 32 }).notNull(),
+	},
+	table => ({
+		primaryKey: primaryKey({ columns: [table.compositionId, table.id] }),
+	}),
+)
 
 export const musicKeyLayerRelations = relations(
 	musicKeyLayerTable,
@@ -250,19 +257,38 @@ export const musicKeyLayerRelations = relations(
 	}),
 )
 
-export const musicKeyTable = pgTable('music_key', {
-	id: serial('id').primaryKey(),
-	layerId: integer('layer_id')
-		.notNull()
-		.references(() => musicKeyLayerTable.id, { onDelete: 'cascade' }),
-	instrumentId: integer('instrument_id').notNull(),
-	time: integer('time').notNull(),
-	duration: integer('duration').notNull(),
-	velocity: real('velocity').notNull(),
-	note: smallint('note').notNull(), // number of half steps from C0
-})
+export const musicKeyTable = pgTable(
+	'music_key',
+	{
+		compositionId: integer('composition_id').notNull(),
+		layerId: varchar('layer_id', { length: 36 }).notNull(),
+		id: varchar('id', { length: 36 }).notNull(),
+		instrumentId: integer('instrument_id').notNull(),
+		time: integer('time').notNull(),
+		duration: integer('duration').notNull(),
+		velocity: real('velocity').notNull(),
+		note: smallint('note').notNull(), // number of half steps from C0
+	},
+	table => ({
+		foreignKey: foreignKey({
+			name: 'composition_layer_key',
+			columns: [table.compositionId, table.layerId],
+			foreignColumns: [
+				musicKeyLayerTable.compositionId,
+				musicKeyLayerTable.id,
+			],
+		}).onDelete('cascade'),
+		primaryKey: primaryKey({
+			columns: [table.compositionId, table.layerId, table.id],
+		}),
+	}),
+)
 
 export const musicKeyRelations = relations(musicKeyTable, ({ one }) => ({
+	composition: one(compositionTable, {
+		fields: [musicKeyTable.id],
+		references: [compositionTable.id],
+	}),
 	layer: one(musicKeyLayerTable, {
 		fields: [musicKeyTable.layerId],
 		references: [musicKeyLayerTable.id],
