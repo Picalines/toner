@@ -45,11 +45,18 @@ export function useToneEditorWatcher() {
 						break
 					}
 
-					case 'node-set-property': {
+					case 'node-update': {
 						const node = getNodeById(change.id)
-						if (node) {
-							const setProperty = toneSetters.current!.get(node)
-							setProperty?.(change.property, change.value)
+						const setProperty = node
+							? toneSetters.current!.get(node)
+							: null
+
+						if (node && change.properties && setProperty) {
+							for (const [property, value] of Object.entries(
+								change.properties,
+							)) {
+								setProperty(property, value)
+							}
 						}
 						break
 					}

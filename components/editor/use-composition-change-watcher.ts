@@ -40,6 +40,8 @@ export function useCompositionChangeWatcher({
 		id: compositionStore.getState().id,
 		nodes: {},
 		edges: {},
+		musicLayers: {},
+		musicKeys: {},
 	})
 
 	const submitChanges = useDebouncedCallback(async () => {

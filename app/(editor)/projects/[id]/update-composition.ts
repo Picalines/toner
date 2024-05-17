@@ -9,12 +9,15 @@ import {
 	audioNodeTable,
 	compositionTable,
 	database,
+	musicKeyTable,
+	musicLayerTable,
 } from '@/lib/db'
 import { assertUnreachable, zodIs } from '@/lib/utils'
 import {
 	CompositionChangeSummary,
 	compositionSchemas,
 } from '@/schemas/composition'
+import { MusicLayerId } from '@/schemas/music'
 
 export async function updateComposition(
 	changeSummary: CompositionChangeSummary,
@@ -164,6 +167,124 @@ export async function updateComposition(
 
 				default:
 					assertUnreachable(edgeUpdate)
+			}
+		}
+
+		const deletedLayers = new Set<MusicLayerId>()
+
+		for (const [layerId, layerUpdate] of Object.entries(
+			changeSummary.musicLayers,
+		)) {
+			hadChanges = true
+
+			switch (layerUpdate.operation) {
+				case 'create': {
+					const { name } = layerUpdate
+					await tx.insert(musicLayerTable).values({
+						compositionId,
+						id: layerId,
+						name,
+					})
+					continue
+				}
+
+				case 'update': {
+					const { name } = layerUpdate
+					await tx
+						.update(musicLayerTable)
+						.set({ name })
+						.where(
+							and(
+								eq(
+									musicLayerTable.compositionId,
+									compositionId,
+								),
+								eq(musicLayerTable.id, layerId),
+							),
+						)
+					continue
+				}
+
+				case 'remove': {
+					await tx
+						.delete(musicLayerTable)
+						.where(
+							and(
+								eq(
+									musicLayerTable.compositionId,
+									compositionId,
+								),
+								eq(musicLayerTable.id, layerId),
+							),
+						)
+					deletedLayers.add(layerId)
+					continue
+				}
+
+				default:
+					assertUnreachable(layerUpdate)
+			}
+		}
+
+		for (const [keyId, keyUpdate] of Object.entries(
+			changeSummary.musicKeys,
+		)) {
+			switch (keyUpdate.operation) {
+				case 'create': {
+					const {
+						layerId,
+						instrumentId,
+						note,
+						time,
+						duration,
+						velocity,
+					} = keyUpdate
+
+					if (deletedLayers.has(layerId)) {
+						continue
+					}
+
+					await tx.insert(musicKeyTable).values({
+						compositionId,
+						layerId,
+						id: keyId,
+						instrumentId,
+						time,
+						duration,
+						velocity,
+						note,
+					})
+					continue
+				}
+
+				case 'update': {
+					const { note, time, duration, velocity } = keyUpdate
+					await tx
+						.update(musicKeyTable)
+						.set({ note, time, duration, velocity })
+						.where(
+							and(
+								eq(musicKeyTable.compositionId, compositionId),
+								eq(musicKeyTable.id, keyId),
+							),
+						)
+					continue
+				}
+
+				case 'remove': {
+					await tx
+						.delete(musicKeyTable)
+						.where(
+							and(
+								eq(musicKeyTable.compositionId, compositionId),
+								eq(musicKeyTable.id, keyId),
+							),
+						)
+					continue
+				}
+
+				default:
+					assertUnreachable(keyUpdate)
 			}
 		}
 

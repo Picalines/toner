@@ -13,6 +13,7 @@ import {
 import { nanoid } from 'nanoid'
 import { StoreApi, create } from 'zustand'
 import { subscribeWithSelector } from 'zustand/middleware'
+import { shallow } from 'zustand/shallow'
 import { capitalize, safeParseOr, zodIs } from '@/lib/utils'
 import {
 	AudioEdgeId,
@@ -102,7 +103,7 @@ export function createCompositionStore(initialState: CompositionState) {
 
 				if (name != currentName) {
 					set({ name })
-					addChanges({ type: 'set-name', name })
+					addChanges({ type: 'update', name })
 				}
 			},
 
@@ -116,7 +117,7 @@ export function createCompositionStore(initialState: CompositionState) {
 
 				if (description != currentDescription) {
 					set({ description })
-					addChanges({ type: 'set-description', description })
+					addChanges({ type: 'update', description })
 				}
 			},
 
@@ -157,11 +158,7 @@ export function createCompositionStore(initialState: CompositionState) {
 				node.data.label = label
 
 				set({ nodes: new Map(get().nodes) })
-				addChanges({
-					type: 'node-rename',
-					id,
-					label,
-				})
+				addChanges({ type: 'node-update', id, label })
 			},
 
 			setNodeProperty: (id, property, value) => {
@@ -183,10 +180,9 @@ export function createCompositionStore(initialState: CompositionState) {
 
 				set({ nodes: new Map(get().nodes) })
 				addChanges({
-					type: 'node-set-property',
+					type: 'node-update',
 					id,
-					property: safeProperty,
-					value,
+					properties: { [safeProperty]: value },
 				})
 			},
 
@@ -332,7 +328,7 @@ function nodeChangeToCompositionChange(
 
 			const { x, y } = change.position
 			return {
-				type: 'node-move',
+				type: 'node-update',
 				id: change.id,
 				position: [x, y],
 			}
@@ -412,16 +408,18 @@ function changeReplacer<
 	}
 }
 
+const shallowKeys = <T extends {}>(a: T, b: T): boolean =>
+	shallow(Object.keys(a), Object.keys(b))
+
 const changeReplacers = [
 	changeReplacer('save-changes', 'save-changes'),
-	changeReplacer('set-name', 'set-name'),
-	changeReplacer('set-description', 'set-description'),
-	changeReplacer('node-move', 'node-move', (a, b) => a.id == b.id),
-	changeReplacer('node-rename', 'node-rename', (a, b) => a.id == b.id),
+	changeReplacer('update', 'update', shallowKeys),
 	changeReplacer(
-		'node-set-property',
-		'node-set-property',
-		(a, b) => a.id == b.id && a.property == b.property,
+		'node-update',
+		'node-update',
+		(a, b) =>
+			shallowKeys(a, b) &&
+			shallowKeys(a.properties ?? {}, b.properties ?? {}),
 	),
 ]
 

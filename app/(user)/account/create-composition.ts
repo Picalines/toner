@@ -8,6 +8,7 @@ import {
 	audioNodeTable,
 	compositionTable,
 	database,
+	musicLayerTable,
 } from '@/lib/db'
 
 export async function createComposition() {
@@ -43,17 +44,22 @@ export async function createComposition() {
 				type: 'output',
 				label: 'Output',
 				centerX: 150,
+				properties: { volume: -5 },
 			},
 		])
 
-		await tx.insert(audioEdgeTable).values([
-			{
-				compositionId,
-				id: nanoid(),
-				sourceId: synthId,
-				targetId: outputId,
-			},
-		])
+		await tx.insert(audioEdgeTable).values({
+			compositionId,
+			id: nanoid(),
+			sourceId: synthId,
+			targetId: outputId,
+		})
+
+		await tx.insert(musicLayerTable).values({
+			compositionId,
+			id: nanoid(),
+			name: 'main',
+		})
 
 		return compositionId
 	})

@@ -1,6 +1,7 @@
 import { z } from 'zod'
 import { assertUnreachable } from '@/lib/utils'
 import { audioNodeSchemas } from './audio-node'
+import { musicSchemas } from './music'
 
 export type CompositionId = z.infer<(typeof compositionSchemas)['id']>
 
@@ -23,9 +24,10 @@ const {
 	socketId,
 	label: nodeLabel,
 	position,
-	property,
 	properties,
 } = audioNodeSchemas
+
+const { key: keySchemas, layer: layerSchemas } = musicSchemas
 
 const compositionId = z.number().int()
 
@@ -41,11 +43,10 @@ export const compositionSchemas = {
 	change: z.discriminatedUnion('type', [
 		z.object({ type: z.literal('save-changes') }).strict(),
 
-		z.object({ type: z.literal('set-name'), name: compositionName }),
-
 		z.object({
-			type: z.literal('set-description'),
-			description: compositionDescription,
+			type: z.literal('update'),
+			name: compositionName.optional(),
+			description: compositionDescription.optional(),
 		}),
 
 		z.object({
@@ -53,7 +54,7 @@ export const compositionSchemas = {
 			id: nodeId,
 			position,
 			nodeType,
-			label: z.string(),
+			label: nodeLabel,
 			properties,
 		}),
 
@@ -63,22 +64,11 @@ export const compositionSchemas = {
 		}),
 
 		z.object({
-			type: z.literal('node-rename'),
+			type: z.literal('node-update'),
 			id: nodeId,
-			label: nodeLabel,
-		}),
-
-		z.object({
-			type: z.literal('node-move'),
-			id: nodeId,
-			position,
-		}),
-
-		z.object({
-			type: z.literal('node-set-property'),
-			id: nodeId,
-			property,
-			value: z.number(),
+			label: nodeLabel.optional(),
+			position: position.optional(),
+			properties: z.optional(properties),
 		}),
 
 		z.object({
@@ -91,6 +81,48 @@ export const compositionSchemas = {
 		z.object({
 			type: z.literal('edge-remove'),
 			id: edgeId,
+		}),
+
+		z.object({
+			type: z.literal('music-layer-add'),
+			id: layerSchemas.id,
+			name: layerSchemas.name,
+		}),
+
+		z.object({
+			type: z.literal('music-layer-update'),
+			id: layerSchemas.id,
+			name: layerSchemas.name.optional(),
+		}),
+
+		z.object({
+			type: z.literal('music-layer-remove'),
+			id: layerSchemas.id,
+		}),
+
+		z.object({
+			type: z.literal('music-key-add'),
+			id: keySchemas.id,
+			layerId: layerSchemas.id,
+			instrumentId: nodeId,
+			note: musicSchemas.note,
+			time: keySchemas.time,
+			duration: keySchemas.duration,
+			velocity: keySchemas.velocity,
+		}),
+
+		z.object({
+			type: z.literal('music-key-update'),
+			id: keySchemas.id,
+			note: musicSchemas.note.optional(),
+			time: keySchemas.time.optional(),
+			duration: keySchemas.duration.optional(),
+			velocity: keySchemas.velocity.optional(),
+		}),
+
+		z.object({
+			type: z.literal('music-key-remove'),
+			id: keySchemas.id,
 		}),
 	]),
 
@@ -107,14 +139,14 @@ export const compositionSchemas = {
 					operation: z.literal('create'),
 					type: audioNodeSchemas.type,
 					label: audioNodeSchemas.label,
-					position: z.tuple([z.number(), z.number()]),
+					position: audioNodeSchemas.position,
 					properties: audioNodeSchemas.properties,
 				}),
 
 				z.object({
 					operation: z.literal('update'),
 					label: audioNodeSchemas.label.optional(),
-					position: z.tuple([z.number(), z.number()]).optional(),
+					position: audioNodeSchemas.position.optional(),
 					properties: audioNodeSchemas.properties.optional(),
 				}),
 
@@ -140,6 +172,48 @@ export const compositionSchemas = {
 				z.object({ operation: z.literal('remove') }),
 			]),
 		),
+
+		musicLayers: z.record(
+			musicSchemas.layer.id,
+			z.discriminatedUnion('operation', [
+				z.object({
+					operation: z.literal('create'),
+					name: musicSchemas.layer.name,
+				}),
+
+				z.object({
+					operation: z.literal('update'),
+					name: musicSchemas.layer.name.optional(),
+				}),
+
+				z.object({ operation: z.literal('remove') }),
+			]),
+		),
+
+		musicKeys: z.record(
+			musicSchemas.key.id,
+			z.discriminatedUnion('operation', [
+				z.object({
+					operation: z.literal('create'),
+					layerId: layerSchemas.id,
+					instrumentId: nodeId,
+					note: musicSchemas.note,
+					time: keySchemas.time,
+					duration: keySchemas.duration,
+					velocity: keySchemas.velocity,
+				}),
+
+				z.object({
+					operation: z.literal('update'),
+					note: musicSchemas.note.optional(),
+					time: keySchemas.time.optional(),
+					duration: keySchemas.duration.optional(),
+					velocity: keySchemas.velocity.optional(),
+				}),
+
+				z.object({ operation: z.literal('remove') }),
+			]),
+		),
 	}),
 }
 
@@ -151,15 +225,13 @@ export function applyCompositionChangeToSummary(
 		case 'save-changes':
 			return
 
-		case 'set-name':
-			summary.name = change.name
+		case 'update': {
+			summary.name = change.name ?? summary.name
+			summary.description = change.description ?? summary.description
 			return
+		}
 
-		case 'set-description':
-			summary.description = change.description
-			return
-
-		case 'node-add':
+		case 'node-add': {
 			summary.nodes[change.id] = {
 				operation: 'create',
 				type: change.nodeType,
@@ -168,50 +240,25 @@ export function applyCompositionChangeToSummary(
 				properties: change.properties,
 			}
 			return
+		}
 
-		case 'node-remove':
+		case 'node-remove': {
 			summary.nodes[change.id] = { operation: 'remove' }
 			return
-
-		case 'node-rename': {
-			const prevOperation = summary.nodes[change.id]
-			if (prevOperation && prevOperation.operation != 'remove') {
-				prevOperation.label = change.label
-			} else {
-				summary.nodes[change.id] = {
-					operation: 'update',
-					label: change.label,
-				}
-			}
-			return
 		}
 
-		case 'node-move': {
-			const prevOperation = summary.nodes[change.id]
-			if (prevOperation && prevOperation.operation != 'remove') {
-				prevOperation.position = change.position
-			} else {
-				summary.nodes[change.id] = {
-					operation: 'update',
-					position: change.position,
-				}
+		case 'node-update': {
+			let operation = summary.nodes[change.id]
+			if (operation?.operation !== 'update') {
+				operation = summary.nodes[change.id] = { operation: 'update' }
 			}
-			return
-		}
 
-		case 'node-set-property': {
-			const prevOperation = summary.nodes[change.id]
-			if (prevOperation && prevOperation.operation != 'remove') {
-				prevOperation.properties = {
-					...prevOperation.properties,
-					[change.property]: change.value,
-				}
-			} else {
-				summary.nodes[change.id] = {
-					operation: 'update',
-					properties: { [change.property]: change.value },
-				}
-			}
+			operation.label = change.label ?? operation.label
+			operation.position = change.position ?? operation.position
+			operation.properties = Object.assign(
+				operation.properties ?? {},
+				change.properties,
+			)
 			return
 		}
 
@@ -226,6 +273,60 @@ export function applyCompositionChangeToSummary(
 
 		case 'edge-remove': {
 			summary.edges[change.id] = { operation: 'remove' }
+			return
+		}
+
+		case 'music-layer-add': {
+			summary.musicLayers[change.id] = {
+				operation: 'create',
+				name: change.name,
+			}
+			return
+		}
+
+		case 'music-layer-update': {
+			let operation = summary.musicLayers[change.id]
+			if (operation?.operation !== 'update') {
+				operation = summary.nodes[change.id] = { operation: 'update' }
+			}
+
+			operation.name = change.name ?? operation.name
+			return
+		}
+
+		case 'music-layer-remove': {
+			summary.musicLayers[change.id] = { operation: 'remove' }
+			return
+		}
+
+		case 'music-key-add': {
+			summary.musicKeys[change.id] = {
+				operation: 'create',
+				layerId: change.layerId,
+				instrumentId: change.instrumentId,
+				note: change.note,
+				time: change.time,
+				duration: change.duration,
+				velocity: change.velocity,
+			}
+			return
+		}
+
+		case 'music-key-update': {
+			let operation = summary.musicKeys[change.id]
+			if (operation?.operation !== 'update') {
+				operation = summary.nodes[change.id] = { operation: 'update' }
+			}
+
+			operation.note = change.note ?? operation.note
+			operation.time = change.time ?? operation.time
+			operation.duration = change.duration ?? operation.duration
+			operation.velocity = change.velocity ?? operation.velocity
+			return
+		}
+
+		case 'music-key-remove': {
+			summary.musicKeys[change.id] = { operation: 'remove' }
 			return
 		}
 
