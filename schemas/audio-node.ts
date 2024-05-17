@@ -19,8 +19,11 @@ export const audioNodeSchemas = {
 		'gain',
 		'reverb',
 		'vibrato',
+		'compressor',
 		'panner',
 	),
+
+	group: zodLiteralUnion('instrument', 'effect', 'component', 'output'),
 }
 
 export type AudioNodeId = z.infer<(typeof audioNodeSchemas)['nodeId']>
@@ -29,7 +32,7 @@ export type AudioEdgeId = z.infer<(typeof audioNodeSchemas)['edgeId']>
 
 export type AudioNodeType = z.infer<(typeof audioNodeSchemas)['type']>
 
-export type AudioNodeGroup = 'instrument' | 'effect' | 'component' | 'output'
+export type AudioNodeGroup = z.infer<(typeof audioNodeSchemas)['group']>
 
 export type AudioNodeProperty = {
 	name: string
@@ -185,6 +188,49 @@ export const audioNodeDefinitions = {
 				range: [0, 1],
 				displayRange: [0, 100],
 				units: UNITS.percentage,
+			},
+		},
+	},
+
+	compressor: {
+		group: 'component',
+		inputs: [{ name: 'audio' }],
+		outputs: [{ name: 'audio' }],
+		properties: {
+			threshold: {
+				name: 'threshold',
+				default: 0,
+				step: 0.001,
+				range: [-100, 0],
+				units: UNITS.decibels,
+			},
+			attack: {
+				name: 'attack',
+				default: 0,
+				step: 0.001,
+				range: [0, 1],
+				units: UNITS.seconds,
+			},
+			release: {
+				name: 'release',
+				default: 0,
+				step: 0.001,
+				range: [0, 1],
+				units: UNITS.seconds,
+			},
+			knee: {
+				name: 'knee',
+				default: 0,
+				step: 0.001,
+				range: [0, 40],
+				units: UNITS.decibels,
+			},
+			ratio: {
+				name: 'ratio',
+				default: 1,
+				step: 0.001,
+				range: [1, 20],
+				units: UNITS.decibels,
 			},
 		},
 	},

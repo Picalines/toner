@@ -111,6 +111,20 @@ const TONE_NODE_MAPPINGS: ToneNodeMappings = {
 		}
 	},
 
+	compressor: () => {
+		const compressor = new Tone.Compressor()
+		return {
+			toneNode: compressor,
+			setters: {
+				threshold: paramSetter(compressor.threshold),
+				attack: paramSetter(compressor.attack),
+				release: paramSetter(compressor.release),
+				knee: paramSetter(compressor.knee),
+				ratio: paramSetter(compressor.ratio),
+			},
+		}
+	},
+
 	panner: () => {
 		const panner = new Tone.Panner()
 		return {
@@ -122,7 +136,14 @@ const TONE_NODE_MAPPINGS: ToneNodeMappings = {
 	},
 }
 
-type ToneUnit = 'decibels' | 'normalRange' | 'audioRange' | 'frequency' // TODO: Tone.Unit is not exported
+// TODO: Tone.Unit is not exported
+type ToneUnit =
+	| 'audioRange'
+	| 'decibels'
+	| 'frequency'
+	| 'normalRange'
+	| 'positive'
+	| 'time'
 
 function paramSetter<U extends ToneUnit>(param: Tone.Param<U>) {
 	return (value: number) => (param.value = value)
