@@ -1,5 +1,5 @@
 import { Handle, NodeProps, Position } from '@xyflow/react'
-import { Volume2Icon } from 'lucide-react'
+import { KeyboardMusicIcon } from 'lucide-react'
 import { cn, tw } from '@/lib/utils'
 import { AudioNodeGroup, audioNodeDefinitions } from '@/schemas/audio-node'
 import { AudioNode } from '@/stores/composition-store'
@@ -49,10 +49,10 @@ export default function AudioNodeDisplay({
 					position={Position.Right}
 				/>
 			))}
-			<div className="absolute inset-1 flex flex-row gap-1">
-				<span className="flex-grow text-white">{label}</span>
+			<div className="absolute inset-1 left-2 flex flex-row gap-1">
+				<span className="flex-grow text-sm text-white">{label}</span>
 				{selectedInstrumentId == nodeId ? (
-					<Volume2Icon className="h-4 w-4 text-white animate-in zoom-in" />
+					<KeyboardMusicIcon className="h-4 w-4 text-white animate-in zoom-in" />
 				) : null}
 			</div>
 		</Card>

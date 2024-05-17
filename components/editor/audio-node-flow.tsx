@@ -212,7 +212,8 @@ function Controls({
 			showFitView={false}
 			showInteractive={false}
 			position="bottom-right"
-			className="gap-1"
+			className="gap-1 drop-shadow-sm"
+			style={{ boxShadow: 'none' }}
 			{...props}
 		>
 			{children}
