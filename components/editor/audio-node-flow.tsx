@@ -5,22 +5,37 @@ import {
 	Background,
 	BackgroundVariant,
 	ColorMode,
-	ControlButton,
-	Controls,
 	ReactFlow,
+	Controls as ReactFlowControls,
 	ReactFlowProvider,
 	ViewportPortal,
 	useReactFlow,
 } from '@xyflow/react'
-import { Loader2Icon, PlusIcon, SquarePlusIcon } from 'lucide-react'
+import {
+	Loader2Icon,
+	MaximizeIcon,
+	PlusIcon,
+	SquareActivityIcon,
+	ZoomInIcon,
+	ZoomOutIcon,
+} from 'lucide-react'
 import { useTheme } from 'next-themes'
-import { MouseEvent, useCallback, useEffect, useRef } from 'react'
+import {
+	ComponentProps,
+	FunctionComponent,
+	MouseEvent,
+	useCallback,
+	useEffect,
+	useRef,
+} from 'react'
 import { useShallow } from 'zustand/react/shallow'
 import { useIsMountedState } from '@/lib/hooks'
+import { cn } from '@/lib/utils'
 import { CompositionStore } from '@/stores/composition-store'
 import { EditorStore } from '@/stores/editor-store'
 import { useCompositionStore } from '../providers/composition-store-provider'
 import { useEditorStore } from '../providers/editor-store-provider'
+import { Button } from '../ui/button'
 import {
 	Tooltip,
 	TooltipArrow,
@@ -127,29 +142,13 @@ function AudioReactFlow() {
 		>
 			{isMounted ? (
 				<>
-					<Controls showInteractive={false} position="bottom-right" />
-					<Controls
-						position="top-right"
-						showZoom={false}
-						showFitView={false}
-						showInteractive={false}
-					>
-						<Tooltip>
-							<TooltipTrigger asChild>
-								<div>
-									<ControlButton onClick={openAddNode}>
-										<SquarePlusIcon
-											className="scale-125"
-											style={{ fill: 'none' }}
-										/>
-									</ControlButton>
-								</div>
-							</TooltipTrigger>
-							<TooltipContent side="left">
-								<span>Add Node (A)</span>
-								<TooltipArrow />
-							</TooltipContent>
-						</Tooltip>
+					<ViewportControls />
+					<Controls position="top-right">
+						<ControlButton
+							Icon={SquareActivityIcon}
+							onClick={openAddNode}
+							tooltip="Add Node (A)"
+						/>
 					</Controls>
 				</>
 			) : (
@@ -167,6 +166,88 @@ function AudioReactFlow() {
 				<NodeCursor />
 			</ViewportPortal>
 		</ReactFlow>
+	)
+}
+
+function ViewportControls() {
+	const { zoomIn, zoomOut, fitView } = useReactFlow()
+
+	const onZoomInClick = useCallback(() => zoomIn(), [zoomIn])
+
+	const onZoomOutClick = useCallback(() => zoomOut(), [zoomOut])
+
+	const onFitViewClick = useCallback(
+		() => fitView({ duration: 350 }),
+		[fitView],
+	)
+
+	return (
+		<Controls position="bottom-right">
+			<ControlButton
+				Icon={ZoomInIcon}
+				onClick={onZoomInClick}
+				tooltip="Zoom in"
+			/>
+			<ControlButton
+				Icon={ZoomOutIcon}
+				onClick={onZoomOutClick}
+				tooltip="Zoom out"
+			/>
+			<ControlButton
+				Icon={MaximizeIcon}
+				onClick={onFitViewClick}
+				tooltip="Fit view"
+			/>
+		</Controls>
+	)
+}
+
+function Controls({
+	children,
+	...props
+}: ComponentProps<typeof ReactFlowControls>) {
+	return (
+		<ReactFlowControls
+			showZoom={false}
+			showFitView={false}
+			showInteractive={false}
+			position="bottom-right"
+			className="gap-1"
+			{...props}
+		>
+			{children}
+		</ReactFlowControls>
+	)
+}
+
+type ControlButtonProps = Omit<ComponentProps<typeof Button>, 'children'> &
+	Readonly<{
+		Icon: FunctionComponent
+		tooltip: string
+	}>
+
+function ControlButton({
+	Icon,
+	tooltip,
+	className,
+	...buttonProps
+}: ControlButtonProps) {
+	return (
+		<Tooltip>
+			<TooltipTrigger asChild>
+				<Button
+					variant="outline"
+					{...buttonProps}
+					className={cn('h-min w-min p-1', className)}
+				>
+					<Icon />
+				</Button>
+			</TooltipTrigger>
+			<TooltipContent side="left">
+				<span>{tooltip}</span>
+				<TooltipArrow />
+			</TooltipContent>
+		</Tooltip>
 	)
 }
 
