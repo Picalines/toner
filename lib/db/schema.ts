@@ -276,7 +276,7 @@ export const musicKeyTable = pgTable(
 			foreignColumns: [musicLayerTable.compositionId, musicLayerTable.id],
 		}).onDelete('cascade'),
 		primaryKey: primaryKey({
-			columns: [table.compositionId, table.layerId, table.id],
+			columns: [table.compositionId, table.id],
 		}),
 	}),
 )
