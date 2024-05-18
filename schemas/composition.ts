@@ -289,7 +289,9 @@ export function applyCompositionChangeToSummary(
 		case 'music-layer-update': {
 			let operation = summary.musicLayers[change.id]
 			if (!operation || operation.operation == 'remove') {
-				operation = summary.nodes[change.id] = { operation: 'update' }
+				operation = summary.musicLayers[change.id] = {
+					operation: 'update',
+				}
 			}
 
 			operation.name = change.name ?? operation.name
@@ -317,7 +319,9 @@ export function applyCompositionChangeToSummary(
 		case 'music-key-update': {
 			let operation = summary.musicKeys[change.id]
 			if (!operation || operation.operation == 'remove') {
-				operation = summary.nodes[change.id] = { operation: 'update' }
+				operation = summary.musicKeys[change.id] = {
+					operation: 'update',
+				}
 			}
 
 			operation.instrumentId =
