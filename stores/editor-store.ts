@@ -28,6 +28,8 @@ export type EditorActions = {
 	setPanelLayout: (layout: EditorPanelLayout) => void
 
 	setNodeCursor: (x: number, y: number) => void
+	selectInstrument: (id: AudioNodeId) => void
+	selectMusicLayer: (id: MusicLayerId) => void
 }
 
 export type EditorStore = EditorState & EditorActions
@@ -48,6 +50,8 @@ export function createEditorStore(initialState: EditorState) {
 		setPanelLayout: layout => set({ panelLayout: layout }),
 
 		setNodeCursor: (x, y) => set({ nodeCursor: [x, y] }),
+		selectInstrument: id => set({ selectedInstrumentId: id }),
+		selectMusicLayer: id => set({ selectedMusicLayerId: id }),
 	})
 
 	return create(

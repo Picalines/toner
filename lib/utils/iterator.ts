@@ -32,6 +32,29 @@ export function* range(
 	}
 }
 
+export function* take<T>(iterable: Iterable<T>, maxCount: number) {
+	if (maxCount <= 0) {
+		return
+	}
+
+	let count = 0
+	for (const item of iterable) {
+		yield item
+
+		if (++count >= maxCount) {
+			break
+		}
+	}
+}
+
+export function takeFirst<T>(iterable: Iterable<T>): T | null {
+	for (const firstItem of iterable) {
+		return firstItem
+	}
+
+	return null
+}
+
 export function* takeWhile<T>(
 	iterable: Iterable<T>,
 	predicate: (item: T) => boolean,
@@ -58,4 +81,21 @@ export function* takeWhileFromEnd<T>(
 
 		yield item
 	}
+}
+
+export function* mapIter<T, U>(
+	iterable: Iterable<T>,
+	map: (value: T, index: number) => U,
+) {
+	let index = 0
+	for (const item of iterable) {
+		yield map(item, index++)
+	}
+}
+
+export function mapIterArray<T, U>(
+	iterable: Iterable<T>,
+	map: (value: T, index: number) => U,
+): U[] {
+	return Array.from(mapIter(iterable, map))
 }

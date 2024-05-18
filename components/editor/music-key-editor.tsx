@@ -13,6 +13,7 @@ import {
 	ResizablePanel,
 	ResizablePanelGroup,
 } from '../ui/resizable'
+import MusicLayerSelector from './music-layer-selector'
 
 type Props = Readonly<{
 	className?: string
@@ -62,19 +63,27 @@ export default function MusicKeyEditor({ className }: Props) {
 
 	return (
 		<ResizablePanelGroup
-			className={cn('relative', className)}
+			className={cn('relative !overflow-clip', className)}
 			direction="horizontal"
 		>
-			<ResizablePanel defaultSize={20} maxSize={40}>
+			<ResizablePanel
+				defaultSize={20}
+				maxSize={40}
+				className="!overflow-clip"
+			>
+				<MusicLayerSelector className="sticky top-0 z-10 h-10 w-full border-b" />
 				<PianoRoll
-					className="left-0 w-full"
+					className="w-full"
 					lineHeight={24}
 					onKeyDown={onKeyDown}
 					onKeyUp={onKeyUp}
 				/>
 			</ResizablePanel>
 			<ResizableHandle />
-			<ResizablePanel defaultSize={80}>
+			<ResizablePanel defaultSize={80} className="!overflow-clip">
+				<div className="sticky top-0 z-10 h-10 border-b bg-background">
+					<span className="opacity-50">TODO: timeline</span>
+				</div>
 				<MusicKeyEditorBackground
 					className="w-full"
 					lineHeight={24}

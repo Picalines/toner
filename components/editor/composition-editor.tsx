@@ -1,7 +1,7 @@
 'use client'
 
 import { useEffect, useRef } from 'react'
-import { cn } from '@/lib/utils'
+import { cn, takeFirst } from '@/lib/utils'
 import { AudioNodeId, audioNodeDefinitions } from '@/schemas/audio-node'
 import { CompositionChangeSummary } from '@/schemas/composition'
 import EditorStoreProvider, {
@@ -54,7 +54,7 @@ export default function CompositionEditor({
 			<EditorStoreProvider
 				panelLayout={panelLayout}
 				selectedInstrumentId={findAnyInstrumentNodeId(audioNodes)}
-				selectedMusicLayerId={Object.keys(musicLayers)[0]}
+				selectedMusicLayerId={takeFirst(musicLayers.keys()) ?? ''}
 			>
 				<CompositionEditorHeader />
 				<CompositionEditorPanels
