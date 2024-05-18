@@ -28,7 +28,7 @@ import {
 	CompositionId,
 	compositionSchemas as compSchemas,
 } from '@/schemas/composition'
-import { MusicKeyId, MusicLayerId } from '@/schemas/music'
+import { MusicKeyId, MusicLayerId, musicSchemas } from '@/schemas/music'
 
 export type AudioNode = Node<
 	{
@@ -80,8 +80,12 @@ export type CompositionActions = {
 	setName: (name: string) => void
 	setDescription: (description: string) => void
 
+	saveChanges: () => void
+
 	getNodeById: (id: AudioNodeId) => AudioNode | null
 	getEdgeById: (id: AudioEdgeId) => AudioEdge | null
+	getMusicLayerById: (id: MusicLayerId) => MusicLayer | null
+	getMusicKeyById: (id: MusicKeyId) => MusicKey | null
 
 	createNode: (type: AudioNodeType, position: [number, number]) => AudioNodeId
 	renameNode: (id: AudioNodeId, label: string) => void
@@ -91,7 +95,9 @@ export type CompositionActions = {
 	applyEdgeChanges: (changes: EdgeChange<AudioEdge>[]) => void
 	connect: (connection: Connection) => void
 
-	saveChanges: () => void
+	createMusicLayer: (name: string) => MusicLayerId | null
+	renameMusicLayer: (id: MusicLayerId, name: string) => void
+	removeMusicLayer: (id: MusicLayerId) => boolean
 }
 
 export type CompositionStore = CompositionState & CompositionActions
@@ -140,9 +146,15 @@ export function createCompositionStore(initialState: CompositionState) {
 				}
 			},
 
+			saveChanges: () => addChanges({ type: 'save-changes' }),
+
 			getNodeById: id => get().nodes.get(id) ?? null,
 
 			getEdgeById: id => get().edges.get(id) ?? null,
+
+			getMusicLayerById: id => get().musicLayers.get(id) ?? null,
+
+			getMusicKeyById: id => get().musicKeys.get(id) ?? null,
 
 			createNode: (type, position) => {
 				const properties = Object.fromEntries(
@@ -301,7 +313,62 @@ export function createCompositionStore(initialState: CompositionState) {
 				})
 			},
 
-			saveChanges: () => addChanges({ type: 'save-changes' }),
+			createMusicLayer: name => {
+				if (!zodIs(musicSchemas.layer.name, name)) {
+					return null
+				}
+
+				const id = nanoid()
+				const newLayer: MusicLayer = { id, name }
+
+				const musicLayers = new Map(get().musicLayers)
+				musicLayers.set(id, newLayer)
+				set({ musicLayers })
+				addChanges({ type: 'music-layer-add', id, name })
+
+				return id
+			},
+
+			renameMusicLayer: (id, name) => {
+				if (!zodIs(musicSchemas.layer.name, name)) {
+					return
+				}
+
+				const musicLayers = get().musicLayers
+				const musicLayer = musicLayers.get(id)
+				if (!musicLayer) {
+					return
+				}
+
+				musicLayer.name = name
+				set({ musicLayers: new Map(musicLayers) })
+				addChanges({ type: 'music-layer-update', id, name })
+			},
+
+			removeMusicLayer: id => {
+				const musicLayers = get().musicLayers
+				if (musicLayers.size <= 1 || !musicLayers.delete(id)) {
+					return false
+				}
+
+				const musicKeys = get().musicKeys
+				const oldKeysSize = musicKeys.size
+				for (const musicKey of musicKeys.values()) {
+					if (musicKey.layerId == id) {
+						// NOTICE: don't generate music-key-remove chanes
+						musicKeys.delete(musicKey.id)
+					}
+				}
+
+				if (oldKeysSize != musicKeys.size) {
+					set({ musicKeys: new Map(musicKeys) })
+				}
+
+				set({ musicLayers: new Map(musicLayers) })
+
+				addChanges({ type: 'music-layer-remove', id })
+				return true
+			},
 		}
 	}
 
@@ -440,6 +507,8 @@ const changeReplacers = [
 			shallowKeys(a, b) &&
 			shallowKeys(a.properties ?? {}, b.properties ?? {}),
 	),
+	changeReplacer('music-layer-update', 'music-layer-update', shallowKeys),
+	changeReplacer('music-key-update', 'music-key-update', shallowKeys),
 ]
 
 function mergeCompositionChange(
