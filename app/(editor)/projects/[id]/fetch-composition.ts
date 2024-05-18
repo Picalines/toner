@@ -2,42 +2,17 @@
 
 import { and, eq } from 'drizzle-orm'
 import { notFound } from 'next/navigation'
-import { authenticateOrRedirect } from '@/lib/auth'
 import {
 	compositionTable,
 	database,
 	audioEdgeTable as edgeEdgeTable,
+	musicKeyTable,
+	musicLayerTable,
 	audioNodeTable as nodeTable,
 } from '@/lib/db'
 import { zodIs } from '@/lib/utils'
 import { AudioNodeId, audioNodeSchemas } from '@/schemas/audio-node'
-
-export async function fetchComposition(compositionId: number) {
-	const {
-		user: { id: accountId },
-	} = await authenticateOrRedirect('/sign-in')
-
-	const compositionQuery = await database
-		.select({
-			id: compositionTable.id,
-			name: compositionTable.name,
-			description: compositionTable.description,
-		})
-		.from(compositionTable)
-		.limit(1)
-		.where(
-			and(
-				eq(compositionTable.authorId, accountId),
-				eq(compositionTable.id, compositionId),
-			),
-		)
-
-	if (compositionQuery.length != 1) {
-		notFound()
-	}
-
-	return compositionQuery[0]
-}
+import { MusicLayerId } from '@/schemas/music'
 
 type FetchedAudioNode = {
 	type: string
@@ -47,21 +22,53 @@ type FetchedAudioNode = {
 	properties: Record<string, number>
 }
 
-type FetchedAudioTree = {
-	nodes: Record<string, FetchedAudioNode>
-	edges: {
-		id: string
-		source: [AudioNodeId, number]
-		target: [AudioNodeId, number]
-	}[]
+type FetchedAudioEdge = {
+	source: [AudioNodeId, number]
+	target: [AudioNodeId, number]
 }
 
-export async function fetchAudioTree(
+type FetchedMusicLayer = {
+	name: string
+}
+
+type FetchedMusicKey = {
+	layerId: MusicLayerId
+	instrumentId: AudioNodeId
+	time: number
+	note: number
+	duration: number
+	velocity: number
+}
+
+type FetchedComposition = {
+	name: string
+	description: string
+	audioNodes: Record<string, FetchedAudioNode>
+	audioEdges: Record<string, FetchedAudioEdge>
+	musicLayers: Record<string, FetchedMusicLayer>
+	musicKeys: Record<string, FetchedMusicKey>
+}
+
+export async function fetchComposition(
 	compositionId: number,
-): Promise<FetchedAudioTree> {
-	const { nodeRows } = await database.transaction(
+): Promise<FetchedComposition> {
+	const transactionResult = await database.transaction(
 		async tx => {
-			const nodeRows = await tx
+			const compositionQuery = await database
+				.select({
+					id: compositionTable.id,
+					name: compositionTable.name,
+					description: compositionTable.description,
+				})
+				.from(compositionTable)
+				.limit(1)
+				.where(and(eq(compositionTable.id, compositionId)))
+
+			if (compositionQuery.length != 1) {
+				return { error: 'notFound' } as const
+			}
+
+			const audioNodeRows = await tx
 				.select({
 					id: nodeTable.id,
 					type: nodeTable.type,
@@ -84,34 +91,79 @@ export async function fetchAudioTree(
 				)
 				.where(eq(nodeTable.compositionId, compositionId))
 
-			return { nodeRows }
+			const musicLayerRows = await tx
+				.select({
+					id: musicLayerTable.id,
+					name: musicLayerTable.name,
+				})
+				.from(musicLayerTable)
+				.where(eq(musicLayerTable.compositionId, compositionId))
+
+			const musicKeyRows = await tx
+				.select({
+					id: musicKeyTable.id,
+					layerId: musicKeyTable.layerId,
+					instrumentId: musicKeyTable.instrumentId,
+					time: musicKeyTable.time,
+					note: musicKeyTable.note,
+					duration: musicKeyTable.duration,
+					velocity: musicKeyTable.velocity,
+				})
+				.from(musicKeyTable)
+				.where(eq(musicKeyTable.compositionId, compositionId))
+
+			const [{ name, description }] = compositionQuery
+
+			return {
+				name,
+				description,
+				audioNodeRows,
+				musicLayerRows,
+				musicKeyRows,
+			}
 		},
 		{ accessMode: 'read only' },
 	)
 
-	const nodes: FetchedAudioTree['nodes'] = {}
-	const edges: FetchedAudioTree['edges'] = []
+	if (transactionResult.error == 'notFound') {
+		notFound()
+	}
 
-	for (const { id, ...nodeRow } of nodeRows) {
-		const { properties } = nodeRow
-		if (!zodIs(audioNodeSchemas.properties, properties)) {
-			continue
+	const { name, description, audioNodeRows, musicLayerRows, musicKeyRows } =
+		transactionResult
+
+	const audioNodes: FetchedComposition['audioNodes'] = {}
+	const audioEdges: FetchedComposition['audioEdges'] = {}
+	const musicKeys: FetchedComposition['musicKeys'] = {}
+	const musicLayers: FetchedComposition['musicLayers'] = {}
+
+	for (const { id, ...audioNodeRow } of audioNodeRows) {
+		if (!(id in audioNodes)) {
+			const { properties } = audioNodeRow
+			if (!zodIs(audioNodeSchemas.properties, properties)) {
+				continue
+			}
+			audioNodes[id] = { ...audioNodeRow, properties }
 		}
 
-		if (!(id in nodes)) {
-			const { type, label, centerX, centerY } = nodeRow
-			nodes[id] = { type, label, centerX, centerY, properties }
-		}
+		if (audioNodeRow.targetId !== null) {
+			const { edgeId, targetId, sourceSocket, targetSocket } =
+				audioNodeRow
 
-		if (nodeRow.targetId !== null) {
-			const { edgeId, targetId, sourceSocket, targetSocket } = nodeRow
-			edges.push({
-				id: edgeId!,
+			audioEdges[edgeId!] = {
 				source: [id, sourceSocket!],
 				target: [targetId, targetSocket!],
-			})
+			}
 		}
 	}
 
-	return { nodes, edges }
+	for (const { id, ...musicLayerRow } of musicLayerRows) {
+		musicLayers[id] = musicLayerRow
+	}
+
+	for (const { id, ...musicKeyRow } of musicKeyRows) {
+		musicKeys[id] = musicKeyRow
+	}
+
+	return { name, description, audioNodes, audioEdges, musicKeys, musicLayers }
 }

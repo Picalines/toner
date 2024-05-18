@@ -28,6 +28,7 @@ import {
 	CompositionId,
 	compositionSchemas as compSchemas,
 } from '@/schemas/composition'
+import { MusicKeyId, MusicLayerId } from '@/schemas/music'
 
 export type AudioNode = Node<
 	{
@@ -40,6 +41,21 @@ export type AudioNode = Node<
 
 export type AudioEdge = Edge<{}>
 
+export type MusicLayer = {
+	id: MusicLayerId
+	name: string
+}
+
+export type MusicKey = {
+	id: MusicKeyId
+	layerId: MusicLayerId
+	instrumentId: AudioNodeId
+	note: number
+	time: number
+	duration: number
+	velocity: number
+}
+
 export type CompositionState = {
 	id: CompositionId
 
@@ -50,6 +66,9 @@ export type CompositionState = {
 
 	nodes: Map<AudioNodeId, AudioNode>
 	edges: Map<AudioNodeId, AudioEdge>
+
+	musicLayers: Map<MusicLayerId, MusicLayer>
+	musicKeys: Map<MusicKeyId, MusicKey>
 
 	selectedNodeId: AudioNodeId | null // TODO: move selected state to editor store
 	selectedEdgeId: AudioEdgeId | null

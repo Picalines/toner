@@ -4,7 +4,7 @@ import { AudioNodeType } from '@/schemas/audio-node'
 import CompositionEditor from '@/components/editor/composition-editor'
 import CompositionStoreProvider from '@/components/providers/composition-store-provider'
 import ToneStoreProvider from '@/components/providers/tone-store-provider'
-import { fetchAudioTree, fetchComposition } from './fetch-composition'
+import { fetchComposition } from './fetch-composition'
 import { parseProjectId } from './parse-project-id'
 import { updateComposition } from './update-composition'
 
@@ -19,13 +19,21 @@ export default async function EditorPage({ params }: Props) {
 
 	await authenticateOrRedirect('/sign-in')
 
-	const composition = await fetchComposition(compositionId)
-	const audioTree = await fetchAudioTree(compositionId)
+	const {
+		name,
+		description,
+		audioNodes,
+		audioEdges,
+		musicLayers,
+		musicKeys,
+	} = await fetchComposition(compositionId)
 
 	return (
 		<CompositionStoreProvider
-			{...composition}
-			nodes={Object.entries(audioTree.nodes).map(([nodeId, node]) => ({
+			id={compositionId}
+			name={name}
+			description={description}
+			audioNodes={Object.entries(audioNodes).map(([nodeId, node]) => ({
 				type: 'audio',
 				id: nodeId,
 				position: { x: node.centerX, y: node.centerY },
@@ -36,12 +44,14 @@ export default async function EditorPage({ params }: Props) {
 					properties: node.properties,
 				},
 			}))}
-			edges={audioTree.edges.map(
-				({
+			audioEdges={Object.entries(audioEdges).map(
+				([
 					id,
-					source: [source, sourceHandle],
-					target: [target, targetHandle],
-				}) => ({
+					{
+						source: [source, sourceHandle],
+						target: [target, targetHandle],
+					},
+				]) => ({
 					id,
 					type: 'default',
 					source,
@@ -50,6 +60,13 @@ export default async function EditorPage({ params }: Props) {
 					targetHandle: String(targetHandle),
 				}),
 			)}
+			musicLayers={Object.entries(musicLayers).map(
+				([layerId, layer]) => ({ id: layerId, ...layer }),
+			)}
+			musicKeys={Object.entries(musicKeys).map(([keyId, musicKey]) => ({
+				id: keyId,
+				...musicKey,
+			}))}
 		>
 			<ToneStoreProvider>
 				<div className="flex h-[100svh] max-h-[100svh] flex-col">

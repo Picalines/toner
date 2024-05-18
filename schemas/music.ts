@@ -10,9 +10,7 @@ export const MAX_OCTAVE = 9
 
 export const NUMBER_OF_NOTES = OCTAVE_LENGTH * (MAX_OCTAVE + 1)
 
-export type MusicNote = z.infer<(typeof musicSchemas)['note']>
-
-export type MusicLayerId = z.infer<(typeof musicSchemas)['layer']['id']>
+export type MusicLayerId = z.infer<typeof layerId>
 
 export type MusicKeyId = z.infer<(typeof musicSchemas)['key']['id']>
 
@@ -25,12 +23,12 @@ export const musicSchemas = {
 
 	layer: {
 		id: layerId,
-		name: z.string().min(1).max(32),
+		name: z.string().trim().min(1).max(32),
 	},
 
 	key: {
 		id: z.string().min(1).max(36),
-		layerId: layerId,
+		layerId,
 		instrumentId: audioNodeSchemas.nodeId,
 		note: noteSchema,
 		time: z.number().min(0),
@@ -38,20 +36,6 @@ export const musicSchemas = {
 		velocity: z.number().min(0).max(1),
 	},
 }
-
-type NoteSymbol =
-	| 'C'
-	| 'C#'
-	| 'D'
-	| 'D#'
-	| 'E'
-	| 'F'
-	| 'F#'
-	| 'G'
-	| 'G#'
-	| 'A'
-	| 'A#'
-	| 'B'
 
 export const NOTE_SYMBOLS = [
 	'C',
@@ -66,7 +50,9 @@ export const NOTE_SYMBOLS = [
 	'A',
 	'A#',
 	'B',
-] as const satisfies NoteSymbol[]
+] as const
+
+type NoteSymbol = typeof NOTE_SYMBOLS extends readonly (infer T)[] ? T : never
 
 type NoteOctave = IntRange<typeof MAX_OCTAVE>[number] | typeof MAX_OCTAVE
 
