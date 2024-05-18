@@ -42,7 +42,7 @@ export function useToneStoreApi(): ToneStoreApi {
 
 	if (!toneStoreApi) {
 		throw new Error(
-			`${useToneStore.name} must be used within ${ToneStoreProvider.name}`,
+			`${useToneStoreApi.name} must be used within ${ToneStoreProvider.name}`,
 		)
 	}
 

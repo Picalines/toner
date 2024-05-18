@@ -53,7 +53,7 @@ export function useCompositionStoreApi(): CompositionStoreApi {
 
 	if (!editorStoreApi) {
 		throw new Error(
-			`${useCompositionStore.name} must be used within ${CompositionStoreProvider.name}`,
+			`${useCompositionStoreApi.name} must be used within ${CompositionStoreProvider.name}`,
 		)
 	}
 

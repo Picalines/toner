@@ -47,7 +47,7 @@ export function useEditorStoreApi(): EditorStoreApi {
 
 	if (!editorStoreApi) {
 		throw new Error(
-			`${useEditorStore.name} must be used within ${EditorStoreProvider.name}`,
+			`${useEditorStoreApi.name} must be used within ${EditorStoreProvider.name}`,
 		)
 	}
 
