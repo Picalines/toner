@@ -36,7 +36,7 @@ export function useCompositionChangeWatcher({
 	const compositionStore = useCompositionStoreApi()
 	const editorStore = useEditorStoreApi()
 
-	const updateRequestRef = useRef<CompositionChangeSummary>({
+	const changeSummaryRef = useRef<CompositionChangeSummary>({
 		id: compositionStore.getState().id,
 		nodes: {},
 		edges: {},
@@ -57,12 +57,14 @@ export function useCompositionChangeWatcher({
 
 		setDirtyState('saving')
 		saveChanges()
-		await onCompositionUpdate?.(updateRequestRef.current)
+		await onCompositionUpdate?.(changeSummaryRef.current)
 		setDirtyState('clean')
 
-		const request = updateRequestRef.current
-		request.nodes = {}
-		request.edges = {}
+		const summary = changeSummaryRef.current
+		summary.nodes = {}
+		summary.edges = {}
+		summary.musicLayers = {}
+		summary.musicKeys = {}
 	}, submitDelay)
 
 	useEffect(() => {
@@ -75,11 +77,11 @@ export function useCompositionChangeWatcher({
 
 				const { setDirtyState } = editorStore.getState()
 
-				const request = updateRequestRef.current
-				request.id = compositionId
+				const summary = changeSummaryRef.current
+				summary.id = compositionId
 
 				const lastChange = changeHistory[changeHistory.length - 1]
-				applyCompositionChangeToSummary(request, lastChange)
+				applyCompositionChangeToSummary(summary, lastChange)
 
 				if (lastChange.type != 'save-changes') {
 					setDirtyState('waiting')

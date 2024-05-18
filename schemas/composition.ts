@@ -249,7 +249,7 @@ export function applyCompositionChangeToSummary(
 
 		case 'node-update': {
 			let operation = summary.nodes[change.id]
-			if (operation?.operation !== 'update') {
+			if (!operation || operation.operation == 'remove') {
 				operation = summary.nodes[change.id] = { operation: 'update' }
 			}
 
@@ -286,7 +286,7 @@ export function applyCompositionChangeToSummary(
 
 		case 'music-layer-update': {
 			let operation = summary.musicLayers[change.id]
-			if (operation?.operation !== 'update') {
+			if (!operation || operation.operation == 'remove') {
 				operation = summary.nodes[change.id] = { operation: 'update' }
 			}
 
@@ -314,7 +314,7 @@ export function applyCompositionChangeToSummary(
 
 		case 'music-key-update': {
 			let operation = summary.musicKeys[change.id]
-			if (operation?.operation !== 'update') {
+			if (!operation || operation.operation == 'remove') {
 				operation = summary.nodes[change.id] = { operation: 'update' }
 			}
 
