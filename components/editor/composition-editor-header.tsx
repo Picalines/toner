@@ -29,6 +29,7 @@ import {
 	DropdownMenuSubTrigger,
 	DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
+import EditorPlaybackControls from './editor-playback-controls'
 
 type Props = Readonly<{
 	className?: string
@@ -56,6 +57,7 @@ export default function CompositionEditorHeader({ className }: Props) {
 					dirtyState == 'saving' && 'animate-pulse',
 				)}
 			/>
+			<EditorPlaybackControls />
 			<EditorDropdownMenu>
 				<Button variant="outline">
 					<EllipsisIcon />
