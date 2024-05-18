@@ -13,17 +13,17 @@ const EditorStoreContext = createContext<EditorStoreApi | null>(null)
 
 type Props = PropsWithChildren<
 	Readonly<
-		Omit<EditorState, 'nodeCursor'> & {
-			nodeCursorX: number
-			nodeCursorY: number
+		Omit<EditorState, 'dirtyState' | 'openedModal' | 'nodeCursor'> & {
+			nodeCursorX?: number
+			nodeCursorY?: number
 		}
 	>
 >
 
 export default function EditorStoreProvider({
 	children,
-	nodeCursorX,
-	nodeCursorY,
+	nodeCursorX = 0,
+	nodeCursorY = 0,
 	...initialState
 }: Props) {
 	const storeRef = useRef<EditorStoreApi>()
@@ -31,6 +31,8 @@ export default function EditorStoreProvider({
 	if (!storeRef.current) {
 		storeRef.current = createEditorStore({
 			...initialState,
+			dirtyState: 'clean',
+			openedModal: null,
 			nodeCursor: [nodeCursorX, nodeCursorY],
 		})
 	}

@@ -1,6 +1,7 @@
 import { StoreApi, create } from 'zustand'
 import { persist, subscribeWithSelector } from 'zustand/middleware'
 import { AudioNodeId } from '@/schemas/audio-node'
+import { MusicLayerId } from '@/schemas/music'
 
 export type EditorDirtyState = 'clean' | 'waiting' | 'saving'
 
@@ -15,6 +16,7 @@ export type EditorState = {
 
 	nodeCursor: [x: number, y: number]
 	selectedInstrumentId: AudioNodeId | null
+	selectedMusicLayerId: MusicLayerId
 }
 
 export type EditorActions = {

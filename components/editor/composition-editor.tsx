@@ -2,6 +2,7 @@
 
 import { useEffect, useRef } from 'react'
 import { cn } from '@/lib/utils'
+import { AudioNodeId, audioNodeDefinitions } from '@/schemas/audio-node'
 import { CompositionChangeSummary } from '@/schemas/composition'
 import EditorStoreProvider, {
 	useEditorStore,
@@ -12,7 +13,9 @@ import {
 	ResizablePanelGroup,
 } from '@/components/ui/resizable'
 import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area'
+import { AudioNode } from '@/stores/composition-store'
 import { EditorPanelLayout, EditorStore } from '@/stores/editor-store'
+import { useCompositionStoreApi } from '../providers/composition-store-provider'
 import AudioNodeFlow from './audio-node-flow'
 import CompositionEditorHeader from './composition-editor-header'
 import CompositionInfoModal from './composition-info-modal'
@@ -38,6 +41,9 @@ export default function CompositionEditor({
 	className,
 	onCompositionUpdate,
 }: Props) {
+	const { nodes: audioNodes, musicLayers } =
+		useCompositionStoreApi().getState()
+
 	return (
 		<div
 			className={cn(
@@ -46,12 +52,9 @@ export default function CompositionEditor({
 			)}
 		>
 			<EditorStoreProvider
-				dirtyState="clean"
-				openedModal={null}
 				panelLayout={panelLayout}
-				nodeCursorX={0}
-				nodeCursorY={0}
-				selectedInstrumentId={null}
+				selectedInstrumentId={findAnyInstrumentNodeId(audioNodes)}
+				selectedMusicLayerId={Object.keys(musicLayers)[0]}
 			>
 				<CompositionEditorHeader />
 				<CompositionEditorPanels
@@ -126,4 +129,21 @@ function MusicKeyEditorPanel() {
 			<ScrollBar orientation="vertical" />
 		</ScrollArea>
 	)
+}
+
+function findAnyInstrumentNodeId(
+	audioNodes: Map<AudioNodeId, AudioNode>,
+): AudioNodeId | null {
+	for (const node of audioNodes.values()) {
+		const {
+			id: nodeId,
+			data: { type: nodeType },
+		} = node
+
+		if (audioNodeDefinitions[nodeType].group == 'instrument') {
+			return nodeId
+		}
+	}
+
+	return null
 }
