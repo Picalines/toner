@@ -114,6 +114,7 @@ export const compositionSchemas = {
 		z.object({
 			type: z.literal('music-key-update'),
 			id: keySchemas.id,
+			instrumentId: nodeId.optional(),
 			note: musicSchemas.note.optional(),
 			time: keySchemas.time.optional(),
 			duration: keySchemas.duration.optional(),
@@ -205,6 +206,7 @@ export const compositionSchemas = {
 
 				z.object({
 					operation: z.literal('update'),
+					instrumentId: nodeId.optional(),
 					note: musicSchemas.note.optional(),
 					time: keySchemas.time.optional(),
 					duration: keySchemas.duration.optional(),
@@ -318,6 +320,8 @@ export function applyCompositionChangeToSummary(
 				operation = summary.nodes[change.id] = { operation: 'update' }
 			}
 
+			operation.instrumentId =
+				change.instrumentId ?? operation.instrumentId
 			operation.note = change.note ?? operation.note
 			operation.time = change.time ?? operation.time
 			operation.duration = change.duration ?? operation.duration
