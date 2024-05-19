@@ -12,7 +12,7 @@ import {
 	AlertDialogTitle,
 } from '@/components/ui/alert-dialog'
 import { Button, buttonVariants } from '@/components/ui/button'
-import { signOut } from './actions'
+import { signOut } from './sign-out'
 
 type Props = Exclude<ComponentProps<typeof AlertDialog>, 'open'>
 

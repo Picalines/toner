@@ -4,7 +4,7 @@ import { cookies } from 'next/headers'
 import { redirect } from 'next/navigation'
 import { authenticate, lucia } from '@/lib/auth'
 
-export const signOut = async () => {
+export async function signOut() {
 	const { session } = (await authenticate()) ?? { session: null }
 
 	if (session) {
