@@ -50,5 +50,5 @@ jobs:
           vm-subnet-id: ${{ secrets.YC_VM_SUBNET_ID }}
           vm-disk-type: network-hdd
           vm-disk-size: 16GB
-          user-data-path: './user-data.yaml'
+          user-data-path: './yandex-cloud/user-data.yaml'
           docker-compose-path: './compose.yaml'
