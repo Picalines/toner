@@ -9,6 +9,15 @@ jobs:
     steps:
       - uses: actions/checkout@v2
 
+      - name: Create .env file
+        run: |
+          touch .env
+          echo PORT=${{ secrets.UD_PORT}} >> .env
+          echo DB_HOST=${{ secrets.UD_DB_HOST }} >> .env
+          echo DB_USER=${{ secrets.UD_DB_USER }} >> .env
+          echo DB_PASSWORD=${{ secrets.UD_DB_PASSWORD }} >> .env
+          echo DB_DATABASE=${{ secrets.UD_DB_DATABASE }} >> .env
+
       - name: Yandex Cloud CR "Login" Action for GitHub Actions
         uses: yc-actions/yc-cr-login@v2
         with:
