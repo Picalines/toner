@@ -22,16 +22,18 @@ import {
 	PopoverTrigger,
 } from '@/components/ui/popover'
 import UserAvatar from '@/components/user-avatar'
-import { editProfile } from './actions'
-import { editProfileSchema } from './schemas'
+import { profileUpdateSchema } from './schemas'
+import { updateProfile } from './update-profile'
 
 type Props = Readonly<User>
+
+const preventDefault = (event: Event) => event.preventDefault()
 
 export default function EditProfileForm({ login, displayName }: Props) {
 	const router = useRouter()
 
 	const form = useForm({
-		resolver: zodResolver(editProfileSchema),
+		resolver: zodResolver(profileUpdateSchema),
 		defaultValues: {
 			login,
 			displayName,
@@ -45,7 +47,7 @@ export default function EditProfileForm({ login, displayName }: Props) {
 	const isInputDisabled = isSubmitting || isSubmitSuccessful
 
 	const onSubmit = form.handleSubmit(async formData => {
-		const { errors } = await editProfile(formData)
+		const { errors } = await updateProfile(formData)
 		for (const { field, message } of errors) {
 			form.setError(field, { message })
 		}
@@ -54,11 +56,6 @@ export default function EditProfileForm({ login, displayName }: Props) {
 			router.refresh()
 		}
 	})
-
-	const preventPopoverFocus = useCallback(
-		(event: Event) => event.preventDefault(),
-		[],
-	)
 
 	const onCancelClick = useCallback(() => form.reset(), [form])
 
@@ -107,7 +104,7 @@ export default function EditProfileForm({ login, displayName }: Props) {
 						<PopoverContent
 							className="flex h-min w-min justify-center gap-2 border-none p-2"
 							side="top"
-							onOpenAutoFocus={preventPopoverFocus}
+							onOpenAutoFocus={preventDefault}
 						>
 							<Button
 								type="button"

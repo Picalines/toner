@@ -3,21 +3,21 @@
 import { eq } from 'drizzle-orm'
 import { authenticateOrRedirect } from '@/lib/auth'
 import { accountTable, database } from '@/lib/db'
-import { EditProfileFormData, editProfileSchema } from './schemas'
+import { UpdateProfileFormData, profileUpdateSchema } from './schemas'
 
 export type EditProfileActionResult = {
-	errors: { field: keyof EditProfileFormData; message: string }[]
+	errors: { field: keyof UpdateProfileFormData; message: string }[]
 }
 
-export const editProfile = async (
-	formData: EditProfileFormData,
-): Promise<EditProfileActionResult> => {
-	const validationResult = editProfileSchema.safeParse(formData)
+export async function updateProfile(
+	formData: UpdateProfileFormData,
+): Promise<EditProfileActionResult> {
+	const validationResult = profileUpdateSchema.safeParse(formData)
 
 	if (!validationResult.success) {
 		return {
 			errors: validationResult.error.issues.map(issue => ({
-				field: issue.path[0] as keyof EditProfileFormData,
+				field: issue.path[0] as keyof UpdateProfileFormData,
 				message: issue.message,
 			})),
 		}
