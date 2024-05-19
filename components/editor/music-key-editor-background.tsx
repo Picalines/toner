@@ -40,7 +40,6 @@ export default function MusicKeyEditorBackground({
 					id={patternId}
 					viewBox="0 0 1 12"
 					width="100%"
-					y="100%"
 					height={12 * lineHeight}
 					patternUnits="userSpaceOnUse"
 					preserveAspectRatio="xMinYMin meet"

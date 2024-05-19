@@ -13,6 +13,7 @@ import {
 	ResizablePanel,
 	ResizablePanelGroup,
 } from '../ui/resizable'
+import EditorTimeline from './editor-timeline'
 import MusicLayerSelector from './music-layer-selector'
 
 type Props = Readonly<{
@@ -71,7 +72,7 @@ export default function MusicKeyEditor({ className }: Props) {
 				maxSize={40}
 				className="!overflow-clip"
 			>
-				<MusicLayerSelector className="sticky top-0 z-10 h-10 w-full border-b" />
+				<MusicLayerSelector className="sticky top-0 z-10 h-6 w-full border-b" />
 				<PianoRoll
 					className="w-full"
 					lineHeight={24}
@@ -81,9 +82,7 @@ export default function MusicKeyEditor({ className }: Props) {
 			</ResizablePanel>
 			<ResizableHandle />
 			<ResizablePanel defaultSize={80} className="!overflow-clip">
-				<div className="sticky top-0 z-10 h-10 border-b bg-background">
-					<span className="opacity-50">TODO: timeline</span>
-				</div>
+				<EditorTimeline className="sticky top-0 z-10 h-6 border-b" />
 				<MusicKeyEditorBackground
 					className="w-full"
 					lineHeight={24}
