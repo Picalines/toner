@@ -1,11 +1,10 @@
-import { useCallback } from 'react'
+import { useStore } from 'zustand'
 import { useShallow } from 'zustand/react/shallow'
 import { capitalize } from '@/lib/utils'
 import { AudioNodeType, audioNodeDefinitions } from '@/schemas/audio-node'
-import { CompositionStore } from '@/stores/composition-store'
 import { EditorStore } from '@/stores/editor-store'
-import { useCompositionStore } from '../providers/composition-store-provider'
-import { useEditorStore } from '../providers/editor-store-provider'
+import { useCompositionStoreApi } from '../providers/composition-store-provider'
+import { useEditorStoreApi } from '../providers/editor-store-provider'
 import {
 	Command,
 	CommandEmpty,
@@ -16,17 +15,10 @@ import {
 } from '../ui/command'
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '../ui/dialog'
 
-const editorSelector = ({
+const modalSelector = ({ openedModal, closeModal }: EditorStore) => ({
 	openedModal,
 	closeModal,
-	nodeCursor,
-}: EditorStore) => ({
-	openedModal,
-	closeModal,
-	nodeCursor,
 })
-
-const compSelector = ({ createNode }: CompositionStore) => ({ createNode })
 
 const commandItems = Object.entries(audioNodeDefinitions).flatMap(
 	([nodeType, { group }]) =>
@@ -36,20 +28,25 @@ const commandItems = Object.entries(audioNodeDefinitions).flatMap(
 )
 
 export default function CreateNodeModal() {
-	const { openedModal, closeModal, nodeCursor } = useEditorStore(
-		useShallow(editorSelector),
+	const compositionStore = useCompositionStoreApi()
+
+	const editorStore = useEditorStoreApi()
+	const { openedModal, closeModal } = useStore(
+		editorStore,
+		useShallow(modalSelector),
 	)
 
-	const { createNode } = useCompositionStore(useShallow(compSelector))
+	const onOpenChange = (open: boolean) => {
+		if (!open) {
+			closeModal()
+		}
+	}
 
-	const onOpenChange = useCallback(
-		(open: boolean) => {
-			if (!open) {
-				closeModal()
-			}
-		},
-		[closeModal],
-	)
+	const onItemSelect = (nodeType: AudioNodeType) => () => {
+		const { createNode } = compositionStore.getState()
+		createNode(nodeType, editorStore.getState().nodeCursor)
+		closeModal()
+	}
 
 	return (
 		<Dialog open={openedModal == 'node-add'} onOpenChange={onOpenChange}>
@@ -62,15 +59,12 @@ export default function CreateNodeModal() {
 					<CommandList>
 						<CommandEmpty>Not found</CommandEmpty>
 						<CommandGroup>
-							{commandItems.map(({ nodeType, group }, i) => (
+							{commandItems.map(({ nodeType, group }) => (
 								<CommandItem
-									key={i}
+									key={nodeType}
 									className="flex justify-between"
 									value={nodeType}
-									onSelect={() => {
-										createNode(nodeType, nodeCursor)
-										closeModal()
-									}}
+									onSelect={onItemSelect(nodeType)}
 								>
 									<span>{capitalize(nodeType)}</span>
 									<span className="text-neutral-500">

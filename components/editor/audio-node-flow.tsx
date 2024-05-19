@@ -96,29 +96,27 @@ function AudioReactFlow() {
 
 	const isMouseInsideFlow = useRef(false)
 
-	const setCursorOnClick = useCallback(
-		(event: MouseEvent) => {
-			const { x, y } = reactFlow.screenToFlowPosition({
-				x: event.clientX,
-				y: event.clientY,
-			})
-			setNodeCursor(x, y)
+	const setCursorOnClick = (event: MouseEvent) => {
+		const { x, y } = reactFlow.screenToFlowPosition({
+			x: event.clientX,
+			y: event.clientY,
+		})
+		setNodeCursor(x, y)
+	}
+
+	const onKeyUp = useCallback(
+		(event: KeyboardEvent) => {
+			if (isMouseInsideFlow.current && event.key == 'a') {
+				openModal('node-add')
+			}
 		},
-		[reactFlow, setNodeCursor],
+		[openModal],
 	)
 
-	const openAddNode = useCallback(() => openModal('node-add'), [openModal])
-
 	useEffect(() => {
-		const onKeyUp = (event: KeyboardEvent) => {
-			if (isMouseInsideFlow.current && event.key == 'a') {
-				openAddNode()
-			}
-		}
-
 		document.addEventListener('keyup', onKeyUp)
 		return () => document.removeEventListener('keyup', onKeyUp)
-	}, [openAddNode])
+	}, [onKeyUp])
 
 	return (
 		<ReactFlow
@@ -146,7 +144,7 @@ function AudioReactFlow() {
 					<Controls position="top-right">
 						<ControlButton
 							Icon={SquareActivityIcon}
-							onClick={openAddNode}
+							onClick={() => openModal('node-add')}
 							tooltip="Add Node (A)"
 						/>
 					</Controls>
@@ -169,33 +167,25 @@ function AudioReactFlow() {
 	)
 }
 
+// TODO: memoization
 function ViewportControls() {
 	const { zoomIn, zoomOut, fitView } = useReactFlow()
-
-	const onZoomInClick = useCallback(() => zoomIn(), [zoomIn])
-
-	const onZoomOutClick = useCallback(() => zoomOut(), [zoomOut])
-
-	const onFitViewClick = useCallback(
-		() => fitView({ duration: 350 }),
-		[fitView],
-	)
 
 	return (
 		<Controls position="bottom-right">
 			<ControlButton
 				Icon={ZoomInIcon}
-				onClick={onZoomInClick}
+				onClick={() => zoomIn()}
 				tooltip="Zoom in"
 			/>
 			<ControlButton
 				Icon={ZoomOutIcon}
-				onClick={onZoomOutClick}
+				onClick={() => zoomOut()}
 				tooltip="Zoom out"
 			/>
 			<ControlButton
 				Icon={MaximizeIcon}
-				onClick={onFitViewClick}
+				onClick={() => fitView()}
 				tooltip="Fit view"
 			/>
 		</Controls>

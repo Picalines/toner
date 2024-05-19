@@ -26,19 +26,23 @@ import {
 import { Input } from '@/components/ui/input'
 import { TextArea } from '@/components/ui/text-area'
 import { CompositionStore } from '@/stores/composition-store'
+import { EditorStore } from '@/stores/editor-store'
+
+const modalSelector = ({ openedModal, closeModal }: EditorStore) => ({
+	openedModal,
+	closeModal,
+})
 
 export default function CompositionInfoModal() {
-	const openedModal = useEditorStore(editor => editor.openedModal)
-	const closeModal = useEditorStore(editor => editor.closeModal)
-
-	const onOpenChange = useCallback(
-		(open: boolean) => {
-			if (!open) {
-				closeModal()
-			}
-		},
-		[closeModal],
+	const { openedModal, closeModal } = useEditorStore(
+		useShallow(modalSelector),
 	)
+
+	const onOpenChange = (open: boolean) => {
+		if (!open) {
+			closeModal()
+		}
+	}
 
 	return (
 		<Dialog

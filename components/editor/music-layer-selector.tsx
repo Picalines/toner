@@ -6,7 +6,7 @@ import {
 	PlusIcon,
 	Trash2Icon,
 } from 'lucide-react'
-import { useCallback, useState } from 'react'
+import { useState } from 'react'
 import { useShallow } from 'zustand/react/shallow'
 import { cn, mapIterArray, takeFirst, takeWhile } from '@/lib/utils'
 import { MusicLayerId } from '@/schemas/music'
@@ -53,6 +53,7 @@ export default function MusicLayerSelector({ className }: Props) {
 		renameMusicLayer,
 		removeMusicLayer,
 	} = useCompositionStore(useShallow(compositionSelector))
+
 	const { selectedMusicLayerId, selectMusicLayer } = useEditorStore(
 		useShallow(editorSelector),
 	)
@@ -60,18 +61,15 @@ export default function MusicLayerSelector({ className }: Props) {
 	const [open, setOpen] = useState(false)
 	const [inputValue, setInputValue] = useState('')
 
-	const closeCommand = useCallback(() => {
+	const closeCommand = () => {
 		setOpen(false)
 		setInputValue('')
-	}, [setOpen, setInputValue])
+	}
 
-	const onSelectLayer = useCallback(
-		(layerId: MusicLayerId) => {
-			selectMusicLayer(layerId)
-			closeCommand()
-		},
-		[selectMusicLayer, closeCommand],
-	)
+	const onSelectLayer = (layerId: MusicLayerId) => {
+		selectMusicLayer(layerId)
+		closeCommand()
+	}
 
 	const onSelectCreate = () => {
 		const newLayerId = createMusicLayer(inputValue)

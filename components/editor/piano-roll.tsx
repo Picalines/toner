@@ -1,4 +1,4 @@
-import { MouseEvent, MouseEventHandler, useCallback } from 'react'
+import { MouseEvent, MouseEventHandler, memo } from 'react'
 import { cn, range, tw } from '@/lib/utils'
 import { MAX_OCTAVE, OCTAVE_LENGTH, musicNoteInfo } from '@/schemas/music'
 
@@ -18,7 +18,7 @@ type PianoRollProps = Readonly<{
 	onKeyUp?: (event: KeyEvent) => void
 }>
 
-export default function PianoRoll({
+export function PianoRoll({
 	minOctave = 0,
 	maxOctave = MAX_OCTAVE,
 	lineHeight = 16,
@@ -46,6 +46,8 @@ export default function PianoRoll({
 		</div>
 	)
 }
+
+export default memo(PianoRoll)
 
 const stepSizedKeys = new Set([2, 7, 9])
 
@@ -77,49 +79,36 @@ function PianoRollOctave({
 	onKeyDown,
 	onKeyUp,
 }: PianoRollOctaveProps) {
-	const onMouseEvent = useCallback(
-		(event: MouseEvent, isDown: boolean) => {
-			event.preventDefault()
-			const button = event.target as HTMLButtonElement
-			const keyIndex = parseInt(button.getAttribute('data-index')!)
-			if (isNaN(keyIndex)) {
-				return
-			}
+	const onMouseEvent = (event: MouseEvent, isDown: boolean) => {
+		event.preventDefault()
+		const button = event.target as HTMLButtonElement
+		const keyIndex = parseInt(button.getAttribute('data-index')!)
+		if (isNaN(keyIndex)) {
+			return
+		}
 
-			const callbackProp = isDown ? onKeyDown : onKeyUp
-			callbackProp?.({ note: octave * OCTAVE_LENGTH + keyIndex })
-			button.classList.toggle('down', isDown)
-		},
-		[octave, onKeyDown, onKeyUp],
-	)
+		const callbackProp = isDown ? onKeyDown : onKeyUp
+		callbackProp?.({ note: octave * OCTAVE_LENGTH + keyIndex })
+		button.classList.toggle('down', isDown)
+	}
 
-	const onMouseDown = useCallback<MouseEventHandler<HTMLDivElement>>(
-		event => onMouseEvent(event, true),
-		[onMouseEvent],
-	)
+	const onMouseDown: MouseEventHandler<HTMLDivElement> = event =>
+		onMouseEvent(event, true)
 
-	const onMouseUp = useCallback<MouseEventHandler<HTMLDivElement>>(
-		event => onMouseEvent(event, false),
-		[onMouseEvent],
-	)
+	const onMouseUp: MouseEventHandler<HTMLDivElement> = event =>
+		onMouseEvent(event, false)
 
-	const onMouseEnterKey = useCallback<MouseEventHandler<HTMLButtonElement>>(
-		event => {
-			if (event.buttons > 0) {
-				onMouseEvent(event, true)
-				;(event.target as HTMLElement).classList.add('down')
-			}
-		},
-		[onMouseEvent],
-	)
+	const onMouseEnterKey: MouseEventHandler<HTMLButtonElement> = event => {
+		if (event.buttons > 0) {
+			onMouseEvent(event, true)
+			;(event.target as HTMLElement).classList.add('down')
+		}
+	}
 
-	const onMouseLeaveKey = useCallback<MouseEventHandler<HTMLButtonElement>>(
-		event => {
-			if (event.buttons > 0) onMouseEvent(event, false)
-			;(event.target as HTMLElement).classList.remove('down')
-		},
-		[onMouseEvent],
-	)
+	const onMouseLeaveKey: MouseEventHandler<HTMLButtonElement> = event => {
+		if (event.buttons > 0) onMouseEvent(event, false)
+		;(event.target as HTMLElement).classList.remove('down')
+	}
 
 	return (
 		<div
