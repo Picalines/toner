@@ -5,13 +5,13 @@ import { authenticateOrRedirect } from '@/lib/auth'
 import { accountTable, database } from '@/lib/db'
 import { UpdateProfileFormData, profileUpdateSchema } from './schemas'
 
-export type EditProfileActionResult = {
+export type UpdateProfileActionResult = {
 	errors: { field: keyof UpdateProfileFormData; message: string }[]
 }
 
 export async function updateProfile(
 	formData: UpdateProfileFormData,
-): Promise<EditProfileActionResult> {
+): Promise<UpdateProfileActionResult> {
 	const validationResult = profileUpdateSchema.safeParse(formData)
 
 	if (!validationResult.success) {
