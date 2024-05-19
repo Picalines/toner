@@ -21,8 +21,8 @@ import {
 	FormMessage,
 } from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
-import { signup } from './actions'
 import { SignupFormData, signupFormSchema } from './schemas'
+import { signup } from './sign-up'
 
 export default function SignUpForm(cardProps: ComponentProps<typeof Card>) {
 	const form = useForm<SignupFormData>({

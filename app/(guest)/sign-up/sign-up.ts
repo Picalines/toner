@@ -11,9 +11,9 @@ export type SignupActionResult = {
 	errors: { field: keyof SignupFormData; message: string }[]
 }
 
-export const signup = async (
+export async function signup(
 	formData: SignupFormData,
-): Promise<SignupActionResult> => {
+): Promise<SignupActionResult> {
 	const validationResult = signupFormSchema.safeParse(formData)
 
 	if (!validationResult.success) {
