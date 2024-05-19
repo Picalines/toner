@@ -17,9 +17,9 @@ const authenticationError: SignInActionResult = {
 	],
 }
 
-export const signIn = async (
+export async function signIn(
 	formData: SignInFormData,
-): Promise<SignInActionResult> => {
+): Promise<SignInActionResult> {
 	const validationResult = signInFormSchema.safeParse(formData)
 
 	if (!validationResult.success) {

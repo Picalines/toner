@@ -21,8 +21,8 @@ import {
 	FormMessage,
 } from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
-import { signIn } from './actions'
 import { SignInFormData, signInFormSchema } from './schemas'
+import { signIn } from './sign-in'
 
 type Props = ComponentProps<typeof Card> &
 	Readonly<{
