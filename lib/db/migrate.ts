@@ -1,10 +1,14 @@
+import { loadEnvConfig } from '@next/env'
 import { drizzle } from 'drizzle-orm/node-postgres'
 import { migrate } from 'drizzle-orm/node-postgres/migrator'
 import { Pool } from 'pg'
-import config from '@/drizzle.config'
-import { serverEnv } from '../env'
+import { getDatabaseEnvironment } from './db-env'
 
 async function main() {
+	loadEnvConfig(process.cwd())
+
+	const { default: config } = await import('@/drizzle.config')
+
 	console.log('migration started')
 
 	if (!config.out) {
@@ -12,12 +16,14 @@ async function main() {
 		process.exit(1)
 	}
 
+	const dbEnv = getDatabaseEnvironment()
+
 	const pool = new Pool({
-		host: serverEnv.DB_HOST,
-		port: serverEnv.DB_PORT,
-		user: serverEnv.DB_USER,
-		password: serverEnv.DB_PASSWORD,
-		database: serverEnv.DB_DATABASE,
+		host: dbEnv.DB_HOST,
+		port: dbEnv.DB_PORT,
+		user: dbEnv.DB_USER,
+		password: dbEnv.DB_PASSWORD,
+		database: dbEnv.DB_DATABASE,
 	})
 
 	const db = drizzle(pool)
