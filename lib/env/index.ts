@@ -1,1 +1,0 @@
-export { serverEnv } from './serverEnv'
