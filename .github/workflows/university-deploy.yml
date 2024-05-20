@@ -51,4 +51,4 @@ jobs:
           vm-disk-type: network-hdd
           vm-disk-size: 16GB
           user-data-path: './yandex-cloud/user-data.yaml'
-          docker-compose-path: './yandex-cloud/docker-compose.yaml'
+          docker-compose-path: './yandex-cloud/docker-compose.yml'
