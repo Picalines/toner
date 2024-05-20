@@ -5,19 +5,25 @@ services:
         image: {{ env.IMAGE_URL }}
         restart: always
         ports:
-            - '${PORT}:${PORT}'
-        env_file: .env
+            - '{{ secrets.UD_PORT }}:{{ secrets.UD_PORT }}'
+        environment:
+            - PORT={{ secrets.UD_PORT }}
+            - DB_HOST=db
+            - DB_PORT={{ secrets.UD_DB_PORT }}
+            - DB_USER={{ secrets.UD_DB_USER }}
+            - DB_PASSWORD={{ secrets.UD_DB_PASSWORD }}
+            - DB_DATABASE={{ secrets.UD_DB_DATABASE }}
         depends_on:
             - db
 
     db:
         image: postgres:16-alpine
         environment:
-            POSTGRES_USER: ${DB_USER}
-            POSTGRES_PASSWORD: ${DB_PASSWORD}
-            POSTGRES_DB: ${DB_DATABASE}
-            PGPORT: ${DB_PORT}
+            - POSTGRES_USER={{ secrets.UD_DB_USER }}
+            - POSTGRES_PASSWORD={{ secrets.UD_DB_PASSWORD }}
+            - POSTGRES_DB={{ secrets.UD_DB_DATABASE }}
+            - PGPORT={{ secrets.UD_DB_PORT }}
         expose:
-            - '${DB_PORT}'
+            - '{{ secrets.UD_DB_PORT }}'
         volumes:
             - ./data/db:/var/lib/postgresql/data
