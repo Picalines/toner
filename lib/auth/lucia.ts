@@ -1,6 +1,7 @@
 import { DrizzlePostgreSQLAdapter } from '@lucia-auth/adapter-drizzle'
 import { Lucia } from 'lucia'
 import { database, databaseSchema } from '../db'
+import { getAuthEnvironment } from './auth-env'
 
 const adapter = new DrizzlePostgreSQLAdapter(
 	database,
@@ -8,11 +9,13 @@ const adapter = new DrizzlePostgreSQLAdapter(
 	databaseSchema.accountTable,
 )
 
+const { AUTH_SECURE_COOKIES } = getAuthEnvironment()
+
 export const lucia = new Lucia(adapter, {
 	sessionCookie: {
 		expires: false,
 		attributes: {
-			secure: process.env.NODE_ENV === 'production',
+			secure: AUTH_SECURE_COOKIES,
 		},
 	},
 	getUserAttributes: attributes => ({

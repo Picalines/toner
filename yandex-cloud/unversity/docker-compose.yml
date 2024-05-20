@@ -13,6 +13,7 @@ services:
             - DB_USER={{ env.UD_DB_USER }}
             - DB_PASSWORD={{ env.UD_DB_PASSWORD }}
             - DB_DATABASE={{ env.UD_DB_DATABASE }}
+            - AUTH_SECURE_COOKIES=false
         depends_on:
             - db
 
