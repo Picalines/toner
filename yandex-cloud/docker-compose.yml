@@ -27,3 +27,8 @@ services:
             - '{{ env.UD_DB_PORT }}'
         volumes:
             - ./data/db:/var/lib/postgresql/data
+        healthcheck:
+          test: ["CMD-SHELL", "pg_isready -U {{ env.UD_DB_USER }} -d {{ env.UD_DB_DATABASE }}"]
+          interval: 10s
+          timeout: 10s
+          retries: 10
