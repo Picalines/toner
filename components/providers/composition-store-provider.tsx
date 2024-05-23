@@ -44,8 +44,6 @@ export default function CompositionStoreProvider({
 			edges: new Map(audioEdges.map(edge => [edge.id, edge])),
 			musicLayers: new Map(musicLayers.map(layer => [layer.id, layer])),
 			musicKeys: new Map(musicKeys.map(key => [key.id, key])),
-			selectedNodeId: null,
-			selectedEdgeId: null,
 		})
 	}
 

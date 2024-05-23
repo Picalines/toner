@@ -8,7 +8,7 @@ import {
 } from 'lucide-react'
 import { useState } from 'react'
 import { useShallow } from 'zustand/react/shallow'
-import { cn, mapIterArray, takeFirst, takeWhile } from '@/lib/utils'
+import { cn, takeFirst, takeWhile } from '@/lib/utils'
 import { MusicLayerId } from '@/schemas/music'
 import { CompositionStore } from '@/stores/composition-store'
 import { EditorStore } from '@/stores/editor-store'
@@ -80,11 +80,19 @@ export default function MusicLayerSelector({ className }: Props) {
 	}
 
 	const onSelectRename = () => {
+		if (!selectedMusicLayerId) {
+			return
+		}
+
 		renameMusicLayer(selectedMusicLayerId, inputValue)
 		closeCommand()
 	}
 
 	const onSelectDelete = () => {
+		if (!selectedMusicLayerId) {
+			return
+		}
+
 		const nextLayerToSelect = takeFirst(
 			takeWhile(musicLayers.keys(), id => id != selectedMusicLayerId),
 		)
@@ -93,7 +101,9 @@ export default function MusicLayerSelector({ className }: Props) {
 		closeCommand()
 	}
 
-	const currentLayerName = musicLayers.get(selectedMusicLayerId)?.name
+	const currentLayerName = selectedMusicLayerId
+		? musicLayers.get(selectedMusicLayerId)?.name
+		: null
 
 	return (
 		<div className={cn('bg-background', className)}>
@@ -119,8 +129,7 @@ export default function MusicLayerSelector({ className }: Props) {
 						/>
 						<CommandList>
 							<CommandGroup className="px-0" forceMount>
-								{mapIterArray(
-									musicLayers.values(),
+								{[...musicLayers.values()].map(
 									({ id: layerId, name: layerName }) => (
 										<CommandItem
 											key={layerId}

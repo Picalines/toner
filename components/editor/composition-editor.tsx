@@ -1,8 +1,7 @@
 'use client'
 
 import { useEffect, useRef } from 'react'
-import { cn, takeFirst } from '@/lib/utils'
-import { AudioNodeId, audioNodeDefinitions } from '@/schemas/audio-node'
+import { cn } from '@/lib/utils'
 import { CompositionChangeSummary } from '@/schemas/composition'
 import EditorStoreProvider, {
 	useEditorStore,
@@ -13,9 +12,7 @@ import {
 	ResizablePanelGroup,
 } from '@/components/ui/resizable'
 import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area'
-import { AudioNode } from '@/stores/composition-store'
 import { EditorPanelLayout, EditorStore } from '@/stores/editor-store'
-import { useCompositionStoreApi } from '../providers/composition-store-provider'
 import AudioNodeFlow from './audio-node-flow'
 import CompositionEditorHeader from './composition-editor-header'
 import CompositionInfoModal from './composition-info-modal'
@@ -23,7 +20,6 @@ import CreateNodeModal from './create-node-modal'
 import MusicKeyEditor from './music-key-editor'
 import NodePropertiesEditor from './node-properties-editor'
 import { useCompositionChangeWatcher } from './use-composition-change-watcher'
-import { useSelectedInstrumentWatcher } from './use-selected-instrument-watcher'
 import { useToneEditorWatcher } from './use-tone-editor-watcher'
 
 type Props = Readonly<{
@@ -41,9 +37,6 @@ export default function CompositionEditor({
 	className,
 	onCompositionUpdate,
 }: Props) {
-	const { nodes: audioNodes, musicLayers } =
-		useCompositionStoreApi().getState()
-
 	return (
 		<div
 			className={cn(
@@ -51,11 +44,7 @@ export default function CompositionEditor({
 				className,
 			)}
 		>
-			<EditorStoreProvider
-				panelLayout={panelLayout}
-				selectedInstrumentId={findAnyInstrumentNodeId(audioNodes)}
-				selectedMusicLayerId={takeFirst(musicLayers.keys()) ?? ''}
-			>
+			<EditorStoreProvider panelLayout={panelLayout}>
 				<CompositionEditorHeader />
 				<CompositionEditorPanels
 					submitDelay={submitDelay}
@@ -80,7 +69,6 @@ function CompositionEditorPanels({
 	onCompositionUpdate,
 }: EditorPanelsProps) {
 	useCompositionChangeWatcher({ submitDelay, onCompositionUpdate })
-	useSelectedInstrumentWatcher()
 	useToneEditorWatcher()
 
 	const panelLayout = useEditorStore(panelLayoutSelector)
@@ -129,21 +117,4 @@ function MusicKeyEditorPanel() {
 			<ScrollBar orientation="vertical" />
 		</ScrollArea>
 	)
-}
-
-function findAnyInstrumentNodeId(
-	audioNodes: Map<AudioNodeId, AudioNode>,
-): AudioNodeId | null {
-	for (const node of audioNodes.values()) {
-		const {
-			id: nodeId,
-			data: { type: nodeType },
-		} = node
-
-		if (audioNodeDefinitions[nodeType].group == 'instrument') {
-			return nodeId
-		}
-	}
-
-	return null
 }

@@ -14,8 +14,8 @@ const nodeGroupClassNames: Record<AudioNodeGroup, string> = {
 	component: tw`bg-cyan-500`,
 }
 
-const instrumentSelector = ({ selectedInstrumentId }: EditorStore) =>
-	selectedInstrumentId
+const instrumentSelector = ({ playbackInstrumentId }: EditorStore) =>
+	playbackInstrumentId
 
 export default function AudioNodeDisplay({
 	id: nodeId,

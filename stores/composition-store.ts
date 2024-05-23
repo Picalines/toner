@@ -2,10 +2,8 @@ import {
 	Connection,
 	type Edge,
 	type EdgeChange,
-	EdgeSelectionChange,
 	type Node,
 	type NodeChange,
-	NodeSelectionChange,
 	addEdge,
 	applyEdgeChanges,
 	applyNodeChanges,
@@ -69,9 +67,6 @@ export type CompositionState = {
 
 	musicLayers: Map<MusicLayerId, MusicLayer>
 	musicKeys: Map<MusicKeyId, MusicKey>
-
-	selectedNodeId: AudioNodeId | null // TODO: move selected state to editor store
-	selectedEdgeId: AudioEdgeId | null
 }
 
 const MAX_HISTORY_LENGTH = 100
@@ -238,22 +233,6 @@ export function createCompositionStore(initialState: CompositionState) {
 				if (compChanges.length) {
 					addChanges(...compChanges)
 				}
-
-				const selectChanges = changes.filter(
-					(c): c is NodeSelectionChange => c.type == 'select',
-				)
-
-				if (selectChanges.length) {
-					set({
-						selectedNodeId:
-							selectChanges.find(c => c.selected)?.id ?? null,
-					})
-				} else if (
-					prevState.selectedNodeId &&
-					!nodes.has(prevState.selectedNodeId)
-				) {
-					set({ selectedNodeId: null })
-				}
 			},
 
 			applyEdgeChanges: changes => {
@@ -276,22 +255,6 @@ export function createCompositionStore(initialState: CompositionState) {
 
 				if (compChanges.length) {
 					addChanges(...compChanges)
-				}
-
-				const selectChanges = changes.filter(
-					(c): c is EdgeSelectionChange => c.type == 'select',
-				)
-
-				if (selectChanges.length) {
-					set({
-						selectedEdgeId:
-							selectChanges.find(c => c.selected)?.id ?? null,
-					})
-				} else if (
-					prevState.selectedEdgeId &&
-					!edges.has(prevState.selectedEdgeId)
-				) {
-					set({ selectedEdgeId: null })
 				}
 			},
 

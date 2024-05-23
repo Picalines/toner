@@ -12,7 +12,9 @@ import {
 	audioNodeDefinitions,
 } from '@/schemas/audio-node'
 import { CompositionStore } from '@/stores/composition-store'
+import { EditorStore } from '@/stores/editor-store'
 import { useCompositionStore } from '../providers/composition-store-provider'
+import { useEditorStore } from '../providers/editor-store-provider'
 import { Input } from '../ui/input'
 import { ScrollArea, ScrollBar } from '../ui/scroll-area'
 import { Slider } from '../ui/slider'
@@ -21,15 +23,14 @@ type Props = Readonly<{
 	className?: string
 }>
 
-const currentNodeCompSelector = ({
-	selectedNodeId,
-	getNodeById,
-}: CompositionStore) => ({ selectedNodeId, getNodeById })
+const getNodeSelector = ({ getNodeById }: CompositionStore) => getNodeById
+
+const nodeSelector = ({ nodeSelection }: EditorStore) =>
+	nodeSelection.length == 1 ? nodeSelection[0] : null
 
 export default function NodePropertiesEditor({ className }: Props) {
-	const { selectedNodeId, getNodeById } = useCompositionStore(
-		useShallow(currentNodeCompSelector),
-	)
+	const getNodeById = useCompositionStore(getNodeSelector)
+	const selectedNodeId = useEditorStore(nodeSelector)
 
 	const selectedNode = selectedNodeId
 		? getNodeById(selectedNodeId)?.data
@@ -75,9 +76,8 @@ const renameNodeSelector = ({ renameNode }: CompositionStore) => ({
 })
 
 function NodeNameInput() {
-	const { selectedNodeId: nodeId, getNodeById } = useCompositionStore(
-		useShallow(currentNodeCompSelector),
-	)
+	const getNodeById = useCompositionStore(getNodeSelector)
+	const nodeId = useEditorStore(nodeSelector)
 
 	const { renameNode } = useCompositionStore(useShallow(renameNodeSelector))
 
@@ -132,9 +132,8 @@ function NodePropertySlider<T extends AudioNodeType>({
 	property,
 	className,
 }: PropertySliderProps<T>) {
-	const { selectedNodeId: nodeId, getNodeById } = useCompositionStore(
-		useShallow(currentNodeCompSelector),
-	)
+	const getNodeById = useCompositionStore(getNodeSelector)
+	const nodeId = useEditorStore(nodeSelector)
 
 	const { setNodeProperty } = useCompositionStore(
 		useShallow(nodePropertySelector),

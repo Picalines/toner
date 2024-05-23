@@ -26,7 +26,7 @@ export default function MusicKeyEditor({ className }: Props) {
 
 	const onKeyDown = useCallback(
 		async ({ note }: KeyEvent) => {
-			const { selectedInstrumentId: instrumentId } =
+			const { playbackInstrumentId: instrumentId } =
 				editorStore.getState()
 			const { resumeContext, getNodeById: getToneNode } =
 				toneStore.getState()
@@ -45,7 +45,7 @@ export default function MusicKeyEditor({ className }: Props) {
 
 	const onKeyUp = useCallback(
 		({ note }: KeyEvent) => {
-			const { selectedInstrumentId: instrumentId } =
+			const { playbackInstrumentId: instrumentId } =
 				editorStore.getState()
 			const { getNodeById: getToneNode } = toneStore.getState()
 

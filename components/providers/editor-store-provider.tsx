@@ -2,38 +2,70 @@
 
 import { PropsWithChildren, createContext, useContext, useRef } from 'react'
 import { useStore } from 'zustand'
+import { takeFirst } from '@/lib/utils'
 import {
-	EditorState,
+	AudioEdgeId,
+	AudioNodeId,
+	audioNodeDefinitions,
+} from '@/schemas/audio-node'
+import { MusicLayerId } from '@/schemas/music'
+import { AudioNode } from '@/stores/composition-store'
+import {
+	EditorPanelLayout,
 	EditorStore,
 	EditorStoreApi,
 	createEditorStore,
 } from '@/stores/editor-store'
+import { useCompositionStoreApi } from './composition-store-provider'
 
 const EditorStoreContext = createContext<EditorStoreApi | null>(null)
 
 type Props = PropsWithChildren<
-	Readonly<
-		Omit<EditorState, 'dirtyState' | 'openedModal' | 'nodeCursor'> & {
-			nodeCursorX?: number
-			nodeCursorY?: number
-		}
-	>
+	Readonly<{
+		panelLayout?: EditorPanelLayout
+		nodeCursorX?: number
+		nodeCursorY?: number
+		nodeSelection?: AudioNodeId[]
+		edgeSelection?: AudioEdgeId[]
+		selectedInstrumentId?: AudioNodeId | null
+		selectedMusicLayerId?: MusicLayerId | null
+	}>
 >
 
 export default function EditorStoreProvider({
 	children,
+	panelLayout = 'horizontal',
 	nodeCursorX = 0,
 	nodeCursorY = 0,
-	...initialState
+	selectedInstrumentId,
+	selectedMusicLayerId,
+	nodeSelection = [],
+	edgeSelection = [],
 }: Props) {
+	const compositionStore = useCompositionStoreApi()
+
 	const storeRef = useRef<EditorStoreApi>()
 
 	if (!storeRef.current) {
+		const { nodes: audioNodes, musicLayers } = compositionStore.getState()
+
+		if (selectedInstrumentId === undefined) {
+			selectedInstrumentId = findAnyInstrumentNodeId(audioNodes)
+		}
+
+		if (selectedMusicLayerId === undefined) {
+			selectedMusicLayerId = takeFirst(musicLayers.keys())
+		}
+
 		storeRef.current = createEditorStore({
-			...initialState,
+			panelLayout,
 			dirtyState: 'clean',
 			openedModal: null,
 			nodeCursor: [nodeCursorX, nodeCursorY],
+			nodeSelection,
+			edgeSelection,
+			playbackInstrumentId: selectedInstrumentId,
+			selectedMusicLayerId,
 		})
 	}
 
@@ -58,4 +90,21 @@ export function useEditorStoreApi(): EditorStoreApi {
 
 export function useEditorStore<T>(selector: (store: EditorStore) => T): T {
 	return useStore(useEditorStoreApi(), selector)
+}
+
+function findAnyInstrumentNodeId(
+	audioNodes: Map<AudioNodeId, AudioNode>,
+): AudioNodeId | null {
+	for (const node of audioNodes.values()) {
+		const {
+			id: nodeId,
+			data: { type: nodeType },
+		} = node
+
+		if (audioNodeDefinitions[nodeType].group == 'instrument') {
+			return nodeId
+		}
+	}
+
+	return null
 }

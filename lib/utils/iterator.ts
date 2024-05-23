@@ -93,9 +93,22 @@ export function* mapIter<T, U>(
 	}
 }
 
-export function mapIterArray<T, U>(
+export function separate<T>(
 	iterable: Iterable<T>,
-	map: (value: T, index: number) => U,
-): U[] {
-	return Array.from(mapIter(iterable, map))
+	selector: (value: T, index: number) => boolean | null,
+): [T[], T[]] {
+	const trueItems: T[] = []
+	const falseItems: T[] = []
+
+	let index = 0
+	for (const item of iterable) {
+		const dest = selector(item, index++)
+		if (dest === null) {
+			continue
+		}
+
+		;(dest ? trueItems : falseItems).push(item)
+	}
+
+	return [trueItems, falseItems]
 }
