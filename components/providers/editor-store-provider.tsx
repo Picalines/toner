@@ -66,6 +66,7 @@ export default function EditorStoreProvider({
 			edgeSelection,
 			playbackInstrumentId: selectedInstrumentId,
 			selectedMusicLayerId,
+			changeHistory: [],
 		})
 	}
 

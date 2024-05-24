@@ -1,6 +1,7 @@
 import { MouseEvent, MouseEventHandler, memo } from 'react'
+import { musicNoteInfo } from '@/lib/music'
 import { cn, range, tw } from '@/lib/utils'
-import { MAX_OCTAVE, OCTAVE_LENGTH, musicNoteInfo } from '@/schemas/music'
+import { MAX_MUSIC_OCTAVE, MUSIC_OCTAVE_LENGTH } from '@/schemas/music'
 
 export type KeyEvent = {
 	note: number
@@ -20,7 +21,7 @@ type PianoRollProps = Readonly<{
 
 export function PianoRoll({
 	minOctave = 0,
-	maxOctave = MAX_OCTAVE,
+	maxOctave = MAX_MUSIC_OCTAVE,
 	lineHeight = 16,
 	keyClassName = tw`select-none rounded-br rounded-tr pr-1 text-right outline outline-2 -outline-offset-1 outline-border [&.down]:text-opacity-50`,
 	naturalKeyClassName = tw`bg-white text-black dark:bg-neutral-600 dark:text-neutral-900 [&.down]:bg-neutral-100 dark:[&.down]:bg-neutral-700`,
@@ -51,7 +52,7 @@ export default memo(PianoRoll)
 
 const stepSizedKeys = new Set([2, 7, 9])
 
-const octaveKeys = [...range(OCTAVE_LENGTH)].map(keyIndex => {
+const octaveKeys = [...range(MUSIC_OCTAVE_LENGTH)].map(keyIndex => {
 	const { symbol, accidental } = musicNoteInfo(keyIndex)
 	return {
 		letter: symbol[0],
@@ -88,7 +89,7 @@ function PianoRollOctave({
 		}
 
 		const callbackProp = isDown ? onKeyDown : onKeyUp
-		callbackProp?.({ note: octave * OCTAVE_LENGTH + keyIndex })
+		callbackProp?.({ note: octave * MUSIC_OCTAVE_LENGTH + keyIndex })
 		button.classList.toggle('down', isDown)
 	}
 
@@ -113,7 +114,7 @@ function PianoRollOctave({
 	return (
 		<div
 			className="relative flex flex-col-reverse"
-			style={{ height: lineHeight * OCTAVE_LENGTH }}
+			style={{ height: lineHeight * MUSIC_OCTAVE_LENGTH }}
 			onMouseDown={onMouseDown}
 			onMouseUp={onMouseUp}
 		>

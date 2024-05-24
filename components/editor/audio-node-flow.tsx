@@ -5,6 +5,7 @@ import {
 	Background,
 	BackgroundVariant,
 	ColorMode,
+	Connection,
 	EdgeChange,
 	NodeChange,
 	ReactFlow,
@@ -70,6 +71,8 @@ function AudioReactFlow() {
 		const { selectNodes, selectInstrument, playbackInstrumentId } =
 			editorStore.getState()
 
+		applyNodeChanges(nodeChanges)
+
 		for (const change of nodeChanges) {
 			switch (change.type) {
 				case 'remove': {
@@ -99,19 +102,35 @@ function AudioReactFlow() {
 				}
 			}
 		}
-
-		applyNodeChanges(nodeChanges)
 	}
 
 	const onEdgesChanges = (edgeChanges: EdgeChange<AudioEdge>[]) => {
 		const { applyEdgeChanges } = compositionStore.getState()
-		applyEdgeChanges(edgeChanges)
 		const { selectEdges } = editorStore.getState()
+		applyEdgeChanges(edgeChanges)
 		for (const change of edgeChanges) {
 			if (change.type == 'select') {
 				selectEdges(change.selected ? 'add' : 'remove', [change.id])
 			}
 		}
+	}
+
+	const onConnect = (connection: Connection) => {
+		const { connect } = compositionStore.getState()
+		const { applyChange } = editorStore.getState()
+
+		const newEdge = connect(connection)
+		if (!newEdge) {
+			return
+		}
+
+		const { id, source, sourceHandle, target, targetHandle } = newEdge
+		applyChange({
+			type: 'edge-add',
+			id,
+			source: [source, parseInt(sourceHandle ?? '0')],
+			target: [target, parseInt(targetHandle ?? '0')],
+		})
 	}
 
 	return (
@@ -122,7 +141,7 @@ function AudioReactFlow() {
 			edges={[...edges.values()]}
 			onNodesChange={onNodeChanges}
 			onEdgesChange={onEdgesChanges}
-			onConnect={compositionStore.getState().connect}
+			onConnect={onConnect}
 			onPaneClick={setCursorOnClick}
 			colorMode={colorMode}
 			nodeOrigin={[0.5, 0.5]}

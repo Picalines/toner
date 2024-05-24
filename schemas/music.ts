@@ -1,22 +1,18 @@
 import { z } from 'zod'
-import { IntRange, zodIs } from '@/lib/utils'
+import { IntRange } from '@/lib/utils'
 import { audioNodeSchemas } from './audio-node'
 
-export const NATURAL_NOTES_COUNT = 7
+export const MUSIC_NATURAL_NOTES = 7
 
-export const OCTAVE_LENGTH = 12
+export const MUSIC_OCTAVE_LENGTH = 12
 
-export const MAX_OCTAVE = 9
+export const MAX_MUSIC_OCTAVE = 9
 
-export const NUMBER_OF_NOTES = OCTAVE_LENGTH * (MAX_OCTAVE + 1)
-
-export type MusicLayerId = z.infer<typeof layerId>
-
-export type MusicKeyId = z.infer<(typeof musicSchemas)['key']['id']>
+export const MAX_MUSIC_NOTE = MUSIC_OCTAVE_LENGTH * (MAX_MUSIC_OCTAVE + 1)
 
 const layerId = z.string().min(1).max(36)
 
-const noteSchema = z.number().int().min(0).max(NUMBER_OF_NOTES)
+const noteSchema = z.number().int().min(0).max(MAX_MUSIC_NOTE)
 
 export const musicSchemas = {
 	note: noteSchema,
@@ -37,7 +33,7 @@ export const musicSchemas = {
 	},
 }
 
-export const NOTE_SYMBOLS = [
+export const MUSIC_NOTE_SYMBOLS = [
 	'C',
 	'C#',
 	'D',
@@ -52,41 +48,14 @@ export const NOTE_SYMBOLS = [
 	'B',
 ] as const
 
-type NoteSymbol = typeof NOTE_SYMBOLS extends readonly (infer T)[] ? T : never
+export type MusicLayerId = z.infer<typeof layerId>
 
-type NoteOctave = IntRange<typeof MAX_OCTAVE>[number] | typeof MAX_OCTAVE
+export type MusicKeyId = z.infer<(typeof musicSchemas)['key']['id']>
 
-type MusicKeyString = `${NoteSymbol}${NoteOctave}`
+export type MusicNoteSymbol = (typeof MUSIC_NOTE_SYMBOLS)[number]
 
-type NoteInfo = {
-	octave: number
-	octaveHalfStep: number
-	symbol: NoteSymbol
-	accidental: boolean
-	keyString: MusicKeyString
-}
+export type MusicNoteOctave =
+	| IntRange<typeof MAX_MUSIC_OCTAVE>[number]
+	| typeof MAX_MUSIC_OCTAVE
 
-const noteInfos: NoteInfo[] = Array.from({ length: NUMBER_OF_NOTES }).map(
-	(_, absoluteHalfSteps) => {
-		const octave = Math.floor(absoluteHalfSteps / OCTAVE_LENGTH)
-
-		const octaveHalfStep = absoluteHalfSteps % OCTAVE_LENGTH
-		const symbol = NOTE_SYMBOLS[octaveHalfStep]
-
-		return {
-			octave,
-			octaveHalfStep,
-			symbol,
-			accidental: symbol.endsWith('#'),
-			keyString: `${symbol}${octave}` as MusicKeyString,
-		}
-	},
-)
-
-export function musicNoteInfo(absoluteHalfSteps: number): NoteInfo {
-	if (!zodIs(noteSchema, absoluteHalfSteps)) {
-		throw new Error(`invalid note ${String(absoluteHalfSteps)}`)
-	}
-
-	return noteInfos[absoluteHalfSteps]
-}
+export type MusicKeyString = `${MusicNoteSymbol}${MusicNoteOctave}`

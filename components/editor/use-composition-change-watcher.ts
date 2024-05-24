@@ -1,32 +1,22 @@
 import { useEffect, useRef } from 'react'
 import { useDebouncedCallback } from 'use-debounce'
-import { shallow } from 'zustand/shallow'
 import {
-	CompositionChangeSummary,
-	applyCompositionChangeToSummary,
-} from '@/schemas/composition'
+	EditorChangeSummary,
+	applyEditorChangeToSummary,
+} from '@/schemas/editor'
 import { useCompositionStoreApi } from '@/components/providers/composition-store-provider'
 import { useEditorStoreApi } from '@/components/providers/editor-store-provider'
-import { CompositionStore } from '@/stores/composition-store'
 import { EditorStore } from '@/stores/editor-store'
 
-const compSelector = ({ id, changeHistory }: CompositionStore) => ({
-	id,
-	changeHistory,
-})
+const changeSelector = ({ changeHistory }: EditorStore) => changeHistory
 
-const editorSelector = ({ dirtyState, setDirtyState }: EditorStore) => ({
-	dirtyState,
-	setDirtyState,
-})
+const dirtyStateSelector = ({ dirtyState }: EditorStore) => dirtyState
 
 const preventDefault = (event: Event) => event.preventDefault()
 
 type Props = {
 	submitDelay: number
-	onCompositionUpdate?: (
-		changeSummary: CompositionChangeSummary,
-	) => Promise<void>
+	onCompositionUpdate?: (changeSummary: EditorChangeSummary) => Promise<void>
 }
 
 export function useCompositionChangeWatcher({
@@ -36,7 +26,7 @@ export function useCompositionChangeWatcher({
 	const compositionStore = useCompositionStoreApi()
 	const editorStore = useEditorStoreApi()
 
-	const changeSummaryRef = useRef<CompositionChangeSummary>({
+	const changeSummaryRef = useRef<EditorChangeSummary>({
 		id: compositionStore.getState().id,
 		nodes: {},
 		edges: {},
@@ -45,15 +35,13 @@ export function useCompositionChangeWatcher({
 	})
 
 	const submitChanges = useDebouncedCallback(async () => {
-		const { changeHistory } = compositionStore.getState()
+		const { changeHistory, saveChanges, setDirtyState } =
+			editorStore.getState()
 
 		const lastChange = changeHistory[changeHistory.length - 1]
 		if (lastChange.type == 'save-changes') {
 			return
 		}
-
-		const { setDirtyState } = editorStore.getState()
-		const { saveChanges } = compositionStore.getState()
 
 		setDirtyState('saving')
 		saveChanges()
@@ -68,9 +56,9 @@ export function useCompositionChangeWatcher({
 	}, submitDelay)
 
 	useEffect(() => {
-		const unsubscribeComp = compositionStore.subscribe(
-			compSelector,
-			({ id: compositionId, changeHistory }) => {
+		const unsubscribeChange = editorStore.subscribe(
+			changeSelector,
+			changeHistory => {
 				if (!changeHistory.length) {
 					return
 				}
@@ -78,10 +66,10 @@ export function useCompositionChangeWatcher({
 				const { setDirtyState } = editorStore.getState()
 
 				const summary = changeSummaryRef.current
-				summary.id = compositionId
+				summary.id = compositionStore.getState().id
 
 				const lastChange = changeHistory[changeHistory.length - 1]
-				applyCompositionChangeToSummary(summary, lastChange)
+				applyEditorChangeToSummary(summary, lastChange)
 
 				if (lastChange.type != 'save-changes') {
 					setDirtyState('waiting')
@@ -89,12 +77,11 @@ export function useCompositionChangeWatcher({
 
 				void submitChanges()
 			},
-			{ equalityFn: shallow },
 		)
 
-		const unsubscribeEditor = editorStore.subscribe(
-			editorSelector,
-			({ dirtyState }) => {
+		const unsubscribeDirty = editorStore.subscribe(
+			dirtyStateSelector,
+			dirtyState => {
 				// NOTICE: doesn't block nextjs navigation, need to persist unsaved
 				// changes in localStorage... and fix conflicts i guess
 				if (dirtyState == 'clean') {
@@ -103,12 +90,11 @@ export function useCompositionChangeWatcher({
 					window.addEventListener('beforeunload', preventDefault)
 				}
 			},
-			{ equalityFn: shallow },
 		)
 
 		return () => {
-			unsubscribeComp()
-			unsubscribeEditor()
+			unsubscribeChange()
+			unsubscribeDirty()
 		}
 	}, [compositionStore, editorStore, submitChanges])
 }

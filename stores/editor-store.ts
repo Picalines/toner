@@ -1,6 +1,8 @@
 import { StoreApi, create } from 'zustand'
 import { persist, subscribeWithSelector } from 'zustand/middleware'
+import { mergeEditorChange } from '@/lib/editor/merge-change'
 import { AudioEdgeId, AudioNodeId } from '@/schemas/audio-node'
+import { EditorChange } from '@/schemas/editor'
 import { MusicLayerId } from '@/schemas/music'
 
 export type EditorDirtyState = 'clean' | 'waiting' | 'saving'
@@ -23,6 +25,8 @@ export type EditorState = {
 	selectedMusicLayerId: MusicLayerId | null
 
 	playbackInstrumentId: AudioNodeId | null
+
+	changeHistory: EditorChange[]
 }
 
 export type EditorActions = {
@@ -40,6 +44,9 @@ export type EditorActions = {
 	selectMusicLayer: (id: MusicLayerId) => void
 
 	selectInstrument: (id: AudioNodeId | null) => void
+
+	applyChange: (change: EditorChange) => void
+	saveChanges: () => void
 }
 
 export type EditorStore = EditorState & EditorActions
@@ -76,6 +83,13 @@ export function createEditorStore(initialState: EditorState) {
 
 		selectInstrument: id => set({ playbackInstrumentId: id }),
 		selectMusicLayer: id => set({ selectedMusicLayerId: id }),
+
+		applyChange: change =>
+			set({
+				changeHistory: mergeEditorChange(get().changeHistory, change),
+			}),
+
+		saveChanges: () => get().applyChange({ type: 'save-changes' }),
 	})
 
 	return create(

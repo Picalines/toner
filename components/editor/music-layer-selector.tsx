@@ -7,13 +7,13 @@ import {
 	Trash2Icon,
 } from 'lucide-react'
 import { useState } from 'react'
-import { useShallow } from 'zustand/react/shallow'
+import { useStore } from 'zustand'
 import { cn, takeFirst, takeWhile } from '@/lib/utils'
 import { MusicLayerId } from '@/schemas/music'
 import { CompositionStore } from '@/stores/composition-store'
 import { EditorStore } from '@/stores/editor-store'
-import { useCompositionStore } from '../providers/composition-store-provider'
-import { useEditorStore } from '../providers/editor-store-provider'
+import { useCompositionStoreApi } from '../providers/composition-store-provider'
+import { useEditorStoreApi } from '../providers/editor-store-provider'
 import { Button } from '../ui/button'
 import {
 	Command,
@@ -26,37 +26,17 @@ import { Popover, PopoverContent, PopoverTrigger } from '../ui/popover'
 
 type Props = { className?: string }
 
-const compositionSelector = ({
-	musicLayers,
-	createMusicLayer,
-	renameMusicLayer,
-	removeMusicLayer,
-}: CompositionStore) => ({
-	musicLayers,
-	createMusicLayer,
-	renameMusicLayer,
-	removeMusicLayer,
-})
+const musicLayersSelector = ({ musicLayers }: CompositionStore) => musicLayers
 
-const editorSelector = ({
-	selectedMusicLayerId,
-	selectMusicLayer,
-}: EditorStore) => ({
-	selectedMusicLayerId,
-	selectMusicLayer,
-})
+const currentLayerSelector = ({ selectedMusicLayerId }: EditorStore) =>
+	selectedMusicLayerId
 
 export default function MusicLayerSelector({ className }: Props) {
-	const {
-		musicLayers,
-		createMusicLayer,
-		renameMusicLayer,
-		removeMusicLayer,
-	} = useCompositionStore(useShallow(compositionSelector))
+	const compositionStore = useCompositionStoreApi()
+	const editorStore = useEditorStoreApi()
 
-	const { selectedMusicLayerId, selectMusicLayer } = useEditorStore(
-		useShallow(editorSelector),
-	)
+	const musicLayers = useStore(compositionStore, musicLayersSelector)
+	const selectedMusicLayerId = useStore(editorStore, currentLayerSelector)
 
 	const [open, setOpen] = useState(false)
 	const [inputValue, setInputValue] = useState('')
@@ -67,14 +47,19 @@ export default function MusicLayerSelector({ className }: Props) {
 	}
 
 	const onSelectLayer = (layerId: MusicLayerId) => {
+		const { selectMusicLayer } = editorStore.getState()
 		selectMusicLayer(layerId)
 		closeCommand()
 	}
 
 	const onSelectCreate = () => {
-		const newLayerId = createMusicLayer(inputValue)
-		if (newLayerId) {
-			selectMusicLayer(newLayerId)
+		const { createMusicLayer } = compositionStore.getState()
+		const { selectMusicLayer, applyChange } = editorStore.getState()
+		const newLayer = createMusicLayer(inputValue)
+		if (newLayer) {
+			const { id, name } = newLayer
+			selectMusicLayer(id)
+			applyChange({ type: 'music-layer-add', id, name })
 		}
 		closeCommand()
 	}
@@ -84,7 +69,16 @@ export default function MusicLayerSelector({ className }: Props) {
 			return
 		}
 
+		const { renameMusicLayer } = compositionStore.getState()
+		const { applyChange } = editorStore.getState()
+
 		renameMusicLayer(selectedMusicLayerId, inputValue)
+		applyChange({
+			type: 'music-layer-update',
+			id: selectedMusicLayerId,
+			name: inputValue,
+		})
+
 		closeCommand()
 	}
 
@@ -93,10 +87,16 @@ export default function MusicLayerSelector({ className }: Props) {
 			return
 		}
 
+		const { removeMusicLayer } = compositionStore.getState()
+		const { selectMusicLayer, applyChange } = editorStore.getState()
+
 		const nextLayerToSelect = takeFirst(
 			takeWhile(musicLayers.keys(), id => id != selectedMusicLayerId),
 		)
+
 		removeMusicLayer(selectedMusicLayerId)
+		applyChange({ type: 'music-layer-remove', id: selectedMusicLayerId })
+
 		selectMusicLayer(nextLayerToSelect!)
 		closeCommand()
 	}

@@ -13,16 +13,11 @@ import {
 	musicLayerTable,
 } from '@/lib/db'
 import { assertUnreachable, zodIs } from '@/lib/utils'
-import {
-	CompositionChangeSummary,
-	compositionSchemas,
-} from '@/schemas/composition'
+import { EditorChangeSummary, editorSchemas } from '@/schemas/editor'
 import { MusicLayerId } from '@/schemas/music'
 
-export async function updateComposition(
-	changeSummary: CompositionChangeSummary,
-) {
-	if (!zodIs(compositionSchemas.changeSummary, changeSummary)) {
+export async function updateComposition(changeSummary: EditorChangeSummary) {
+	if (!zodIs(editorSchemas.changeSummary, changeSummary)) {
 		// TODO: error response
 		return
 	}

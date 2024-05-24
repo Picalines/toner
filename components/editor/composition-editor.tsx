@@ -2,7 +2,7 @@
 
 import { useEffect, useRef } from 'react'
 import { cn } from '@/lib/utils'
-import { CompositionChangeSummary } from '@/schemas/composition'
+import { EditorChangeSummary } from '@/schemas/editor'
 import EditorStoreProvider, {
 	useEditorStore,
 } from '@/components/providers/editor-store-provider'
@@ -26,9 +26,7 @@ type Props = Readonly<{
 	submitDelay?: number
 	panelLayout?: EditorPanelLayout
 	className?: string
-	onCompositionUpdate?: (
-		changeSummary: CompositionChangeSummary,
-	) => Promise<void>
+	onCompositionUpdate?: (changeSummary: EditorChangeSummary) => Promise<void>
 }>
 
 export default function CompositionEditor({

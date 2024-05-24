@@ -2,12 +2,18 @@
 
 import { useEffect, useRef } from 'react'
 import * as Tone from 'tone'
-import { createToneNode } from '@/schemas/tone-node'
+import { createToneNode } from '@/lib/tone'
 import { useCompositionStoreApi } from '../providers/composition-store-provider'
+import { useEditorStoreApi } from '../providers/editor-store-provider'
 import { useToneStoreApi } from '../providers/tone-store-provider'
+
+// TODO: separate this thing in to parts:
+//  - one that creates initial nodes from compositionStore
+//  - second one that applies changes coming from editorStore
 
 export function useToneEditorWatcher() {
 	const compositionStore = useCompositionStoreApi()
+	const editorStore = useEditorStoreApi()
 	const toneStore = useToneStoreApi()
 
 	const toneSetters =
@@ -21,8 +27,8 @@ export function useToneEditorWatcher() {
 	edgeDisconnects.current ??= new Map()
 
 	useEffect(() => {
-		const compUnsubscribe = compositionStore.subscribe(
-			comp => comp.changeHistory,
+		const editorUnsubscribe = editorStore.subscribe(
+			editor => editor.changeHistory,
 			changeHistory => {
 				const { getNodeById, addNode, connect, disposeNode } =
 					toneStore.getState()
@@ -112,11 +118,11 @@ export function useToneEditorWatcher() {
 		)
 
 		return () => {
-			compUnsubscribe()
+			editorUnsubscribe()
 			toneUnsubscribe()
 
 			edgeDisconnects.current?.clear()
 			toneStore.getState().disposeAll()
 		}
-	}, [compositionStore, toneStore])
+	}, [compositionStore, editorStore, toneStore])
 }

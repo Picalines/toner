@@ -15,10 +15,7 @@ import {
 } from '../ui/command'
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '../ui/dialog'
 
-const modalSelector = ({ openedModal, closeModal }: EditorStore) => ({
-	openedModal,
-	closeModal,
-})
+const modalSelector = ({ openedModal }: EditorStore) => openedModal
 
 const commandItems = Object.entries(audioNodeDefinitions).flatMap(
 	([nodeType, { group }]) =>
@@ -29,23 +26,36 @@ const commandItems = Object.entries(audioNodeDefinitions).flatMap(
 
 export default function CreateNodeModal() {
 	const compositionStore = useCompositionStoreApi()
-
 	const editorStore = useEditorStoreApi()
-	const { openedModal, closeModal } = useStore(
-		editorStore,
-		useShallow(modalSelector),
-	)
+
+	const openedModal = useStore(editorStore, useShallow(modalSelector))
 
 	const onOpenChange = (open: boolean) => {
 		if (!open) {
-			closeModal()
+			editorStore.getState().closeModal()
 		}
 	}
 
 	const onItemSelect = (nodeType: AudioNodeType) => () => {
 		const { createNode } = compositionStore.getState()
-		createNode(nodeType, editorStore.getState().nodeCursor)
-		closeModal()
+		const { applyChange } = editorStore.getState()
+
+		const {
+			id,
+			data: { label, properties },
+			position: { x: positionX, y: positionY },
+		} = createNode(nodeType, editorStore.getState().nodeCursor)
+
+		applyChange({
+			type: 'node-add',
+			nodeType,
+			id,
+			label,
+			properties,
+			position: [positionX, positionY],
+		})
+
+		editorStore.getState().closeModal()
 	}
 
 	return (

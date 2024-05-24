@@ -1,8 +1,7 @@
 'use client'
 
 import { MousePointerClickIcon } from 'lucide-react'
-import { ChangeEvent, useCallback, useState } from 'react'
-import { useShallow } from 'zustand/react/shallow'
+import { ChangeEvent, useState } from 'react'
 import { KeyOfUnion, cn, mapRange, trimFraction, tw } from '@/lib/utils'
 import {
 	AudioNodeGroup,
@@ -25,12 +24,14 @@ type Props = Readonly<{
 
 const getNodeSelector = ({ getNodeById }: CompositionStore) => getNodeById
 
-const nodeSelector = ({ nodeSelection }: EditorStore) =>
+const selectedNodeSelector = ({ nodeSelection }: EditorStore) =>
 	nodeSelection.length == 1 ? nodeSelection[0] : null
+
+const applyChangeSelector = ({ applyChange }: EditorStore) => applyChange
 
 export default function NodePropertiesEditor({ className }: Props) {
 	const getNodeById = useCompositionStore(getNodeSelector)
-	const selectedNodeId = useEditorStore(nodeSelector)
+	const selectedNodeId = useEditorStore(selectedNodeSelector)
 
 	const selectedNode = selectedNodeId
 		? getNodeById(selectedNodeId)?.data
@@ -71,15 +72,14 @@ export default function NodePropertiesEditor({ className }: Props) {
 	)
 }
 
-const renameNodeSelector = ({ renameNode }: CompositionStore) => ({
-	renameNode,
-})
+const renameNodeSelector = ({ renameNode }: CompositionStore) => renameNode
 
 function NodeNameInput() {
-	const getNodeById = useCompositionStore(getNodeSelector)
-	const nodeId = useEditorStore(nodeSelector)
+	const nodeId = useEditorStore(selectedNodeSelector)
+	const applyChange = useEditorStore(applyChangeSelector)
 
-	const { renameNode } = useCompositionStore(useShallow(renameNodeSelector))
+	const getNodeById = useCompositionStore(getNodeSelector)
+	const renameNode = useCompositionStore(renameNodeSelector)
 
 	const { type: nodeType, label } =
 		(nodeId ? getNodeById(nodeId)?.data : null) ?? {}
@@ -90,15 +90,14 @@ function NodeNameInput() {
 		? audioNodeDefinitions[nodeType]
 		: { group: null }
 
-	const onNameChange = useCallback(
-		(event: ChangeEvent<HTMLInputElement>) => {
-			if (nodeId) {
-				renameNode(nodeId, event.target.value)
-			}
-			setLabelInput(event.target.value)
-		},
-		[renameNode, nodeId],
-	)
+	const onNameChange = (event: ChangeEvent<HTMLInputElement>) => {
+		const label = event.target.value
+		if (nodeId) {
+			renameNode(nodeId, label)
+			applyChange({ type: 'node-update', id: nodeId, label })
+			setLabelInput(label)
+		}
+	}
 
 	const nodeGroupClassNames: Record<AudioNodeGroup, string> = {
 		output: tw`bg-neutral-500`,
@@ -124,30 +123,30 @@ type PropertySliderProps<T extends AudioNodeType> = Readonly<{
 	className?: string
 }>
 
-const nodePropertySelector = ({ setNodeProperty }: CompositionStore) => ({
-	setNodeProperty,
-})
+const nodePropertySelector = ({ setNodeProperty }: CompositionStore) =>
+	setNodeProperty
 
 function NodePropertySlider<T extends AudioNodeType>({
 	property,
 	className,
 }: PropertySliderProps<T>) {
 	const getNodeById = useCompositionStore(getNodeSelector)
-	const nodeId = useEditorStore(nodeSelector)
+	const setNodeProperty = useCompositionStore(nodePropertySelector)
 
-	const { setNodeProperty } = useCompositionStore(
-		useShallow(nodePropertySelector),
-	)
+	const nodeId = useEditorStore(selectedNodeSelector)
+	const applyChange = useEditorStore(applyChangeSelector)
 
-	const onSliderChange = useCallback(
-		(values: number[]) => {
-			if (nodeId) {
-				const [propertyValue] = values
-				setNodeProperty(nodeId, property, propertyValue)
-			}
-		},
-		[setNodeProperty, nodeId, property],
-	)
+	const onSliderChange = (values: number[]) => {
+		if (nodeId) {
+			const [propertyValue] = values
+			setNodeProperty(nodeId, property, propertyValue)
+			applyChange({
+				type: 'node-update',
+				id: nodeId,
+				properties: { [property]: propertyValue },
+			})
+		}
+	}
 
 	const node = nodeId ? getNodeById(nodeId)?.data : null
 

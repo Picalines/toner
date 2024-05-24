@@ -2,8 +2,8 @@
 
 import { useCallback } from 'react'
 import * as Tone from 'tone'
+import { musicNoteInfo } from '@/lib/music'
 import { cn } from '@/lib/utils'
-import { musicNoteInfo } from '@/schemas/music'
 import MusicKeyEditorBackground from '@/components/editor/music-key-editor-background'
 import PianoRoll, { KeyEvent } from '@/components/editor/piano-roll'
 import { useEditorStoreApi } from '../providers/editor-store-provider'
