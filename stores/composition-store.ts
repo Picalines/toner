@@ -57,8 +57,8 @@ export type CompositionState = {
 	name: string
 	description: string
 
-	nodes: Map<AudioNodeId, AudioNode>
-	edges: Map<AudioNodeId, AudioEdge>
+	audioNodes: Map<AudioNodeId, AudioNode>
+	audioEdges: Map<AudioNodeId, AudioEdge>
 
 	musicLayers: Map<MusicLayerId, MusicLayer>
 	musicKeys: Map<MusicKeyId, MusicKey>
@@ -122,8 +122,8 @@ export function createCompositionStore(initialState: CompositionState) {
 				}
 			},
 
-			getNodeById: id => get().nodes.get(id) ?? null,
-			getEdgeById: id => get().edges.get(id) ?? null,
+			getNodeById: id => get().audioNodes.get(id) ?? null,
+			getEdgeById: id => get().audioEdges.get(id) ?? null,
 			getMusicLayerById: id => get().musicLayers.get(id) ?? null,
 			getMusicKeyById: id => get().musicKeys.get(id) ?? null,
 
@@ -158,11 +158,11 @@ export function createCompositionStore(initialState: CompositionState) {
 
 				node.data.label = label
 
-				set({ nodes: new Map(get().nodes) })
+				set({ audioNodes: new Map(get().audioNodes) })
 			},
 
 			setNodeProperty: (id, property, value) => {
-				const node = get().nodes.get(id)
+				const node = get().audioNodes.get(id)
 				if (!node) {
 					return
 				}
@@ -178,35 +178,35 @@ export function createCompositionStore(initialState: CompositionState) {
 
 				node.data.properties[safeProperty] = value
 
-				set({ nodes: new Map(get().nodes) })
+				set({ audioNodes: new Map(get().audioNodes) })
 			},
 
 			applyNodeChanges: changes => {
-				const nodes: CompositionState['nodes'] = new Map()
+				const nodes: CompositionState['audioNodes'] = new Map()
 				for (const changedNode of applyNodeChanges(
 					changes,
-					Array.from(get().nodes.values()),
+					Array.from(get().audioNodes.values()),
 				)) {
 					nodes.set(changedNode.id, changedNode)
 				}
 
-				set({ nodes })
+				set({ audioNodes: nodes })
 			},
 
 			applyEdgeChanges: changes => {
-				const edges: CompositionState['edges'] = new Map()
+				const edges: CompositionState['audioEdges'] = new Map()
 				for (const changedEdge of applyEdgeChanges(
 					changes,
-					Array.from(get().edges.values()),
+					Array.from(get().audioEdges.values()),
 				)) {
 					edges.set(changedEdge.id, changedEdge)
 				}
 
-				set({ edges })
+				set({ audioEdges: edges })
 			},
 
 			connect: ({ source, target, sourceHandle, targetHandle }) => {
-				const prevEdges = get().edges
+				const prevEdges = get().audioEdges
 				const newEdge: AudioEdge = {
 					id: nanoid(),
 					source,
@@ -220,7 +220,7 @@ export function createCompositionStore(initialState: CompositionState) {
 					return null
 				}
 
-				set({ edges: new Map(edges.map(edge => [edge.id, edge])) })
+				set({ audioEdges: new Map(edges.map(edge => [edge.id, edge])) })
 				return newEdge
 			},
 

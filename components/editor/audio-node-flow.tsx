@@ -43,7 +43,10 @@ export default function AudioNodeFlow() {
 
 const nodeTypes = { audio: AudioNodeDisplay }
 
-const flowSelector = ({ nodes, edges }: CompositionStore) => ({ nodes, edges })
+const flowSelector = ({ audioNodes, audioEdges }: CompositionStore) => ({
+	audioNodes,
+	audioEdges,
+})
 
 function AudioReactFlow() {
 	const reactFlow = useReactFlow()
@@ -56,7 +59,9 @@ function AudioReactFlow() {
 	const colorMode: ColorMode =
 		(isMounted ? (theme as ColorMode) : null) ?? 'light'
 
-	const { nodes, edges } = useCompositionStore(useShallow(flowSelector))
+	const { audioNodes, audioEdges } = useCompositionStore(
+		useShallow(flowSelector),
+	)
 
 	const setCursorOnClick = (event: MouseEvent) => {
 		const { x, y } = reactFlow.screenToFlowPosition({
@@ -137,8 +142,8 @@ function AudioReactFlow() {
 		<ReactFlow
 			className="relative"
 			nodeTypes={nodeTypes}
-			nodes={[...nodes.values()]}
-			edges={[...edges.values()]}
+			nodes={[...audioNodes.values()]}
+			edges={[...audioEdges.values()]}
 			onNodesChange={onNodeChanges}
 			onEdgesChange={onEdgesChanges}
 			onConnect={onConnect}

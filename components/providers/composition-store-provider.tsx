@@ -39,8 +39,8 @@ export default function CompositionStoreProvider({
 	if (!storeRef.current) {
 		storeRef.current = createCompositionStore({
 			...compositionState,
-			nodes: new Map(audioNodes.map(node => [node.id, node])),
-			edges: new Map(audioEdges.map(edge => [edge.id, edge])),
+			audioNodes: new Map(audioNodes.map(node => [node.id, node])),
+			audioEdges: new Map(audioEdges.map(edge => [edge.id, edge])),
 			musicLayers: new Map(musicLayers.map(layer => [layer.id, layer])),
 			musicKeys: new Map(musicKeys.map(key => [key.id, key])),
 		})

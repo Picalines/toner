@@ -94,7 +94,8 @@ export function useToneEditorWatcher() {
 
 				const { addNode, connect } = toneStore.getState()
 
-				const { nodes, edges } = compositionStore.getState()
+				const { audioNodes: nodes, audioEdges: edges } =
+					compositionStore.getState()
 
 				for (const [nodeId, node] of nodes) {
 					const { toneNode, setProperty } = createToneNode(

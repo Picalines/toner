@@ -47,7 +47,8 @@ export default function EditorStoreProvider({
 	const storeRef = useRef<EditorStoreApi>()
 
 	if (!storeRef.current) {
-		const { nodes: audioNodes, musicLayers } = compositionStore.getState()
+		const { audioNodes: audioNodes, musicLayers } =
+			compositionStore.getState()
 
 		if (selectedInstrumentId === undefined) {
 			selectedInstrumentId = findAnyInstrumentNodeId(audioNodes)
