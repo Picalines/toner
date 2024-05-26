@@ -7,15 +7,15 @@ import {
 } from 'lucide-react'
 import { ComponentProps, FunctionComponent, memo } from 'react'
 import { cn } from '@/lib/utils'
-import { EditorStore } from '@/stores/editor-store'
-import { useEditorStore } from '../providers/editor-store-provider'
-import { Button } from '../ui/button'
+import { useEditorStore } from '@/components/providers/editor-store-provider'
+import { Button } from '@/components/ui/button'
 import {
 	Tooltip,
 	TooltipArrow,
 	TooltipContent,
 	TooltipTrigger,
-} from '../ui/tooltip'
+} from '@/components/ui/tooltip'
+import { EditorStore } from '@/stores/editor-store'
 
 const modalSelector = ({ openModal }: EditorStore) => openModal
 

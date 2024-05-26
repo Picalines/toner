@@ -20,15 +20,15 @@ import { useShallow } from 'zustand/react/shallow'
 import { useIsMountedState } from '@/lib/hooks'
 import { audioNodeDefinitions } from '@/schemas/audio-node'
 import {
+	useCompositionStore,
+	useCompositionStoreApi,
+} from '@/components/providers/composition-store-provider'
+import { useEditorStoreApi } from '@/components/providers/editor-store-provider'
+import {
 	AudioEdge,
 	AudioNode,
 	CompositionStore,
 } from '@/stores/composition-store'
-import {
-	useCompositionStore,
-	useCompositionStoreApi,
-} from '../providers/composition-store-provider'
-import { useEditorStoreApi } from '../providers/editor-store-provider'
 import AudioNodeDisplay from './audio-node-display'
 import AudioNodeFlowControls from './audio-node-flow-controls'
 import NodeFlowCursor from './node-flow-cursor'

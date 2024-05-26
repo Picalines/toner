@@ -2,10 +2,10 @@ import { Handle, NodeProps, Position } from '@xyflow/react'
 import { KeyboardMusicIcon } from 'lucide-react'
 import { cn, tw } from '@/lib/utils'
 import { AudioNodeGroup, audioNodeDefinitions } from '@/schemas/audio-node'
+import { useEditorStore } from '@/components/providers/editor-store-provider'
+import { Card } from '@/components/ui/card'
 import { AudioNode } from '@/stores/composition-store'
 import { EditorStore } from '@/stores/editor-store'
-import { useEditorStore } from '../providers/editor-store-provider'
-import { Card } from '../ui/card'
 
 const nodeGroupClassNames: Record<AudioNodeGroup, string> = {
 	output: tw`bg-neutral-500`,
