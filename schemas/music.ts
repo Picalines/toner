@@ -8,7 +8,7 @@ export const MUSIC_OCTAVE_LENGTH = 12
 
 export const MAX_MUSIC_OCTAVE = 9
 
-export const MAX_MUSIC_NOTE = MUSIC_OCTAVE_LENGTH * (MAX_MUSIC_OCTAVE + 1)
+export const MAX_MUSIC_NOTE = MUSIC_OCTAVE_LENGTH * (MAX_MUSIC_OCTAVE + 1) - 1
 
 const layerId = z.string().min(1).max(36)
 

@@ -16,7 +16,7 @@ type NoteInfo = {
 	keyString: MusicKeyString
 }
 
-const noteInfos: NoteInfo[] = Array.from({ length: MAX_MUSIC_NOTE }).map(
+const noteInfos: NoteInfo[] = Array.from({ length: MAX_MUSIC_NOTE + 1 }).map(
 	(_, absoluteHalfSteps) => {
 		const octave = Math.floor(absoluteHalfSteps / MUSIC_OCTAVE_LENGTH)
 
