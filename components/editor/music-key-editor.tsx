@@ -4,7 +4,6 @@ import { useCallback } from 'react'
 import * as Tone from 'tone'
 import { musicNoteInfo } from '@/lib/music'
 import { cn } from '@/lib/utils'
-import MusicKeyEditorBackground from '@/components/editor/music-key-editor-background'
 import PianoRoll, { KeyEvent } from '@/components/editor/piano-roll'
 import { useEditorStoreApi } from '../providers/editor-store-provider'
 import { useToneStoreApi } from '../providers/tone-store-provider'
@@ -14,11 +13,17 @@ import {
 	ResizablePanelGroup,
 } from '../ui/resizable'
 import EditorTimeline from './editor-timeline'
+import MusicKeyFlow from './music-key-flow'
 import MusicLayerSelector from './music-layer-selector'
 
 type Props = Readonly<{
 	className?: string
 }>
+
+// TODO: zoom on alt+wheel
+const DEFAULT_NOTE_WIDTH = 120
+
+const NOTE_LINE_HEIGHT = 24
 
 export default function MusicKeyEditor({ className }: Props) {
 	const editorStore = useEditorStoreApi()
@@ -75,18 +80,21 @@ export default function MusicKeyEditor({ className }: Props) {
 				<MusicLayerSelector className="sticky top-0 z-10 h-6 w-full border-b" />
 				<PianoRoll
 					className="w-full"
-					lineHeight={24}
+					lineHeight={NOTE_LINE_HEIGHT}
 					onKeyDown={onKeyDown}
 					onKeyUp={onKeyUp}
 				/>
 			</ResizablePanel>
 			<ResizableHandle />
 			<ResizablePanel defaultSize={80} className="!overflow-clip">
-				<EditorTimeline className="sticky top-0 z-10 h-6 border-b" />
-				<MusicKeyEditorBackground
+				<EditorTimeline
+					className="sticky top-0 z-10 h-6 border-b"
+					columnWidth={DEFAULT_NOTE_WIDTH}
+				/>
+				<MusicKeyFlow
 					className="w-full"
-					lineHeight={24}
-					numberOfLines={120}
+					noteWidth={DEFAULT_NOTE_WIDTH}
+					lineHeight={NOTE_LINE_HEIGHT}
 				/>
 			</ResizablePanel>
 		</ResizablePanelGroup>

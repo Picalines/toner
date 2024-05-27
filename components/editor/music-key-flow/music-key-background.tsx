@@ -1,4 +1,4 @@
-import { ComponentProps, useId } from 'react'
+import { ComponentProps, memo, useId } from 'react'
 import { PropsWithoutChildren, cn, tw } from '@/lib/utils'
 
 type Props = PropsWithoutChildren<ComponentProps<'div'>> &
@@ -10,7 +10,7 @@ type Props = PropsWithoutChildren<ComponentProps<'div'>> &
 		accidentalClassName?: string
 	}>
 
-export default function MusicKeyEditorBackground({
+function MusicKeyBackground({
 	lineHeight = 16,
 	numberOfLines = 12,
 	naturalClassName = tw`fill-white dark:fill-neutral-900`,
@@ -73,3 +73,5 @@ export default function MusicKeyEditorBackground({
 		</div>
 	)
 }
+
+export default memo(MusicKeyBackground)

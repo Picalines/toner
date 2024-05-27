@@ -25,6 +25,7 @@ import {
 } from '@/schemas/composition'
 import { MusicKeyId, MusicLayerId, musicSchemas } from '@/schemas/music'
 
+// TODO: don't store reactflow things in the store, map them
 export type AudioNode = Node<
 	{
 		type: AudioNodeType

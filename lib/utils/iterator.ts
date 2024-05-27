@@ -93,6 +93,18 @@ export function* mapIter<T, U>(
 	}
 }
 
+export function* filterIter<T>(
+	iterable: Iterable<T>,
+	predicate: (value: T, index: number) => boolean,
+) {
+	let index = 0
+	for (const item of iterable) {
+		if (predicate(item, index++)) {
+			yield item
+		}
+	}
+}
+
 export function separate<T>(
 	iterable: Iterable<T>,
 	selector: (value: T, index: number) => boolean | null,

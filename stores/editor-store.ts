@@ -19,6 +19,7 @@ export type EditorState = {
 	panelLayout: EditorPanelLayout
 
 	nodeCursor: [x: number, y: number]
+	timelineScroll: number
 
 	nodeSelection: AudioNodeId[]
 	edgeSelection: AudioEdgeId[]
@@ -38,6 +39,7 @@ export type EditorActions = {
 	setPanelLayout: (layout: EditorPanelLayout) => void
 
 	setNodeCursor: (x: number, y: number) => void
+	scrollTimeline: (dx: number) => void
 
 	selectNodes: (operation: SelectionOperation, ids: AudioNodeId[]) => void
 	selectEdges: (operation: SelectionOperation, ids: AudioEdgeId[]) => void
@@ -68,6 +70,8 @@ export function createEditorStore(initialState: EditorState) {
 		setPanelLayout: layout => set({ panelLayout: layout }),
 
 		setNodeCursor: (x, y) => set({ nodeCursor: [x, y] }),
+		scrollTimeline: dx =>
+			set({ timelineScroll: Math.max(0, get().timelineScroll + dx) }),
 
 		selectNodes: (operation, ids) => {
 			let { nodeSelection } = get()
