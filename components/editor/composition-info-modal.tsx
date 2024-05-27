@@ -4,11 +4,15 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { useCallback, useEffect } from 'react'
 import { useForm } from 'react-hook-form'
 import { z } from 'zod'
+import { useStore } from 'zustand'
 import { useShallow } from 'zustand/react/shallow'
 import { useConstant } from '@/lib/hooks'
 import { compositionSchemas } from '@/schemas/composition'
-import { useCompositionStore } from '@/components/providers/composition-store-provider'
-import { useEditorStore } from '@/components/providers/editor-store-provider'
+import { useCompositionStoreApi } from '@/components/providers/composition-store-provider'
+import {
+	useEditorStore,
+	useEditorStoreApi,
+} from '@/components/providers/editor-store-provider'
 import {
 	Dialog,
 	DialogContent,
@@ -64,16 +68,18 @@ const formSchema = z.object({
 	description: compositionSchemas.description,
 })
 
-const formCompSelector = ({
+const infoSelector = ({ name, description }: CompositionStore) => ({
 	name,
 	description,
-	setName,
-	setDescription,
-}: CompositionStore) => ({ name, description, setName, setDescription })
+})
 
 function UpdateInfoForm() {
-	const { name, description, setName, setDescription } = useCompositionStore(
-		useShallow(formCompSelector),
+	const editorStore = useEditorStoreApi()
+	const compositionStore = useCompositionStoreApi()
+
+	const { name, description } = useStore(
+		compositionStore,
+		useShallow(infoSelector),
 	)
 
 	const initialData = useConstant(() => ({
@@ -91,10 +97,15 @@ function UpdateInfoForm() {
 
 	const onSubmit = useCallback(
 		(data: z.infer<typeof formSchema>) => {
-			setName(data.name)
-			setDescription(data.description)
+			const { setName, setDescription } = compositionStore.getState()
+			const { applyChange } = editorStore.getState()
+			const { name, description } = data
+
+			setName(name)
+			setDescription(description)
+			applyChange({ type: 'update', name, description })
 		},
-		[setName, setDescription],
+		[compositionStore, editorStore],
 	)
 
 	const {
