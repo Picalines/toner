@@ -105,6 +105,19 @@ export function* filterIter<T>(
 	}
 }
 
+export function someIter<T>(
+	iterbale: Iterable<T>,
+	predicate: (value: T, index: number) => boolean,
+): boolean {
+	let index = 0
+	for (const item of iterbale) {
+		if (predicate(item, index++)) {
+			return true
+		}
+	}
+	return false
+}
+
 export function separate<T>(
 	iterable: Iterable<T>,
 	selector: (value: T, index: number) => boolean | null,

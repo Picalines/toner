@@ -1,28 +1,23 @@
 import { EdgeChange, NodeChange } from '@xyflow/react'
-import { AudioEdgeId, AudioNodeId } from '@/schemas/audio-node'
+import {
+	AudioEdge,
+	AudioEdgeId,
+	AudioNode,
+	AudioNodeId,
+} from '@/schemas/audio-node'
 import { EditorChange } from '@/schemas/editor'
-import { AudioEdge, AudioNode } from '@/stores/composition-store'
+import {
+	AudioFlowEdge,
+	AudioFlowNode,
+} from '@/components/editor/audio-node-flow'
 
 export function nodeChangeToEditor(
-	change: NodeChange<AudioNode>,
+	change: NodeChange<AudioFlowNode>,
 	getNodeById: (id: AudioNodeId) => AudioNode | null,
 ): EditorChange | null {
 	switch (change.type) {
-		case 'add': {
-			const node = change.item
-			if (node.type != 'audio' || getNodeById(node.id) !== null) {
-				break
-			}
-
-			return {
-				type: 'node-add',
-				id: node.id,
-				label: node.data.label,
-				nodeType: node.data.type,
-				position: [node.position.x, node.position.y],
-				properties: { ...node.data.properties },
-			}
-		}
+		// NOTE: we don't handle 'add' because it's never called.
+		// TODO: figure out why, i guess
 
 		case 'remove': {
 			if (!getNodeById(change.id)) {
@@ -53,31 +48,11 @@ export function nodeChangeToEditor(
 }
 
 export function edgeChangeToEditor(
-	change: EdgeChange<AudioEdge>,
-	getNodeById: (id: AudioNodeId) => AudioNode | null,
+	change: EdgeChange<AudioFlowEdge>,
 	getEdgeById: (id: AudioEdgeId) => AudioEdge | null,
 ): EditorChange | null {
 	switch (change.type) {
-		case 'add': {
-			const {
-				item: { id, source, target, sourceHandle, targetHandle },
-			} = change
-
-			if (
-				getEdgeById(id) ||
-				!getNodeById(source) ||
-				!getNodeById(target)
-			) {
-				break
-			}
-
-			return {
-				type: 'edge-add',
-				id,
-				source: [source, parseInt(sourceHandle ?? '0')],
-				target: [target, parseInt(targetHandle ?? '0')],
-			}
-		}
+		// NOTE: 'add' is never called
 
 		case 'remove': {
 			const { id } = change

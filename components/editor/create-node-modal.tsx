@@ -40,11 +40,10 @@ export default function CreateNodeModal() {
 		const { createNode } = compositionStore.getState()
 		const { applyChange } = editorStore.getState()
 
-		const {
-			id,
-			data: { label, properties },
-			position: { x: positionX, y: positionY },
-		} = createNode(nodeType, editorStore.getState().nodeCursor)
+		const { id, label, properties, position } = createNode(
+			nodeType,
+			editorStore.getState().nodeCursor,
+		)
 
 		applyChange({
 			type: 'node-add',
@@ -52,7 +51,7 @@ export default function CreateNodeModal() {
 			id,
 			label,
 			properties,
-			position: [positionX, positionY],
+			position,
 		})
 
 		editorStore.getState().closeModal()

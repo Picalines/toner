@@ -5,11 +5,11 @@ import { useStore } from 'zustand'
 import { takeFirst } from '@/lib/utils'
 import {
 	AudioEdgeId,
+	AudioNode,
 	AudioNodeId,
 	audioNodeDefinitions,
 } from '@/schemas/audio-node'
 import { MusicLayerId } from '@/schemas/music'
-import { AudioNode } from '@/stores/composition-store'
 import {
 	EditorPanelLayout,
 	EditorStore,
@@ -99,11 +99,7 @@ function findAnyInstrumentNodeId(
 	audioNodes: Map<AudioNodeId, AudioNode>,
 ): AudioNodeId | null {
 	for (const node of audioNodes.values()) {
-		const {
-			id: nodeId,
-			data: { type: nodeType },
-		} = node
-
+		const { id: nodeId, type: nodeType } = node
 		if (audioNodeDefinitions[nodeType].group == 'instrument') {
 			return nodeId
 		}

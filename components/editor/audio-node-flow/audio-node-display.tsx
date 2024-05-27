@@ -4,8 +4,8 @@ import { cn, tw } from '@/lib/utils'
 import { AudioNodeGroup, audioNodeDefinitions } from '@/schemas/audio-node'
 import { useEditorStore } from '@/components/providers/editor-store-provider'
 import { Card } from '@/components/ui/card'
-import { AudioNode } from '@/stores/composition-store'
 import { EditorStore } from '@/stores/editor-store'
+import { AudioFlowNode } from './audio-flow-node'
 
 const nodeGroupClassNames: Record<AudioNodeGroup, string> = {
 	output: tw`bg-neutral-500`,
@@ -20,18 +20,25 @@ const instrumentSelector = ({ playbackInstrumentId }: EditorStore) =>
 export default function AudioNodeDisplay({
 	id: nodeId,
 	selected,
+	width,
+	height,
 	data: { type, label },
-}: NodeProps<AudioNode>) {
+}: NodeProps<AudioFlowNode>) {
+	// TODO: move playback indicator to AudioFlowNode data.
+	// reason: whole flow is rerendered as is, so we can gather
+	// data once when composition store changes, and then just display it
 	const selectedInstrumentId = useEditorStore(instrumentSelector)
+
 	const { group, inputs, outputs } = audioNodeDefinitions[type]
 
 	return (
 		<Card
 			className={cn(
-				'h-16 w-24 border-2 border-black border-opacity-30 p-2 outline outline-0 outline-primary transition-all',
+				'border-2 border-black border-opacity-30 p-2 outline outline-0 outline-primary transition-all',
 				nodeGroupClassNames[group],
 				selected && 'outline-2',
 			)}
+			style={{ width: width + 'px', height: height + 'px' }}
 		>
 			{inputs.map((_, i) => (
 				<Handle

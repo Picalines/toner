@@ -74,15 +74,19 @@ export function createEditorStore(initialState: EditorState) {
 			set({ timelineScroll: Math.max(0, get().timelineScroll + dx) }),
 
 		selectNodes: (operation, ids) => {
-			let { nodeSelection } = get()
-			nodeSelection = applySelection(operation, nodeSelection, ids)
-			set({ nodeSelection })
+			const { nodeSelection: oldSelection } = get()
+			const newSelection = applySelection(operation, oldSelection, ids)
+			if (newSelection != oldSelection) {
+				set({ nodeSelection: newSelection })
+			}
 		},
 
 		selectEdges: (operation, ids) => {
-			let { edgeSelection } = get()
-			edgeSelection = applySelection(operation, edgeSelection, ids)
-			set({ edgeSelection })
+			const { edgeSelection: oldSelection } = get()
+			const newSelection = applySelection(operation, oldSelection, ids)
+			if (newSelection != oldSelection) {
+				set({ edgeSelection: newSelection })
+			}
 		},
 
 		selectInstrument: id => set({ playbackInstrumentId: id }),

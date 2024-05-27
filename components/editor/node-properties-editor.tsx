@@ -2,18 +2,26 @@
 
 import { MousePointerClickIcon } from 'lucide-react'
 import { ChangeEvent, useState } from 'react'
+import { useShallow } from 'zustand/react/shallow'
 import { KeyOfUnion, cn, mapRange, trimFraction, tw } from '@/lib/utils'
 import {
 	AudioNodeGroup,
+	AudioNodeId,
 	AudioNodeProperties,
-	AudioNodeProperty,
+	AudioNodePropertySchema,
 	AudioNodeType,
 	audioNodeDefinitions,
 } from '@/schemas/audio-node'
 import { CompositionStore } from '@/stores/composition-store'
 import { EditorStore } from '@/stores/editor-store'
-import { useCompositionStore } from '../providers/composition-store-provider'
-import { useEditorStore } from '../providers/editor-store-provider'
+import {
+	useCompositionStore,
+	useCompositionStoreApi,
+} from '../providers/composition-store-provider'
+import {
+	useEditorStore,
+	useEditorStoreApi,
+} from '../providers/editor-store-provider'
 import { Input } from '../ui/input'
 import { ScrollArea, ScrollBar } from '../ui/scroll-area'
 import { Slider } from '../ui/slider'
@@ -33,9 +41,7 @@ export default function NodePropertiesEditor({ className }: Props) {
 	const getNodeById = useCompositionStore(getNodeSelector)
 	const selectedNodeId = useEditorStore(selectedNodeSelector)
 
-	const selectedNode = selectedNodeId
-		? getNodeById(selectedNodeId)?.data
-		: null
+	const selectedNode = selectedNodeId ? getNodeById(selectedNodeId) : null
 
 	const bgClassName = tw`relative bg-neutral-300 dark:bg-neutral-800`
 
@@ -82,7 +88,7 @@ function NodeNameInput() {
 	const renameNode = useCompositionStore(renameNodeSelector)
 
 	const { type: nodeType, label } =
-		(nodeId ? getNodeById(nodeId)?.data : null) ?? {}
+		(nodeId ? getNodeById(nodeId) : null) ?? {}
 
 	const [labelInput, setLabelInput] = useState(label ?? '')
 
@@ -123,40 +129,47 @@ type PropertySliderProps<T extends AudioNodeType> = Readonly<{
 	className?: string
 }>
 
-const nodePropertySelector = ({ setNodeProperty }: CompositionStore) =>
-	setNodeProperty
+const nodePropertySelector =
+	(nodeId: AudioNodeId | null, property: string) =>
+	({ getNodeById }: CompositionStore) => {
+		const { type, properties } = (nodeId ? getNodeById(nodeId) : null) ?? {}
+		return { type, propertyValue: properties?.[property] }
+	}
 
 function NodePropertySlider<T extends AudioNodeType>({
 	property,
 	className,
 }: PropertySliderProps<T>) {
-	const getNodeById = useCompositionStore(getNodeSelector)
-	const setNodeProperty = useCompositionStore(nodePropertySelector)
-
+	const compositionStore = useCompositionStoreApi()
+	const editorStore = useEditorStoreApi()
 	const nodeId = useEditorStore(selectedNodeSelector)
-	const applyChange = useEditorStore(applyChangeSelector)
 
 	const onSliderChange = (values: number[]) => {
-		if (nodeId) {
-			const [propertyValue] = values
-			setNodeProperty(nodeId, property, propertyValue)
-			applyChange({
-				type: 'node-update',
-				id: nodeId,
-				properties: { [property]: propertyValue },
-			})
+		if (!nodeId) {
+			return
 		}
+
+		const { setNodeProperty } = compositionStore.getState()
+		const { applyChange } = editorStore.getState()
+
+		const [propertyValue] = values
+		setNodeProperty(nodeId, property, propertyValue)
+		applyChange({
+			type: 'node-update',
+			id: nodeId,
+			properties: { [property]: propertyValue },
+		})
 	}
 
-	const node = nodeId ? getNodeById(nodeId)?.data : null
+	const { type: nodeType, propertyValue } = useCompositionStore(
+		useShallow(nodePropertySelector(nodeId, property)),
+	)
 
-	let propertyValue = useCompositionStore(() => node?.properties[property])
-
-	if (!node) {
+	if (!nodeType) {
 		return null
 	}
 
-	const nodeProperties = audioNodeDefinitions[node.type as T]
+	const nodeProperties = audioNodeDefinitions[nodeType as T]
 		.properties as AudioNodeProperties<T>
 
 	const {
@@ -167,9 +180,9 @@ function NodePropertySlider<T extends AudioNodeType>({
 		displayRange: [displayMin, displayMax] = [min, max],
 		units,
 		valueLabels,
-	} = nodeProperties[property] as AudioNodeProperty
+	} = nodeProperties[property] as AudioNodePropertySchema
 
-	propertyValue ??= defaultValue
+	const displayedValue = propertyValue ?? defaultValue
 
 	return (
 		<div
@@ -186,7 +199,7 @@ function NodePropertySlider<T extends AudioNodeType>({
 				min={min}
 				max={max}
 				step={step}
-				value={[propertyValue]}
+				value={[displayedValue]}
 				onValueChange={onSliderChange}
 			/>
 			<div className="pointer-events-none relative flex flex-col items-start gap-0.5 text-sm">
@@ -194,11 +207,11 @@ function NodePropertySlider<T extends AudioNodeType>({
 					{name}
 				</span>
 				<span className="text-slate-500 dark:text-slate-300">
-					{valueLabels && propertyValue in valueLabels
-						? valueLabels[propertyValue]
+					{valueLabels && displayedValue in valueLabels
+						? valueLabels[displayedValue]
 						: trimFraction(
 								mapRange(
-									propertyValue,
+									displayedValue,
 									[min, max],
 									[displayMin, displayMax],
 								),

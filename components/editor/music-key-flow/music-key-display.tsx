@@ -8,7 +8,7 @@ import { MusicKeyNode } from './music-key-node'
 const instrumentNameSelector =
 	(instrumentId: AudioNodeId) =>
 	({ getNodeById }: CompositionStore) =>
-		getNodeById(instrumentId)?.data.label
+		getNodeById(instrumentId)?.label
 
 export default function MusicKeyDisplay({
 	width,

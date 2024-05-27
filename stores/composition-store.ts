@@ -1,22 +1,16 @@
-import {
-	Connection,
-	type Edge,
-	type EdgeChange,
-	type Node,
-	type NodeChange,
-	addEdge,
-	applyEdgeChanges,
-	applyNodeChanges,
-} from '@xyflow/react'
+import type { Connection, EdgeChange, NodeChange } from '@xyflow/react'
 import { nanoid } from 'nanoid'
 import { StoreApi, create } from 'zustand'
 import { subscribeWithSelector } from 'zustand/middleware'
-import { capitalize, safeParseOr, zodIs } from '@/lib/utils'
+import { capitalize, safeParseOr, someIter, zodIs } from '@/lib/utils'
 import {
+	AudioEdge,
 	AudioEdgeId,
+	AudioNode,
 	AudioNodeId,
 	AudioNodeType,
 	audioNodeDefinitions,
+	audioNodeSchemas,
 	audioNodeSchemas as nodeSchemas,
 } from '@/schemas/audio-node'
 import {
@@ -24,18 +18,10 @@ import {
 	compositionSchemas as compSchemas,
 } from '@/schemas/composition'
 import { MusicKeyId, MusicLayerId, musicSchemas } from '@/schemas/music'
-
-// TODO: don't store reactflow things in the store, map them
-export type AudioNode = Node<
-	{
-		type: AudioNodeType
-		label: string
-		properties: Record<string, number>
-	},
-	'audio'
->
-
-export type AudioEdge = Edge<{}>
+import {
+	AudioFlowEdge,
+	AudioFlowNode,
+} from '@/components/editor/audio-node-flow'
 
 export type MusicLayer = {
 	id: MusicLayerId
@@ -78,8 +64,8 @@ export type CompositionActions = {
 	renameNode: (id: AudioNodeId, label: string) => void
 	setNodeProperty: (id: AudioNodeId, property: string, value: number) => void
 
-	applyNodeChanges: (changes: NodeChange<AudioNode>[]) => void
-	applyEdgeChanges: (changes: EdgeChange<AudioEdge>[]) => void
+	applyNodeChanges: (changes: NodeChange<AudioFlowNode>[]) => void
+	applyEdgeChanges: (changes: EdgeChange<AudioFlowEdge>[]) => void
 	connect: (connection: Connection) => AudioEdge | null
 
 	createMusicLayer: (name: string) => MusicLayer | null
@@ -136,13 +122,17 @@ export function createCompositionStore(initialState: CompositionState) {
 				)
 
 				const newNode: AudioNode = {
-					type: 'audio',
 					id: nanoid(),
-					position: { x: position[0], y: position[1] },
-					data: { type, label: capitalize(type), properties },
+					type,
+					label: capitalize(type),
+					position,
+					properties,
 				}
 
-				get().applyNodeChanges([{ type: 'add', item: newNode }])
+				const audioNodes = new Map(get().audioNodes)
+				audioNodes.set(newNode.id, newNode)
+				set({ audioNodes })
+
 				return newNode
 			},
 
@@ -152,12 +142,12 @@ export function createCompositionStore(initialState: CompositionState) {
 					return
 				}
 
-				label = safeParseOr(nodeSchemas.label, label, node.data.label)
-				if (node.data.label == label) {
+				label = safeParseOr(nodeSchemas.label, label, node.label)
+				if (node.label == label) {
 					return
 				}
 
-				node.data.label = label
+				node.label = label
 
 				set({ audioNodes: new Map(get().audioNodes) })
 			},
@@ -169,7 +159,7 @@ export function createCompositionStore(initialState: CompositionState) {
 				}
 
 				const safeProperty = safeParseOr(
-					nodeSchemas.property,
+					nodeSchemas.propertyKey,
 					property,
 					null,
 				)
@@ -177,51 +167,122 @@ export function createCompositionStore(initialState: CompositionState) {
 					return
 				}
 
-				node.data.properties[safeProperty] = value
+				node.properties[safeProperty] = value
 
 				set({ audioNodes: new Map(get().audioNodes) })
 			},
 
 			applyNodeChanges: changes => {
-				const nodes: CompositionState['audioNodes'] = new Map()
-				for (const changedNode of applyNodeChanges(
-					changes,
-					Array.from(get().audioNodes.values()),
-				)) {
-					nodes.set(changedNode.id, changedNode)
+				if (!changes.length) {
+					return
 				}
 
-				set({ audioNodes: nodes })
+				const audioNodes = new Map(get().audioNodes)
+				let changed = false
+
+				for (const change of changes) {
+					switch (change.type) {
+						case 'remove': {
+							audioNodes.delete(change.id)
+							changed = true
+							break
+						}
+
+						case 'position': {
+							if (!change.position) {
+								break
+							}
+
+							const node = audioNodes.get(change.id)
+							if (node) {
+								const { x, y } = change.position
+								audioNodes.set(change.id, {
+									...node,
+									position: [x, y],
+								})
+								changed = true
+							}
+
+							break
+						}
+					}
+				}
+
+				if (changed) {
+					set({ audioNodes })
+				}
 			},
 
 			applyEdgeChanges: changes => {
-				const edges: CompositionState['audioEdges'] = new Map()
-				for (const changedEdge of applyEdgeChanges(
-					changes,
-					Array.from(get().audioEdges.values()),
-				)) {
-					edges.set(changedEdge.id, changedEdge)
+				if (!changes.length) {
+					return
 				}
 
-				set({ audioEdges: edges })
+				const audioEdges = new Map(get().audioEdges)
+				let changed = false
+
+				for (const change of changes) {
+					switch (change.type) {
+						case 'remove': {
+							audioEdges.delete(change.id)
+							changed = true
+							break
+						}
+					}
+				}
+
+				if (changed) {
+					set({ audioEdges })
+				}
 			},
 
-			connect: ({ source, target, sourceHandle, targetHandle }) => {
-				const prevEdges = get().audioEdges
+			connect: connection => {
+				const { source, target, sourceHandle, targetHandle } =
+					connection
+
+				const sourceSocket = safeParseOr(
+					audioNodeSchemas.socketId,
+					parseInt(sourceHandle ?? '0'),
+					null,
+				)
+
+				const targetSocket = safeParseOr(
+					audioNodeSchemas.socketId,
+					parseInt(targetHandle ?? '0'),
+					null,
+				)
+
+				if (sourceSocket === null || targetSocket === null) {
+					return null
+				}
+
+				let { audioEdges } = get()
+
+				const edgeExists = someIter(
+					audioEdges.values(),
+					existingEdge =>
+						existingEdge.source === source &&
+						existingEdge.target == target &&
+						existingEdge.sourceSocket == sourceSocket &&
+						existingEdge.targetSocket == targetSocket,
+				)
+
+				if (edgeExists) {
+					return null
+				}
+
 				const newEdge: AudioEdge = {
 					id: nanoid(),
 					source,
 					target,
-					sourceHandle,
-					targetHandle,
-				}
-				const edges = addEdge(newEdge, [...prevEdges.values()])
-
-				if (edges.length == prevEdges.size) {
-					return null
+					sourceSocket,
+					targetSocket,
 				}
 
-				set({ audioEdges: new Map(edges.map(edge => [edge.id, edge])) })
+				audioEdges = new Map(audioEdges)
+				audioEdges.set(newEdge.id, newEdge)
+
+				set({ audioEdges })
 				return newEdge
 			},
 

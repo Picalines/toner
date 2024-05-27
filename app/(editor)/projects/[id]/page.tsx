@@ -1,6 +1,6 @@
 import { authenticateOrRedirect } from '@/lib/auth'
 import { DeepReadonly, capitalize } from '@/lib/utils'
-import { AudioNodeType } from '@/schemas/audio-node'
+import { audioNodeSchemas } from '@/schemas/audio-node'
 import CompositionEditor from '@/components/editor/composition-editor'
 import CompositionStoreProvider from '@/components/providers/composition-store-provider'
 import ToneStoreProvider from '@/components/providers/tone-store-provider'
@@ -33,32 +33,30 @@ export default async function EditorPage({ params }: Props) {
 			id={compositionId}
 			name={name}
 			description={description}
-			audioNodes={Object.entries(audioNodes).map(([nodeId, node]) => ({
-				type: 'audio',
-				id: nodeId,
-				position: { x: node.centerX, y: node.centerY },
-				deletable: node.type != 'output',
-				data: {
-					type: node.type as AudioNodeType,
+			audioNodes={Object.entries(audioNodes).map(([nodeId, node]) =>
+				audioNodeSchemas.node.parse({
+					id: nodeId,
+					type: node.type,
 					label: node.label ?? capitalize(node.type),
+					position: [node.centerX, node.centerY],
 					properties: node.properties,
-				},
-			}))}
+				}),
+			)}
 			audioEdges={Object.entries(audioEdges).map(
 				([
 					id,
 					{
-						source: [source, sourceHandle],
-						target: [target, targetHandle],
+						source: [source, sourceSocket],
+						target: [target, targetSocket],
 					},
-				]) => ({
-					id,
-					type: 'default',
-					source,
-					target,
-					sourceHandle: String(sourceHandle),
-					targetHandle: String(targetHandle),
-				}),
+				]) =>
+					audioNodeSchemas.edge.parse({
+						id,
+						source,
+						target,
+						sourceSocket,
+						targetSocket,
+					}),
 			)}
 			musicLayers={Object.entries(musicLayers).map(
 				([layerId, layer]) => ({ id: layerId, ...layer }),
