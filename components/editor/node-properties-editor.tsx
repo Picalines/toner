@@ -3,7 +3,6 @@
 import { MousePointerClickIcon } from 'lucide-react'
 import { ChangeEvent, useState } from 'react'
 import { useShallow } from 'zustand/react/shallow'
-import { KeyOfUnion, cn, mapRange, trimFraction, tw } from '@/lib/utils'
 import {
 	AudioNodeGroup,
 	AudioNodeId,
@@ -11,7 +10,8 @@ import {
 	AudioNodePropertySchema,
 	AudioNodeType,
 	audioNodeDefinitions,
-} from '@/schemas/audio-node'
+} from '@/lib/schemas/audio-node'
+import { KeyOfUnion, cn, mapRange, trimFraction, tw } from '@/lib/utils'
 import { CompositionStore } from '@/stores/composition-store'
 import { EditorStore } from '@/stores/editor-store'
 import {

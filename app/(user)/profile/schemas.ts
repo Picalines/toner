@@ -1,5 +1,5 @@
 import { z } from 'zod'
-import { userSchemas } from '@/schemas/user'
+import { userSchemas } from '@/lib/schemas/user'
 
 export const profileUpdateSchema = z.object({
 	login: userSchemas.login,

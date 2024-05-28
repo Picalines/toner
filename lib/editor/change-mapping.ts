@@ -4,8 +4,8 @@ import {
 	AudioEdgeId,
 	AudioNode,
 	AudioNodeId,
-} from '@/schemas/audio-node'
-import { EditorChange } from '@/schemas/editor'
+} from '@/lib/schemas/audio-node'
+import { EditorChange } from '@/lib/schemas/editor'
 import {
 	AudioFlowEdge,
 	AudioFlowNode,

@@ -12,9 +12,9 @@ import {
 	musicKeyTable,
 	musicLayerTable,
 } from '@/lib/db'
+import { EditorChangeSummary, editorSchemas } from '@/lib/schemas/editor'
+import { MusicLayerId } from '@/lib/schemas/music'
 import { assertUnreachable, zodIs } from '@/lib/utils'
-import { EditorChangeSummary, editorSchemas } from '@/schemas/editor'
-import { MusicLayerId } from '@/schemas/music'
 
 export async function updateComposition(changeSummary: EditorChangeSummary) {
 	if (!zodIs(editorSchemas.changeSummary, changeSummary)) {

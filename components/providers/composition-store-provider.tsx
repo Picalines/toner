@@ -2,7 +2,7 @@
 
 import { PropsWithChildren, createContext, useContext, useRef } from 'react'
 import { useStore } from 'zustand'
-import { AudioEdge, AudioNode } from '@/schemas/audio-node'
+import { AudioEdge, AudioNode } from '@/lib/schemas/audio-node'
 import {
 	CompositionState,
 	CompositionStore,

@@ -1,7 +1,7 @@
 import { Handle, NodeProps, Position } from '@xyflow/react'
 import { KeyboardMusicIcon } from 'lucide-react'
+import { AudioNodeGroup, audioNodeDefinitions } from '@/lib/schemas/audio-node'
 import { cn, tw } from '@/lib/utils'
-import { AudioNodeGroup, audioNodeDefinitions } from '@/schemas/audio-node'
 import { useEditorStore } from '@/components/providers/editor-store-provider'
 import { Card } from '@/components/ui/card'
 import { EditorStore } from '@/stores/editor-store'

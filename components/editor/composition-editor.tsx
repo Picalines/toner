@@ -1,8 +1,8 @@
 'use client'
 
 import { useEffect, useRef } from 'react'
+import { EditorChangeSummary } from '@/lib/schemas/editor'
 import { cn } from '@/lib/utils'
-import { EditorChangeSummary } from '@/schemas/editor'
 import EditorStoreProvider, {
 	useEditorStore,
 } from '@/components/providers/editor-store-provider'

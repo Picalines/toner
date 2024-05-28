@@ -5,7 +5,7 @@ import {
 	MusicKeyString,
 	MusicNoteSymbol,
 	musicSchemas,
-} from '@/schemas/music'
+} from '@/lib/schemas/music'
 import { zodIs } from '../utils'
 
 type NoteInfo = {

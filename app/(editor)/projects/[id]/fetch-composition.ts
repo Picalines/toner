@@ -10,9 +10,9 @@ import {
 	musicLayerTable,
 	audioNodeTable as nodeTable,
 } from '@/lib/db'
+import { AudioNodeId, audioNodeSchemas } from '@/lib/schemas/audio-node'
+import { MusicLayerId } from '@/lib/schemas/music'
 import { zodIs } from '@/lib/utils'
-import { AudioNodeId, audioNodeSchemas } from '@/schemas/audio-node'
-import { MusicLayerId } from '@/schemas/music'
 
 type FetchedAudioNode = {
 	type: string

@@ -3,7 +3,7 @@ import { useDebouncedCallback } from 'use-debounce'
 import {
 	EditorChangeSummary,
 	applyEditorChangeToSummary,
-} from '@/schemas/editor'
+} from '@/lib/schemas/editor'
 import { useCompositionStoreApi } from '@/components/providers/composition-store-provider'
 import { useEditorStoreApi } from '@/components/providers/editor-store-provider'
 import { EditorStore } from '@/stores/editor-store'

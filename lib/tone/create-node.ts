@@ -1,11 +1,11 @@
 import * as Tone from 'tone'
-import { KeyOfUnion } from '@/lib/utils'
 import {
 	AudioNodeDefinition,
 	AudioNodeProperties,
 	AudioNodeType,
 	audioNodeDefinitions as nodeDefs,
-} from '@/schemas/audio-node'
+} from '@/lib/schemas/audio-node'
+import { KeyOfUnion } from '@/lib/utils'
 
 type MappedToneNode = {
 	toneNode: Tone.ToneAudioNode

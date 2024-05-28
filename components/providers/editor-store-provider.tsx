@@ -2,14 +2,14 @@
 
 import { PropsWithChildren, createContext, useContext, useRef } from 'react'
 import { useStore } from 'zustand'
-import { takeFirst } from '@/lib/utils'
 import {
 	AudioEdgeId,
 	AudioNode,
 	AudioNodeId,
 	audioNodeDefinitions,
-} from '@/schemas/audio-node'
-import { MusicLayerId } from '@/schemas/music'
+} from '@/lib/schemas/audio-node'
+import { MusicLayerId } from '@/lib/schemas/music'
+import { takeFirst } from '@/lib/utils'
 import {
 	EditorPanelLayout,
 	EditorStore,

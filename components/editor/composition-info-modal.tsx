@@ -7,7 +7,7 @@ import { z } from 'zod'
 import { useStore } from 'zustand'
 import { useShallow } from 'zustand/react/shallow'
 import { useConstant } from '@/lib/hooks'
-import { compositionSchemas } from '@/schemas/composition'
+import { compositionSchemas } from '@/lib/schemas/composition'
 import { useCompositionStoreApi } from '@/components/providers/composition-store-provider'
 import {
 	useEditorStore,

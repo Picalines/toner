@@ -1,5 +1,5 @@
 import { NodeProps } from '@xyflow/react'
-import { AudioNodeId } from '@/schemas/audio-node'
+import { AudioNodeId } from '@/lib/schemas/audio-node'
 import { useCompositionStore } from '@/components/providers/composition-store-provider'
 import { Card } from '@/components/ui/card'
 import { CompositionStore } from '@/stores/composition-store'

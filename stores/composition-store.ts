@@ -2,7 +2,6 @@ import type { Connection, EdgeChange, NodeChange } from '@xyflow/react'
 import { nanoid } from 'nanoid'
 import { StoreApi, create } from 'zustand'
 import { subscribeWithSelector } from 'zustand/middleware'
-import { capitalize, safeParseOr, someIter, zodIs } from '@/lib/utils'
 import {
 	AudioEdge,
 	AudioEdgeId,
@@ -12,12 +11,13 @@ import {
 	audioNodeDefinitions,
 	audioNodeSchemas,
 	audioNodeSchemas as nodeSchemas,
-} from '@/schemas/audio-node'
+} from '@/lib/schemas/audio-node'
 import {
 	CompositionId,
 	compositionSchemas as compSchemas,
-} from '@/schemas/composition'
-import { MusicKeyId, MusicLayerId, musicSchemas } from '@/schemas/music'
+} from '@/lib/schemas/composition'
+import { MusicKeyId, MusicLayerId, musicSchemas } from '@/lib/schemas/music'
+import { capitalize, safeParseOr, someIter, zodIs } from '@/lib/utils'
 import {
 	AudioFlowEdge,
 	AudioFlowNode,

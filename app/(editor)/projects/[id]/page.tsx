@@ -1,6 +1,6 @@
 import { authenticateOrRedirect } from '@/lib/auth'
+import { audioNodeSchemas } from '@/lib/schemas/audio-node'
 import { DeepReadonly, capitalize } from '@/lib/utils'
-import { audioNodeSchemas } from '@/schemas/audio-node'
 import CompositionEditor from '@/components/editor/composition-editor'
 import CompositionStoreProvider from '@/components/providers/composition-store-provider'
 import ToneStoreProvider from '@/components/providers/tone-store-provider'

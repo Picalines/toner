@@ -23,14 +23,14 @@ import { useStore } from 'zustand'
 import { useShallow } from 'zustand/react/shallow'
 import { edgeChangeToEditor, nodeChangeToEditor } from '@/lib/editor'
 import { useIsMountedState } from '@/lib/hooks'
-import { mapIter } from '@/lib/utils'
 import {
 	AudioEdge,
 	AudioEdgeId,
 	AudioNode,
 	AudioNodeId,
 	audioNodeDefinitions,
-} from '@/schemas/audio-node'
+} from '@/lib/schemas/audio-node'
+import { mapIter } from '@/lib/utils'
 import { useCompositionStoreApi } from '@/components/providers/composition-store-provider'
 import { useEditorStoreApi } from '@/components/providers/editor-store-provider'
 import {

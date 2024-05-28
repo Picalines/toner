@@ -4,7 +4,7 @@ import {
 	EditorChangeType,
 	MAX_HISTORY_LENGTH,
 	editorSchemas,
-} from '@/schemas/editor'
+} from '@/lib/schemas/editor'
 
 function editorChangeIs<T extends EditorChangeType>(
 	change: EditorChange,
