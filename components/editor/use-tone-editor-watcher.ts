@@ -99,8 +99,8 @@ export function useToneEditorWatcher() {
 
 				for (const [nodeId, node] of nodes) {
 					const { toneNode, setProperty } = createToneNode(
-						node.data.type,
-						node.data.properties,
+						node.type,
+						node.properties,
 					)
 					addNode(nodeId, toneNode)
 					toneSetters.current!.set(toneNode, setProperty)
@@ -108,8 +108,8 @@ export function useToneEditorWatcher() {
 
 				for (const [edgeId, edge] of edges) {
 					const disconnect = connect(
-						[edge.source, parseInt(edge.sourceHandle ?? '0')],
-						[edge.target, parseInt(edge.targetHandle ?? '0')],
+						[edge.source, edge.sourceSocket],
+						[edge.target, edge.targetSocket],
 					)
 					if (disconnect) {
 						edgeDisconnects.current?.set(edgeId, disconnect)
