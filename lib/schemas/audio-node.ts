@@ -1,7 +1,6 @@
 import { z } from 'zod'
-import { zodLiteralUnion } from '@/lib/utils'
 
-const nodeType = zodLiteralUnion(
+const nodeType = z.enum([
 	'output',
 	'synth',
 	'gain',
@@ -9,9 +8,9 @@ const nodeType = zodLiteralUnion(
 	'vibrato',
 	'compressor',
 	'panner',
-)
+])
 
-const nodeGroup = zodLiteralUnion('instrument', 'effect', 'component', 'output')
+const nodeGroup = z.enum(['instrument', 'effect', 'component', 'output'])
 
 const nodeId = z.string().min(1).max(36)
 const edgeId = z.string().min(1).max(36)
