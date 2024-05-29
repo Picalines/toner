@@ -58,6 +58,8 @@ export const audioNodeSchemas = {
 
 export type AudioNodeId = z.infer<typeof nodeId>
 
+export type AudioSocketId = z.infer<typeof socketId>
+
 export type AudioEdgeId = z.infer<typeof edgeId>
 
 export type AudioNodeType = z.infer<typeof nodeType>

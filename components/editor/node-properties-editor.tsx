@@ -11,7 +11,14 @@ import {
 	AudioNodeType,
 	audioNodeDefinitions,
 } from '@/lib/schemas/audio-node'
-import { KeyOfUnion, cn, mapRange, trimFraction, tw } from '@/lib/utils'
+import {
+	KeyOfUnion,
+	cn,
+	mapRange,
+	takeFirst,
+	trimFraction,
+	tw,
+} from '@/lib/utils'
 import { CompositionStore } from '@/stores/composition-store'
 import { EditorStore } from '@/stores/editor-store'
 import {
@@ -30,10 +37,12 @@ type Props = Readonly<{
 	className?: string
 }>
 
-const getNodeSelector = ({ getNodeById }: CompositionStore) => getNodeById
+const getNodeSelector = ({ getAudioNodeById: getNodeById }: CompositionStore) =>
+	getNodeById
 
-const selectedNodeSelector = ({ nodeSelection }: EditorStore) =>
-	nodeSelection.length == 1 ? nodeSelection[0] : null
+const selectedNodeSelector = ({
+	audioNodeSelection: nodeSelection,
+}: EditorStore) => (nodeSelection.size == 1 ? takeFirst(nodeSelection) : null)
 
 const applyChangeSelector = ({ applyChange }: EditorStore) => applyChange
 
@@ -78,7 +87,9 @@ export default function NodePropertiesEditor({ className }: Props) {
 	)
 }
 
-const renameNodeSelector = ({ renameNode }: CompositionStore) => renameNode
+const renameNodeSelector = ({
+	renameAudioNode: renameNode,
+}: CompositionStore) => renameNode
 
 function NodeNameInput() {
 	const nodeId = useEditorStore(selectedNodeSelector)
@@ -131,7 +142,7 @@ type PropertySliderProps<T extends AudioNodeType> = Readonly<{
 
 const nodePropertySelector =
 	(nodeId: AudioNodeId | null, property: string) =>
-	({ getNodeById }: CompositionStore) => {
+	({ getAudioNodeById: getNodeById }: CompositionStore) => {
 		const { type, properties } = (nodeId ? getNodeById(nodeId) : null) ?? {}
 		return { type, propertyValue: properties?.[property] }
 	}
@@ -149,7 +160,8 @@ function NodePropertySlider<T extends AudioNodeType>({
 			return
 		}
 
-		const { setNodeProperty } = compositionStore.getState()
+		const { setAudioProperty: setNodeProperty } =
+			compositionStore.getState()
 		const { applyChange } = editorStore.getState()
 
 		const [propertyValue] = values

@@ -11,26 +11,40 @@ export const MAX_MUSIC_OCTAVE = 9
 export const MAX_MUSIC_NOTE = MUSIC_OCTAVE_LENGTH * (MAX_MUSIC_OCTAVE + 1) - 1
 
 const layerId = z.string().min(1).max(36)
+const layerName = z.string().trim().min(1).max(32)
 
-const noteSchema = z.number().int().min(0).max(MAX_MUSIC_NOTE)
+const keyId = z.string().min(1).max(36)
+const keyNote = z.number().int().min(0).max(MAX_MUSIC_NOTE)
+const keyTime = z.number().min(0)
+const keyDuration = z.number().min(0.001)
+const keyVelocity = z.number().min(0).max(1)
 
 export const musicSchemas = {
-	note: noteSchema,
+	note: keyNote,
 
-	layer: {
+	keyId,
+	keyNote,
+	keyTime,
+	keyDuration,
+	keyVelocity,
+
+	layerId,
+	layerName,
+
+	layer: z.object({
 		id: layerId,
-		name: z.string().trim().min(1).max(32),
-	},
+		name: layerName,
+	}),
 
-	key: {
-		id: z.string().min(1).max(36),
+	key: z.object({
+		id: keyId,
 		layerId,
 		instrumentId: audioNodeSchemas.nodeId,
-		note: noteSchema,
-		time: z.number().min(0),
-		duration: z.number().min(0.001),
-		velocity: z.number().min(0).max(1),
-	},
+		note: keyNote,
+		time: keyTime,
+		duration: keyDuration,
+		velocity: keyVelocity,
+	}),
 }
 
 export const MUSIC_NOTE_SYMBOLS = [
@@ -50,7 +64,11 @@ export const MUSIC_NOTE_SYMBOLS = [
 
 export type MusicLayerId = z.infer<typeof layerId>
 
-export type MusicKeyId = z.infer<(typeof musicSchemas)['key']['id']>
+export type MusicKeyId = z.infer<typeof keyId>
+
+export type MusicKey = z.infer<(typeof musicSchemas)['key']>
+
+export type MusicLayer = z.infer<(typeof musicSchemas)['layer']>
 
 export type MusicNoteSymbol = (typeof MUSIC_NOTE_SYMBOLS)[number]
 

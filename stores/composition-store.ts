@@ -1,4 +1,3 @@
-import type { Connection, EdgeChange, NodeChange } from '@xyflow/react'
 import { nanoid } from 'nanoid'
 import { StoreApi, create } from 'zustand'
 import { subscribeWithSelector } from 'zustand/middleware'
@@ -8,35 +7,22 @@ import {
 	AudioNode,
 	AudioNodeId,
 	AudioNodeType,
+	AudioSocketId,
 	audioNodeDefinitions,
-	audioNodeSchemas,
 	audioNodeSchemas as nodeSchemas,
 } from '@/lib/schemas/audio-node'
 import {
 	CompositionId,
 	compositionSchemas as compSchemas,
 } from '@/lib/schemas/composition'
-import { MusicKeyId, MusicLayerId, musicSchemas } from '@/lib/schemas/music'
-import { capitalize, safeParseOr, someIter, zodIs } from '@/lib/utils'
 import {
-	AudioFlowEdge,
-	AudioFlowNode,
-} from '@/components/editor/audio-node-flow'
-
-export type MusicLayer = {
-	id: MusicLayerId
-	name: string
-}
-
-export type MusicKey = {
-	id: MusicKeyId
-	layerId: MusicLayerId
-	instrumentId: AudioNodeId
-	note: number
-	time: number
-	duration: number
-	velocity: number
-}
+	MusicKey,
+	MusicKeyId,
+	MusicLayer,
+	MusicLayerId,
+	musicSchemas,
+} from '@/lib/schemas/music'
+import { capitalize, safeParseOr, someIter } from '@/lib/utils'
 
 export type CompositionState = {
 	id: CompositionId
@@ -55,22 +41,38 @@ export type CompositionActions = {
 	setName: (name: string) => void
 	setDescription: (description: string) => void
 
-	getNodeById: (id: AudioNodeId) => AudioNode | null
-	getEdgeById: (id: AudioEdgeId) => AudioEdge | null
+	getAudioNodeById: (id: AudioNodeId) => AudioNode | null
+	getAudioEdgeById: (id: AudioEdgeId) => AudioEdge | null
 	getMusicLayerById: (id: MusicLayerId) => MusicLayer | null
 	getMusicKeyById: (id: MusicKeyId) => MusicKey | null
 
-	createNode: (type: AudioNodeType, position: [number, number]) => AudioNode
-	renameNode: (id: AudioNodeId, label: string) => void
-	setNodeProperty: (id: AudioNodeId, property: string, value: number) => void
+	createAudioNode: (
+		type: AudioNodeType,
+		position: [number, number],
+	) => AudioNode
+	renameAudioNode: (id: AudioNodeId, label: string) => boolean
+	moveAudioNode: (
+		id: AudioNodeId,
+		position: [x: number, y: number],
+	) => boolean
+	setAudioProperty: (
+		id: AudioNodeId,
+		property: string,
+		value: number,
+	) => boolean
 
-	applyNodeChanges: (changes: NodeChange<AudioFlowNode>[]) => void
-	applyEdgeChanges: (changes: EdgeChange<AudioFlowEdge>[]) => void
-	connect: (connection: Connection) => AudioEdge | null
+	connectAudioNodes: (
+		source: [AudioNodeId, AudioSocketId],
+		target: [AudioNodeId, AudioSocketId],
+	) => AudioEdge | null
 
 	createMusicLayer: (name: string) => MusicLayer | null
 	renameMusicLayer: (id: MusicLayerId, name: string) => void
+
+	removeAudioNode: (id: AudioNodeId) => boolean
+	removeAudioEdge: (id: AudioEdgeId) => boolean
 	removeMusicLayer: (id: MusicLayerId) => boolean
+	removeMusicKey: (id: MusicKeyId) => boolean
 }
 
 export type CompositionStore = CompositionState & CompositionActions
@@ -109,12 +111,12 @@ export function createCompositionStore(initialState: CompositionState) {
 				}
 			},
 
-			getNodeById: id => get().audioNodes.get(id) ?? null,
-			getEdgeById: id => get().audioEdges.get(id) ?? null,
+			getAudioNodeById: id => get().audioNodes.get(id) ?? null,
+			getAudioEdgeById: id => get().audioEdges.get(id) ?? null,
 			getMusicLayerById: id => get().musicLayers.get(id) ?? null,
 			getMusicKeyById: id => get().musicKeys.get(id) ?? null,
 
-			createNode: (type, position) => {
+			createAudioNode: (type, position) => {
 				const properties = Object.fromEntries(
 					Object.entries(audioNodeDefinitions[type].properties).map(
 						([key, { default: value }]) => [key, value],
@@ -136,26 +138,38 @@ export function createCompositionStore(initialState: CompositionState) {
 				return newNode
 			},
 
-			renameNode: (id, label) => {
-				const node = get().getNodeById(id)
+			renameAudioNode: (id, label) => {
+				const node = get().getAudioNodeById(id)
 				if (!node) {
-					return
+					return false
 				}
 
 				label = safeParseOr(nodeSchemas.label, label, node.label)
 				if (node.label == label) {
-					return
+					return false
 				}
 
 				node.label = label
 
 				set({ audioNodes: new Map(get().audioNodes) })
+				return true
 			},
 
-			setNodeProperty: (id, property, value) => {
+			moveAudioNode: (id, [x, y]) => {
+				const node = get().getAudioNodeById(id)
+				if (!node) {
+					return false
+				}
+
+				node.position = [x, y]
+				set({ audioNodes: new Map(get().audioNodes) })
+				return true
+			},
+
+			setAudioProperty: (id, property, value) => {
 				const node = get().audioNodes.get(id)
 				if (!node) {
-					return
+					return false
 				}
 
 				const safeProperty = safeParseOr(
@@ -164,95 +178,21 @@ export function createCompositionStore(initialState: CompositionState) {
 					null,
 				)
 				if (safeProperty === null) {
-					return
+					return false
 				}
 
 				node.properties[safeProperty] = value
 
 				set({ audioNodes: new Map(get().audioNodes) })
+				return true
 			},
 
-			applyNodeChanges: changes => {
-				if (!changes.length) {
-					return
-				}
-
-				const audioNodes = new Map(get().audioNodes)
-				let changed = false
-
-				for (const change of changes) {
-					switch (change.type) {
-						case 'remove': {
-							audioNodes.delete(change.id)
-							changed = true
-							break
-						}
-
-						case 'position': {
-							if (!change.position) {
-								break
-							}
-
-							const node = audioNodes.get(change.id)
-							if (node) {
-								const { x, y } = change.position
-								audioNodes.set(change.id, {
-									...node,
-									position: [x, y],
-								})
-								changed = true
-							}
-
-							break
-						}
-					}
-				}
-
-				if (changed) {
-					set({ audioNodes })
-				}
-			},
-
-			applyEdgeChanges: changes => {
-				if (!changes.length) {
-					return
-				}
-
-				const audioEdges = new Map(get().audioEdges)
-				let changed = false
-
-				for (const change of changes) {
-					switch (change.type) {
-						case 'remove': {
-							audioEdges.delete(change.id)
-							changed = true
-							break
-						}
-					}
-				}
-
-				if (changed) {
-					set({ audioEdges })
-				}
-			},
-
-			connect: connection => {
-				const { source, target, sourceHandle, targetHandle } =
-					connection
-
-				const sourceSocket = safeParseOr(
-					audioNodeSchemas.socketId,
-					parseInt(sourceHandle ?? '0'),
-					null,
-				)
-
-				const targetSocket = safeParseOr(
-					audioNodeSchemas.socketId,
-					parseInt(targetHandle ?? '0'),
-					null,
-				)
-
-				if (sourceSocket === null || targetSocket === null) {
+			connectAudioNodes: (
+				[source, sourceSocket],
+				[target, targetSocket],
+			) => {
+				const { getAudioNodeById } = get()
+				if (!getAudioNodeById(source) || !getAudioNodeById(target)) {
 					return null
 				}
 
@@ -287,12 +227,13 @@ export function createCompositionStore(initialState: CompositionState) {
 			},
 
 			createMusicLayer: name => {
-				if (!zodIs(musicSchemas.layer.name, name)) {
+				const safeName = safeParseOr(musicSchemas.layerName, name, null)
+				if (!safeName) {
 					return null
 				}
 
 				const id = nanoid()
-				const newLayer: MusicLayer = { id, name }
+				const newLayer: MusicLayer = { id, name: safeName }
 
 				const musicLayers = new Map(get().musicLayers)
 				musicLayers.set(id, newLayer)
@@ -301,18 +242,46 @@ export function createCompositionStore(initialState: CompositionState) {
 			},
 
 			renameMusicLayer: (id, name) => {
-				if (!zodIs(musicSchemas.layer.name, name)) {
-					return
-				}
-
 				const musicLayers = get().musicLayers
 				const musicLayer = musicLayers.get(id)
 				if (!musicLayer) {
 					return
 				}
 
-				musicLayer.name = name
-				set({ musicLayers: new Map(musicLayers) })
+				name = safeParseOr(
+					musicSchemas.layerName,
+					name,
+					musicLayer.name,
+				)
+
+				if (musicLayer.name != name) {
+					musicLayer.name = name
+					set({ musicLayers: new Map(musicLayers) })
+				}
+			},
+
+			removeAudioNode: id => {
+				let audioNodes = get().audioNodes
+				if (!audioNodes.has(id)) {
+					return false
+				}
+
+				audioNodes = new Map(audioNodes)
+				audioNodes.delete(id)
+				set({ audioNodes })
+				return true
+			},
+
+			removeAudioEdge: id => {
+				let audioEdges = get().audioEdges
+				if (!audioEdges.has(id)) {
+					return false
+				}
+
+				audioEdges = new Map(audioEdges)
+				audioEdges.delete(id)
+				set({ audioEdges })
+				return true
 			},
 
 			removeMusicLayer: id => {
@@ -335,6 +304,18 @@ export function createCompositionStore(initialState: CompositionState) {
 				}
 
 				set({ musicLayers: new Map(musicLayers) })
+				return true
+			},
+
+			removeMusicKey: id => {
+				let musicKeys = get().musicKeys
+				if (!musicKeys.has(id)) {
+					return false
+				}
+
+				musicKeys = new Map(musicKeys)
+				musicKeys.delete(id)
+				set({ musicKeys })
 				return true
 			},
 		}

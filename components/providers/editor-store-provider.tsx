@@ -8,7 +8,7 @@ import {
 	AudioNodeId,
 	audioNodeDefinitions,
 } from '@/lib/schemas/audio-node'
-import { MusicLayerId } from '@/lib/schemas/music'
+import { MusicKeyId, MusicLayerId } from '@/lib/schemas/music'
 import { takeFirst } from '@/lib/utils'
 import {
 	EditorPanelLayout,
@@ -27,6 +27,7 @@ type Props = PropsWithChildren<
 		timelineScroll?: number
 		nodeSelection?: AudioNodeId[]
 		edgeSelection?: AudioEdgeId[]
+		musicKeySelection?: MusicKeyId[]
 		selectedInstrumentId?: AudioNodeId | null
 		selectedMusicLayerId?: MusicLayerId | null
 	}>
@@ -41,6 +42,7 @@ export default function EditorStoreProvider({
 	selectedMusicLayerId,
 	nodeSelection = [],
 	edgeSelection = [],
+	musicKeySelection = [],
 }: Props) {
 	const compositionStore = useCompositionStoreApi()
 
@@ -64,8 +66,9 @@ export default function EditorStoreProvider({
 			openedModal: null,
 			nodeCursor,
 			timelineScroll,
-			nodeSelection,
-			edgeSelection,
+			audioNodeSelection: new Set(nodeSelection),
+			audioEdgeSelection: new Set(edgeSelection),
+			musicKeySelection: new Set(musicKeySelection),
 			playbackInstrumentId: selectedInstrumentId,
 			selectedMusicLayerId,
 			changeHistory: [],

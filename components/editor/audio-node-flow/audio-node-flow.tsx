@@ -5,10 +5,6 @@ import {
 	Background,
 	BackgroundVariant,
 	ColorMode,
-	Connection,
-	EdgeChange,
-	NodeChange,
-	NodeTypes,
 	ReactFlow,
 	ReactFlowProps,
 	ReactFlowProvider,
@@ -21,25 +17,24 @@ import { useTheme } from 'next-themes'
 import { MouseEvent, useId, useMemo } from 'react'
 import { useStore } from 'zustand'
 import { useShallow } from 'zustand/react/shallow'
-import { edgeChangeToEditor, nodeChangeToEditor } from '@/lib/editor'
+import {
+	applyFlowEdgeChanges,
+	applyFlowNodeChanges,
+	connectFlowNodes,
+} from '@/lib/editor'
 import { useIsMountedState } from '@/lib/hooks'
 import {
 	AudioEdge,
 	AudioEdgeId,
 	AudioNode,
 	AudioNodeId,
-	audioNodeDefinitions,
 } from '@/lib/schemas/audio-node'
 import { mapIter } from '@/lib/utils'
 import { useCompositionStoreApi } from '@/components/providers/composition-store-provider'
 import { useEditorStoreApi } from '@/components/providers/editor-store-provider'
-import {
-	CompositionStore,
-	CompositionStoreApi,
-} from '@/stores/composition-store'
-import { EditorStore, EditorStoreApi } from '@/stores/editor-store'
-import { AudioFlowEdge, AudioFlowNode } from './audio-flow-node'
-import AudioNodeDisplay from './audio-node-display'
+import { CompositionStore } from '@/stores/composition-store'
+import { EditorStore } from '@/stores/editor-store'
+import { AudioFlowEdge, AudioFlowNode, audioNodeTypes } from './audio-flow-node'
 import AudioNodeFlowControls from './audio-node-flow-controls'
 import NodeFlowCursor from './node-flow-cursor'
 
@@ -51,14 +46,15 @@ export default function AudioNodeFlow() {
 	)
 }
 
-const nodeTypes = { audio: AudioNodeDisplay } satisfies NodeTypes
-
 const flowSelector = ({ audioNodes, audioEdges }: CompositionStore) => ({
 	audioNodes,
 	audioEdges,
 })
 
-const selectionSelector = ({ nodeSelection, edgeSelection }: EditorStore) => ({
+const selectionSelector = ({
+	audioNodeSelection: nodeSelection,
+	audioEdgeSelection: edgeSelection,
+}: EditorStore) => ({
 	nodeSelection,
 	edgeSelection,
 })
@@ -95,54 +91,6 @@ function AudioReactFlow(props: ReactFlowProps<AudioFlowNode, AudioFlowEdge>) {
 		editorStore.getState().setNodeCursor(x, y)
 	}
 
-	const onNodeChanges = (nodeChanges: NodeChange<AudioFlowNode>[]) => {
-		const { applyNodeChanges, getNodeById } = compositionStore.getState()
-		const { applyChange } = editorStore.getState()
-
-		for (const change of nodeChanges) {
-			const editorChange = nodeChangeToEditor(change, getNodeById)
-			if (editorChange) {
-				applyChange(editorChange)
-			}
-			updateNodeSelection(editorStore, compositionStore, change)
-		}
-
-		applyNodeChanges(nodeChanges)
-	}
-
-	const onEdgesChanges = (edgeChanges: EdgeChange<AudioFlowEdge>[]) => {
-		const { applyEdgeChanges, getEdgeById } = compositionStore.getState()
-		const { applyChange } = editorStore.getState()
-
-		for (const change of edgeChanges) {
-			const editorChange = edgeChangeToEditor(change, getEdgeById)
-			if (editorChange) {
-				applyChange(editorChange)
-			}
-			updateEdgeSelection(editorStore, change)
-		}
-
-		applyEdgeChanges(edgeChanges)
-	}
-
-	const onConnect = (connection: Connection) => {
-		const { connect } = compositionStore.getState()
-		const { applyChange } = editorStore.getState()
-
-		const newEdge = connect(connection)
-		if (!newEdge) {
-			return
-		}
-
-		const { id, source, target, sourceSocket, targetSocket } = newEdge
-		applyChange({
-			type: 'edge-add',
-			id,
-			source: [source, sourceSocket],
-			target: [target, targetSocket],
-		})
-	}
-
 	const nodes = useMemo(
 		() =>
 			Array.from(
@@ -167,12 +115,24 @@ function AudioReactFlow(props: ReactFlowProps<AudioFlowNode, AudioFlowEdge>) {
 		<ReactFlow
 			id={flowId}
 			className="relative"
-			nodeTypes={nodeTypes}
+			nodeTypes={audioNodeTypes}
 			nodes={nodes}
 			edges={edges}
-			onNodesChange={onNodeChanges}
-			onEdgesChange={onEdgesChanges}
-			onConnect={onConnect}
+			onNodesChange={applyFlowNodeChanges.bind(
+				null,
+				compositionStore,
+				editorStore,
+			)}
+			onEdgesChange={applyFlowEdgeChanges.bind(
+				null,
+				compositionStore,
+				editorStore,
+			)}
+			onConnect={connectFlowNodes.bind(
+				null,
+				compositionStore,
+				editorStore,
+			)}
 			onPaneClick={setCursorOnClick}
 			colorMode={colorMode}
 			selectionMode={SelectionMode.Partial}
@@ -205,90 +165,39 @@ function AudioReactFlow(props: ReactFlowProps<AudioFlowNode, AudioFlowEdge>) {
 
 function audioNodeToFlowNode(
 	audioNode: AudioNode,
-	nodeSelection: AudioNodeId[],
+	nodeSelection: Set<AudioNodeId>,
 ): AudioFlowNode {
+	const {
+		id,
+		label,
+		type,
+		position: [x, y],
+	} = audioNode
+
 	return {
 		type: 'audio',
-		id: audioNode.id,
-		position: { x: audioNode.position[0], y: audioNode.position[1] },
-		selected: nodeSelection.includes(audioNode.id),
-		deletable: audioNode.type != 'output',
+		id,
+		position: { x, y },
+		deletable: type != 'output',
 		width: 96,
 		height: 64,
-		data: {
-			label: audioNode.label,
-			type: audioNode.type,
-		},
+		data: { label, type },
+		selected: nodeSelection.has(id),
 	}
 }
 
 function audioEdgeToFlowEdge(
 	audioEdge: AudioEdge,
-	edgeSelection: AudioEdgeId[],
+	edgeSelection: Set<AudioEdgeId>,
 ): AudioFlowEdge {
+	const { id, source, target, sourceSocket, targetSocket } = audioEdge
 	return {
 		type: 'default',
-		id: audioEdge.id,
-		source: audioEdge.source,
-		target: audioEdge.target,
-		sourceHandle: String(audioEdge.sourceSocket),
-		targetHandle: String(audioEdge.targetSocket),
-		selected: edgeSelection.includes(audioEdge.id),
-	}
-}
-
-function updateNodeSelection(
-	editorStore: EditorStoreApi,
-	compositionStore: CompositionStoreApi,
-	change: NodeChange<AudioFlowNode>,
-) {
-	const { getNodeById } = compositionStore.getState()
-	const { selectNodes, selectInstrument, playbackInstrumentId } =
-		editorStore.getState()
-
-	switch (change.type) {
-		case 'remove': {
-			selectNodes('remove', [change.id])
-			if (change.id === playbackInstrumentId) {
-				selectInstrument(null)
-			}
-			break
-		}
-
-		case 'select': {
-			selectNodes(change.selected ? 'add' : 'remove', [change.id])
-
-			const nodeId = change.id
-			const { type: nodeType } = getNodeById(nodeId) ?? {}
-
-			if (
-				change.selected &&
-				nodeType &&
-				audioNodeDefinitions[nodeType].group == 'instrument'
-			) {
-				selectInstrument(nodeId)
-			}
-
-			break
-		}
-	}
-}
-
-function updateEdgeSelection(
-	editorStore: EditorStoreApi,
-	change: EdgeChange<AudioFlowEdge>,
-) {
-	const { selectEdges } = editorStore.getState()
-
-	switch (change.type) {
-		case 'remove': {
-			selectEdges('remove', [change.id])
-			break
-		}
-
-		case 'select': {
-			selectEdges(change.selected ? 'add' : 'remove', [change.id])
-			break
-		}
+		id,
+		source,
+		target,
+		sourceHandle: String(sourceSocket),
+		targetHandle: String(targetSocket),
+		selected: edgeSelection.has(id),
 	}
 }

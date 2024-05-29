@@ -34,9 +34,9 @@ export default function AudioNodeDisplay({
 	return (
 		<Card
 			className={cn(
-				'border-2 border-black border-opacity-30 p-2 outline outline-0 outline-primary transition-all',
+				'border-2 border-black border-opacity-30 p-2 transition-all',
 				nodeGroupClassNames[group],
-				selected && 'outline-2',
+				selected && 'border-white border-opacity-100',
 			)}
 			style={{ width: width + 'px', height: height + 'px' }}
 		>

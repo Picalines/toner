@@ -1,9 +1,9 @@
 import { StoreApi, create } from 'zustand'
 import { persist, subscribeWithSelector } from 'zustand/middleware'
-import { mergeEditorChange } from '@/lib/editor/merge-change'
+import { mergeEditorChange } from '@/lib/editor'
 import { AudioEdgeId, AudioNodeId } from '@/lib/schemas/audio-node'
 import { EditorChange } from '@/lib/schemas/editor'
-import { MusicLayerId } from '@/lib/schemas/music'
+import { MusicKeyId, MusicLayerId } from '@/lib/schemas/music'
 
 export type EditorDirtyState = 'clean' | 'waiting' | 'saving'
 
@@ -21,8 +21,9 @@ export type EditorState = {
 	nodeCursor: [x: number, y: number]
 	timelineScroll: number
 
-	nodeSelection: AudioNodeId[]
-	edgeSelection: AudioEdgeId[]
+	audioNodeSelection: Set<AudioNodeId>
+	audioEdgeSelection: Set<AudioEdgeId>
+	musicKeySelection: Set<MusicKeyId>
 	selectedMusicLayerId: MusicLayerId | null
 
 	playbackInstrumentId: AudioNodeId | null
@@ -41,9 +42,16 @@ export type EditorActions = {
 	setNodeCursor: (x: number, y: number) => void
 	scrollTimeline: (dx: number) => void
 
-	selectNodes: (operation: SelectionOperation, ids: AudioNodeId[]) => void
-	selectEdges: (operation: SelectionOperation, ids: AudioEdgeId[]) => void
+	selectAudioNodes: (
+		operation: SelectionOperation,
+		ids: AudioNodeId[],
+	) => void
+	selectAudioEdges: (
+		operation: SelectionOperation,
+		ids: AudioEdgeId[],
+	) => void
 	selectMusicLayer: (id: MusicLayerId) => void
+	selectMusicKeys: (operation: SelectionOperation, ids: MusicKeyId[]) => void
 
 	selectInstrument: (id: AudioNodeId | null) => void
 
@@ -73,24 +81,33 @@ export function createEditorStore(initialState: EditorState) {
 		scrollTimeline: dx =>
 			set({ timelineScroll: Math.max(0, get().timelineScroll + dx) }),
 
-		selectNodes: (operation, ids) => {
-			const { nodeSelection: oldSelection } = get()
+		selectAudioNodes: (operation, ids) => {
+			const { audioNodeSelection: oldSelection } = get()
 			const newSelection = applySelection(operation, oldSelection, ids)
 			if (newSelection != oldSelection) {
-				set({ nodeSelection: newSelection })
+				set({ audioNodeSelection: newSelection })
 			}
 		},
 
-		selectEdges: (operation, ids) => {
-			const { edgeSelection: oldSelection } = get()
+		selectAudioEdges: (operation, ids) => {
+			const { audioEdgeSelection: oldSelection } = get()
 			const newSelection = applySelection(operation, oldSelection, ids)
 			if (newSelection != oldSelection) {
-				set({ edgeSelection: newSelection })
+				set({ audioEdgeSelection: newSelection })
+			}
+		},
+
+		selectMusicLayer: id => set({ selectedMusicLayerId: id }),
+
+		selectMusicKeys: (operation, ids) => {
+			const { musicKeySelection: oldSelection } = get()
+			const newSelection = applySelection(operation, oldSelection, ids)
+			if (newSelection != oldSelection) {
+				set({ musicKeySelection: newSelection })
 			}
 		},
 
 		selectInstrument: id => set({ playbackInstrumentId: id }),
-		selectMusicLayer: id => set({ selectedMusicLayerId: id }),
 
 		applyChange: change =>
 			set({
@@ -111,11 +128,11 @@ export function createEditorStore(initialState: EditorState) {
 
 function applySelection<T>(
 	operation: SelectionOperation,
-	currentSelection: T[],
+	currentSelection: Set<T>,
 	newSelection: T[],
-): T[] {
+): Set<T> {
 	if (operation == 'replace') {
-		return [...new Set(newSelection)]
+		return new Set(newSelection)
 	}
 
 	if (!newSelection.length) {
@@ -130,5 +147,5 @@ function applySelection<T>(
 		newSelection.forEach(item => selected.delete(item))
 	}
 
-	return [...selected]
+	return selected
 }

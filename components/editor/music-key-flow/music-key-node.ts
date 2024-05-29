@@ -1,12 +1,14 @@
 import { Node, NodeTypes } from '@xyflow/react'
-import { MusicKey } from '@/stores/composition-store'
+import { MusicKey } from '@/lib/schemas/music'
 import MusicKeyDisplay from './music-key-display'
+
+export const musicFlowNodeType = 'music-key'
 
 export type MusicKeyNode = Node<
 	Pick<MusicKey, 'instrumentId' | 'velocity'>,
-	'music-key'
+	typeof musicFlowNodeType
 >
 
 export const musicNodeTypes = {
-	'music-key': MusicKeyDisplay,
+	[musicFlowNodeType]: MusicKeyDisplay,
 } satisfies NodeTypes

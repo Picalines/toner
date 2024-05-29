@@ -4,15 +4,18 @@ import {
 	ReactFlow,
 	ReactFlowProps,
 	ReactFlowProvider,
+	SelectionMode,
 	useReactFlow,
 } from '@xyflow/react'
 import { WheelEvent, useEffect, useId, useMemo } from 'react'
 import { useStore } from 'zustand'
-import { MAX_MUSIC_NOTE } from '@/lib/schemas/music'
+import { useShallow } from 'zustand/react/shallow'
+import { applyFlowNodeChanges } from '@/lib/editor'
+import { MAX_MUSIC_NOTE, MusicKey, MusicKeyId } from '@/lib/schemas/music'
 import { filterIter, mapIter } from '@/lib/utils'
 import { useCompositionStoreApi } from '@/components/providers/composition-store-provider'
 import { useEditorStoreApi } from '@/components/providers/editor-store-provider'
-import { CompositionStore, MusicKey } from '@/stores/composition-store'
+import { CompositionStore } from '@/stores/composition-store'
 import { EditorStore } from '@/stores/editor-store'
 import MusicKeyBackground from './music-key-background'
 import { MusicKeyNode, musicNodeTypes } from './music-key-node'
@@ -36,8 +39,10 @@ const edgeTypes = {} satisfies EdgeTypes
 
 const musicKeysSelector = ({ musicKeys }: CompositionStore) => musicKeys
 
-const musicLayerSelector = ({ selectedMusicLayerId }: EditorStore) =>
-	selectedMusicLayerId
+const selectionSelector = ({
+	selectedMusicLayerId,
+	musicKeySelection,
+}: EditorStore) => ({ musicLayerId: selectedMusicLayerId, musicKeySelection })
 
 const timelineScrollSelector = ({ timelineScroll }: EditorStore) =>
 	timelineScroll
@@ -52,25 +57,12 @@ function MusicFlow({ noteWidth = 120, lineHeight = 24, ...props }: Props) {
 
 	const semiquaverWidth = noteWidth / 16
 
-	const musicLayerId = useStore(editorStore, musicLayerSelector)
 	const musicKeys = useStore(compositionStore, musicKeysSelector)
 
-	const nodes = useMemo(() => {
-		if (!musicLayerId) {
-			return []
-		}
-
-		const musicKeysOnLayer = filterIter(
-			musicKeys.values(),
-			musicKey => musicKey.layerId == musicLayerId,
-		)
-
-		return Array.from(
-			mapIter(musicKeysOnLayer, musicKey =>
-				musicKeyToNode(musicKey, semiquaverWidth, lineHeight),
-			),
-		)
-	}, [semiquaverWidth, lineHeight, musicKeys, musicLayerId])
+	const { musicLayerId, musicKeySelection } = useStore(
+		editorStore,
+		useShallow(selectionSelector),
+	)
 
 	useEffect(
 		() =>
@@ -87,16 +79,53 @@ function MusicFlow({ noteWidth = 120, lineHeight = 24, ...props }: Props) {
 		scrollTimeline(scrollX / 2)
 	}
 
+	const nodes = useMemo(() => {
+		if (!musicLayerId) {
+			return []
+		}
+
+		const musicKeysOnLayer = filterIter(
+			musicKeys.values(),
+			musicKey => musicKey.layerId == musicLayerId,
+		)
+
+		return Array.from(
+			mapIter(musicKeysOnLayer, musicKey =>
+				musicKeyToNode(
+					musicKey,
+					musicKeySelection,
+					semiquaverWidth,
+					lineHeight,
+				),
+			),
+		)
+	}, [
+		semiquaverWidth,
+		lineHeight,
+		musicKeys,
+		musicKeySelection,
+		musicLayerId,
+	])
+
 	return (
 		<ReactFlow
 			id={flowId}
 			nodeTypes={musicNodeTypes}
 			edgeTypes={edgeTypes}
-			nodes={nodes}
+			// TODO: tsc reports that's nodes is MusicKeyNode[], but errors that
+			// prop receives MusicKeyNode[] | Node[]
+			// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-explicit-any
+			nodes={nodes as any}
+			onNodesChange={applyFlowNodeChanges.bind(
+				null,
+				compositionStore,
+				editorStore,
+			)}
 			nodeOrigin={[0, 1]}
 			snapToGrid
 			snapGrid={[semiquaverWidth, lineHeight]}
 			preventScrolling={false}
+			selectionMode={SelectionMode.Partial}
 			panOnDrag={false}
 			onWheel={onWheel}
 			{...props}
@@ -112,21 +141,21 @@ function MusicFlow({ noteWidth = 120, lineHeight = 24, ...props }: Props) {
 
 function musicKeyToNode(
 	musicKey: MusicKey,
+	musicKeySelection: Set<MusicKeyId>,
 	semiquaverWidth: number,
 	lineHeight: number,
 ): MusicKeyNode {
+	const { id, time, duration, note, instrumentId, velocity } = musicKey
 	return {
 		type: 'music-key',
-		id: musicKey.id,
+		id,
+		selected: musicKeySelection.has(musicKey.id),
 		height: lineHeight,
-		width: musicKey.duration * semiquaverWidth,
+		width: duration * semiquaverWidth,
 		position: {
-			x: musicKey.time * semiquaverWidth,
-			y: (MAX_MUSIC_NOTE - musicKey.note + 1) * lineHeight,
+			x: time * semiquaverWidth,
+			y: (MAX_MUSIC_NOTE - note + 1) * lineHeight,
 		},
-		data: {
-			instrumentId: musicKey.instrumentId,
-			velocity: musicKey.velocity,
-		},
+		data: { instrumentId, velocity },
 	}
 }

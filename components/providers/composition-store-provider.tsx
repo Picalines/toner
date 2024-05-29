@@ -3,12 +3,11 @@
 import { PropsWithChildren, createContext, useContext, useRef } from 'react'
 import { useStore } from 'zustand'
 import { AudioEdge, AudioNode } from '@/lib/schemas/audio-node'
+import { MusicKey, MusicLayer } from '@/lib/schemas/music'
 import {
 	CompositionState,
 	CompositionStore,
 	CompositionStoreApi,
-	MusicKey,
-	MusicLayer,
 	createCompositionStore,
 } from '@/stores/composition-store'
 

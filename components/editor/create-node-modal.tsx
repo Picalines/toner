@@ -37,10 +37,10 @@ export default function CreateNodeModal() {
 	}
 
 	const onItemSelect = (nodeType: AudioNodeType) => () => {
-		const { createNode } = compositionStore.getState()
+		const { createAudioNode } = compositionStore.getState()
 		const { applyChange } = editorStore.getState()
 
-		const { id, label, properties, position } = createNode(
+		const { id, label, properties, position } = createAudioNode(
 			nodeType,
 			editorStore.getState().nodeCursor,
 		)
