@@ -80,10 +80,13 @@ function AudioReactFlow(props: ReactFlowProps<AudioFlowNode, AudioFlowEdge>) {
 	)
 
 	const setCursorOnClick = (event: MouseEvent) => {
-		const { x, y } = reactFlow.screenToFlowPosition({
-			x: event.clientX,
-			y: event.clientY,
-		})
+		const { x, y } = reactFlow.screenToFlowPosition(
+			{
+				x: event.clientX,
+				y: event.clientY,
+			},
+			{ snapToGrid: false },
+		)
 		editorStore.getState().setNodeCursor(x, y)
 	}
 
