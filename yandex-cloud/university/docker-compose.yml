@@ -2,7 +2,7 @@ version: '3.8'
 
 services:
     next_app:
-        image: { { env.IMAGE_URL } }
+        image: '{{ env.IMAGE_URL }}'
         restart: always
         ports:
             - '{{ env.UD_PORT }}:{{ env.UD_PORT }}'
