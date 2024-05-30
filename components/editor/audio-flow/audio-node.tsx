@@ -1,11 +1,34 @@
-import { Handle, NodeProps, Position } from '@xyflow/react'
+import {
+	Edge,
+	Handle,
+	Node,
+	NodeProps,
+	NodeTypes,
+	Position,
+} from '@xyflow/react'
 import { KeyboardMusicIcon } from 'lucide-react'
-import { AudioNodeGroup, audioNodeDefinitions } from '@/lib/schemas/audio-node'
+import {
+	AudioNode,
+	AudioNodeGroup,
+	audioNodeDefinitions,
+} from '@/lib/schemas/audio-node'
 import { cn, tw } from '@/lib/utils'
 import { useEditorStore } from '@/components/providers/editor-store-provider'
 import { Card } from '@/components/ui/card'
 import { EditorStore } from '@/stores/editor-store'
-import { AudioFlowNode } from './audio-flow-node'
+
+export const audioFlowNodeType = 'audio'
+
+export type AudioFlowNode = Node<
+	Pick<AudioNode, 'type' | 'label'>,
+	typeof audioFlowNodeType
+>
+
+export type AudioFlowEdge = Edge<{}>
+
+export const audioNodeTypes = {
+	[audioFlowNodeType]: AudioNodeDisplay,
+} satisfies NodeTypes
 
 const nodeGroupClassNames: Record<AudioNodeGroup, string> = {
 	output: tw`bg-neutral-500`,
@@ -17,7 +40,7 @@ const nodeGroupClassNames: Record<AudioNodeGroup, string> = {
 const instrumentSelector = ({ playbackInstrumentId }: EditorStore) =>
 	playbackInstrumentId
 
-export default function AudioNodeDisplay({
+function AudioNodeDisplay({
 	id: nodeId,
 	selected,
 	width,

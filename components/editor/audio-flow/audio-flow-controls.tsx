@@ -19,7 +19,7 @@ import { EditorStore } from '@/stores/editor-store'
 
 const modalSelector = ({ openModal }: EditorStore) => openModal
 
-function AudioNodeFlowControls() {
+function AudioFlowControls() {
 	const { zoomIn, zoomOut, fitView } = useReactFlow()
 
 	const openModal = useEditorStore(modalSelector)
@@ -54,7 +54,7 @@ function AudioNodeFlowControls() {
 	)
 }
 
-export default memo(AudioNodeFlowControls)
+export default memo(AudioFlowControls)
 
 function Controls({
 	children,

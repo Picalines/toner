@@ -4,7 +4,7 @@ import { EditorStore } from '@/stores/editor-store'
 
 const cursorSelector = ({ nodeCursor }: EditorStore) => nodeCursor
 
-export default function NodeFlowCursor() {
+export default function NodeCursor() {
 	const [x, y] = useEditorStore(cursorSelector)
 
 	return (

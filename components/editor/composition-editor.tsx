@@ -13,7 +13,7 @@ import {
 } from '@/components/ui/resizable'
 import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area'
 import { EditorPanelLayout, EditorStore } from '@/stores/editor-store'
-import AudioNodeFlow from './audio-node-flow'
+import AudioFlow from './audio-flow'
 import CompositionEditorHeader from './composition-editor-header'
 import CompositionInfoModal from './composition-info-modal'
 import CreateNodeModal from './create-node-modal'
@@ -90,7 +90,7 @@ function CompositionEditorPanels({
 					</ResizablePanel>
 					<ResizableHandle />
 					<ResizablePanel defaultSize={70}>
-						<AudioNodeFlow />
+						<AudioFlow />
 					</ResizablePanel>
 				</ResizablePanelGroup>
 			</ResizablePanel>

@@ -34,11 +34,11 @@ import { useCompositionStoreApi } from '@/components/providers/composition-store
 import { useEditorStoreApi } from '@/components/providers/editor-store-provider'
 import { CompositionStore } from '@/stores/composition-store'
 import { EditorStore } from '@/stores/editor-store'
-import { AudioFlowEdge, AudioFlowNode, audioNodeTypes } from './audio-flow-node'
-import AudioNodeFlowControls from './audio-node-flow-controls'
-import NodeFlowCursor from './node-flow-cursor'
+import AudioFlowControls from './audio-flow-controls'
+import { AudioFlowEdge, AudioFlowNode, audioNodeTypes } from './audio-node'
+import NodeCursor from './node-cursor'
 
-export default function AudioNodeFlow() {
+export default function AudioFlow() {
 	return (
 		<ReactFlowProvider>
 			<AudioReactFlow />
@@ -143,7 +143,7 @@ function AudioReactFlow(props: ReactFlowProps<AudioFlowNode, AudioFlowEdge>) {
 			{...props}
 		>
 			{isMounted ? (
-				<AudioNodeFlowControls />
+				<AudioFlowControls />
 			) : (
 				<div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2">
 					<Loader2Icon className="animate-spin" />
@@ -157,7 +157,7 @@ function AudioReactFlow(props: ReactFlowProps<AudioFlowNode, AudioFlowEdge>) {
 				className="!bg-neutral-100 dark:!bg-neutral-900"
 			/>
 			<ViewportPortal>
-				<NodeFlowCursor />
+				<NodeCursor />
 			</ViewportPortal>
 		</ReactFlow>
 	)
