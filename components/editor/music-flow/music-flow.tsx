@@ -6,21 +6,35 @@ import {
 	ReactFlowProps,
 	ReactFlowProvider,
 	SelectionMode,
+	ViewportPortal,
 	useReactFlow,
 } from '@xyflow/react'
 import { useTheme } from 'next-themes'
-import { WheelEvent, useEffect, useId, useMemo } from 'react'
+import {
+	MouseEvent,
+	WheelEvent,
+	useEffect,
+	useId,
+	useMemo,
+	useRef,
+} from 'react'
 import { useStore } from 'zustand'
 import { useShallow } from 'zustand/react/shallow'
 import { applyFlowNodeChanges } from '@/lib/editor'
 import { useIsMountedState } from '@/lib/hooks'
-import { MAX_MUSIC_NOTE, MusicKey, MusicKeyId } from '@/lib/schemas/music'
-import { filterIter, mapIter } from '@/lib/utils'
+import {
+	MAX_MUSIC_NOTE,
+	MusicKey,
+	MusicKeyId,
+	MusicLayerId,
+} from '@/lib/schemas/music'
+import { clampLeft, mapIter, step } from '@/lib/utils'
 import { useCompositionStoreApi } from '@/components/providers/composition-store-provider'
 import { useEditorStoreApi } from '@/components/providers/editor-store-provider'
 import { CompositionStore } from '@/stores/composition-store'
 import { EditorStore } from '@/stores/editor-store'
 import MusicFlowBackground from './music-flow-background'
+import MusicKeyPreview from './music-key-preview'
 import { MusicKeyNode, musicNodeTypes } from './music-node'
 
 type Props = ReactFlowProps &
@@ -37,6 +51,9 @@ export default function MusicKeyFlow(props: Props) {
 		</ReactFlowProvider>
 	)
 }
+
+const DEFAULT_NOTE_DURATION = 4
+const DEFAULT_TIME_STEP = 4
 
 const edgeTypes = {} satisfies EdgeTypes
 
@@ -75,40 +92,85 @@ function MusicFlow({ noteWidth = 120, lineHeight = 24, ...props }: Props) {
 		[reactFlow, editorStore, lineHeight, semiquaverWidth],
 	)
 
+	const isNodeHovered = useRef(false)
+
+	const onPaneMouseMove = (event: MouseEvent<Element>) => {
+		const { playbackInstrumentId, setMusicKeyPreview } =
+			editorStore.getState()
+
+		if (playbackInstrumentId === null || isNodeHovered.current) {
+			setMusicKeyPreview(null)
+			return
+		}
+
+		const { musicKeyPreview: existingPreview } = editorStore.getState()
+
+		const { x, y } = reactFlow.screenToFlowPosition(
+			{
+				x: event.clientX,
+				y: event.clientY,
+			},
+			{ snapToGrid: false },
+		)
+
+		const timeStep = event.ctrlKey ? 1 : DEFAULT_TIME_STEP
+
+		const time = step(
+			Math.max(0, Math.floor(x / semiquaverWidth)),
+			timeStep,
+		)
+
+		if (existingPreview && event.buttons === 1) {
+			const [startTime, note] = existingPreview
+			setMusicKeyPreview([
+				startTime,
+				note,
+				Math.max(timeStep, time - startTime + timeStep),
+			])
+		} else {
+			const note = clampLeft(
+				MAX_MUSIC_NOTE - Math.floor(y / lineHeight),
+				0,
+				MAX_MUSIC_NOTE,
+			)
+			setMusicKeyPreview([time, note, DEFAULT_NOTE_DURATION])
+		}
+	}
+
+	const onPaneMouseLeave = () => {
+		const { setMusicKeyPreview } = editorStore.getState()
+		setMusicKeyPreview(null)
+	}
+
+	const nodes = useMemo(
+		() =>
+			Array.from(
+				mapIter(musicKeys.values(), musicKey =>
+					musicKeyToNode(
+						musicKey,
+						musicLayerId,
+						musicKeySelection,
+						semiquaverWidth,
+						lineHeight,
+					),
+				),
+			),
+		[
+			musicKeys,
+			musicLayerId,
+			musicKeySelection,
+			semiquaverWidth,
+			lineHeight,
+		],
+	)
+
 	const onWheel = (event: WheelEvent<HTMLDivElement>) => {
 		const { scrollTimeline } = editorStore.getState()
 		// TODO: workout how to handle horizontal scrolling for different mice
 		const scrollX = event.shiftKey ? event.deltaY : event.deltaX
 		scrollTimeline(scrollX / 2)
+		onPaneMouseMove(event)
 	}
-
-	const nodes = useMemo(() => {
-		if (!musicLayerId) {
-			return []
-		}
-
-		const musicKeysOnLayer = filterIter(
-			musicKeys.values(),
-			musicKey => musicKey.layerId == musicLayerId,
-		)
-
-		return Array.from(
-			mapIter(musicKeysOnLayer, musicKey =>
-				musicKeyToNode(
-					musicKey,
-					musicKeySelection,
-					semiquaverWidth,
-					lineHeight,
-				),
-			),
-		)
-	}, [
-		semiquaverWidth,
-		lineHeight,
-		musicKeys,
-		musicKeySelection,
-		musicLayerId,
-	])
 
 	// TODO: color mode isn't applied after hydration
 	const { theme } = useTheme()
@@ -130,13 +192,17 @@ function MusicFlow({ noteWidth = 120, lineHeight = 24, ...props }: Props) {
 				compositionStore,
 				editorStore,
 			)}
-			nodeOrigin={[0, 1]}
-			snapToGrid
-			snapGrid={[semiquaverWidth, lineHeight]}
 			preventScrolling={false}
 			selectionMode={SelectionMode.Partial}
 			panOnDrag={false}
+			minZoom={1}
+			maxZoom={1}
 			onWheel={onWheel}
+			onPaneMouseMove={onPaneMouseMove}
+			onPaneMouseLeave={onPaneMouseLeave}
+			onNodeMouseEnter={() => (isNodeHovered.current = true)}
+			onNodeMouseLeave={() => (isNodeHovered.current = false)}
+			onDragStart={console.log}
 			colorMode={colorMode}
 			{...props}
 		>
@@ -145,27 +211,45 @@ function MusicFlow({ noteWidth = 120, lineHeight = 24, ...props }: Props) {
 				lineHeight={lineHeight}
 				numberOfLines={MAX_MUSIC_NOTE}
 			/>
+			<ViewportPortal>
+				<MusicKeyPreview
+					lineHeight={lineHeight}
+					semiquaverWidth={semiquaverWidth}
+				/>
+			</ViewportPortal>
 		</ReactFlow>
 	)
 }
 
 function musicKeyToNode(
 	musicKey: MusicKey,
+	musicLayerId: MusicLayerId | null,
 	musicKeySelection: Set<MusicKeyId>,
 	semiquaverWidth: number,
 	lineHeight: number,
 ): MusicKeyNode {
-	const { id, time, duration, note, instrumentId, velocity } = musicKey
+	const { id, layerId, time, duration, note, instrumentId, velocity } =
+		musicKey
+
+	const isOnCurrentLayer = layerId === musicLayerId
+
 	return {
 		type: 'music-key',
 		id,
 		selected: musicKeySelection.has(musicKey.id),
+		selectable: isOnCurrentLayer,
+		draggable: isOnCurrentLayer,
+		focusable: isOnCurrentLayer,
+		deletable: isOnCurrentLayer,
+		// NOTE: reactflow places node components inside its div,
+		// so we can't add pointer-events-none in MusicKeyNode
+		style: { pointerEvents: isOnCurrentLayer ? 'auto' : 'none' },
 		height: lineHeight,
 		width: duration * semiquaverWidth,
 		position: {
 			x: time * semiquaverWidth,
-			y: (MAX_MUSIC_NOTE - note + 1) * lineHeight,
+			y: (MAX_MUSIC_NOTE - note) * lineHeight,
 		},
-		data: { instrumentId, velocity },
+		data: { isOnCurrentLayer, instrumentId, velocity },
 	}
 }

@@ -23,7 +23,8 @@ const EditorStoreContext = createContext<EditorStoreApi | null>(null)
 type Props = PropsWithChildren<
 	Readonly<{
 		panelLayout?: EditorPanelLayout
-		nodeCursor?: [number, number]
+		nodeCursor?: [x: number, y: number]
+		musicKeyPreview?: [time: number, note: number, duration: number] | null
 		timelineScroll?: number
 		nodeSelection?: AudioNodeId[]
 		edgeSelection?: AudioEdgeId[]
@@ -37,6 +38,7 @@ export default function EditorStoreProvider({
 	children,
 	panelLayout = 'horizontal',
 	nodeCursor = [0, 0],
+	musicKeyPreview = null,
 	timelineScroll = 0,
 	selectedInstrumentId,
 	selectedMusicLayerId,
@@ -65,6 +67,7 @@ export default function EditorStoreProvider({
 			dirtyState: 'clean',
 			openedModal: null,
 			nodeCursor,
+			musicKeyPreview,
 			timelineScroll,
 			audioNodeSelection: new Set(nodeSelection),
 			audioEdgeSelection: new Set(edgeSelection),

@@ -10,12 +10,15 @@ import { CompositionStore } from '@/stores/composition-store'
 export const musicFlowNodeType = 'music-key'
 
 export type MusicKeyNode = Node<
-	Pick<MusicKey, 'instrumentId' | 'velocity'>,
+	Pick<MusicKey, 'instrumentId' | 'velocity'> & {
+		isOnCurrentLayer: boolean
+		// TODO: add layerIndex or smth to visually group keys on other layers
+	},
 	typeof musicFlowNodeType
 >
 
 export const musicNodeTypes = {
-	[musicFlowNodeType]: MusicKeyDisplay,
+	[musicFlowNodeType]: MusicKeyNode,
 } satisfies NodeTypes
 
 const instrumentNameSelector =
@@ -23,11 +26,11 @@ const instrumentNameSelector =
 	({ getAudioNodeById: getNodeById }: CompositionStore) =>
 		getNodeById(instrumentId)?.label
 
-function MusicKeyDisplay({
+function MusicKeyNode({
 	width,
 	height,
 	selected,
-	data: { instrumentId },
+	data: { isOnCurrentLayer, instrumentId },
 }: NodeProps<MusicKeyNode>) {
 	const instrumentName = useCompositionStore(
 		instrumentNameSelector(instrumentId),
@@ -40,11 +43,15 @@ function MusicKeyDisplay({
 				'group flex items-center rounded-sm border-2 border-black border-opacity-30 bg-red-500 transition-all',
 				selected &&
 					'border-blue-400 border-opacity-100 dark:border-white',
+				// TODO: add blur when some 'solo' option is set
+				!isOnCurrentLayer && 'pointer-events-none -z-10 opacity-25',
 			)}
 		>
-			<span className="truncate opacity-25 transition group-hover:opacity-100">
-				{instrumentName}
-			</span>
+			{isOnCurrentLayer ? (
+				<span className="truncate opacity-25 transition group-hover:opacity-100">
+					{instrumentName}
+				</span>
+			) : null}
 		</Card>
 	)
 }

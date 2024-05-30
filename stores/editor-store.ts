@@ -19,6 +19,7 @@ export type EditorState = {
 	panelLayout: EditorPanelLayout
 
 	nodeCursor: [x: number, y: number]
+	musicKeyPreview: [time: number, note: number, duration: number] | null
 	timelineScroll: number
 
 	audioNodeSelection: Set<AudioNodeId>
@@ -40,6 +41,9 @@ export type EditorActions = {
 	setPanelLayout: (layout: EditorPanelLayout) => void
 
 	setNodeCursor: (x: number, y: number) => void
+	setMusicKeyPreview: (
+		preview: [time: number, note: number, duration: number] | null,
+	) => void
 	scrollTimeline: (dx: number) => void
 
 	selectAudioNodes: (
@@ -78,6 +82,7 @@ export function createEditorStore(initialState: EditorState) {
 		setPanelLayout: layout => set({ panelLayout: layout }),
 
 		setNodeCursor: (x, y) => set({ nodeCursor: [x, y] }),
+		setMusicKeyPreview: preview => set({ musicKeyPreview: preview }),
 		scrollTimeline: dx =>
 			set({ timelineScroll: Math.max(0, get().timelineScroll + dx) }),
 
@@ -97,7 +102,11 @@ export function createEditorStore(initialState: EditorState) {
 			}
 		},
 
-		selectMusicLayer: id => set({ selectedMusicLayerId: id }),
+		selectMusicLayer: id => {
+			if (get().selectedMusicLayerId != id) {
+				set({ selectedMusicLayerId: id, musicKeySelection: new Set() })
+			}
+		},
 
 		selectMusicKeys: (operation, ids) => {
 			const { musicKeySelection: oldSelection } = get()

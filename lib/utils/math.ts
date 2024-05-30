@@ -10,3 +10,11 @@ export function mapRange(
 export function trimFraction(value: number, maxDigits: number): number {
 	return Number(value.toFixed(maxDigits))
 }
+
+export function step(value: number, stepWidth: number): number {
+	return value - (value % stepWidth)
+}
+
+export function clampLeft(value: number, min: number, max: number) {
+	return Math.max(min, Math.min(value, max))
+}
