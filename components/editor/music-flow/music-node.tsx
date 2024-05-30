@@ -48,7 +48,7 @@ function MusicKeyNode({
 				selected &&
 					'border-blue-400 border-opacity-100 dark:border-white',
 				// TODO: add blur when some 'solo' option is set
-				!isOnCurrentLayer && 'pointer-events-none -z-10 opacity-25',
+				!isOnCurrentLayer && 'pointer-events-none opacity-25',
 			)}
 		>
 			{isOnCurrentLayer ? (

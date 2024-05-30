@@ -90,7 +90,8 @@ function MusicFlow({ noteWidth = 120, lineHeight = 24, ...props }: Props) {
 	useEffect(
 		() =>
 			editorStore.subscribe(timelineScrollSelector, timelineScroll => {
-				reactFlow.setViewport({ x: -timelineScroll, y: 0, zoom: 1 })
+				const scroll = Math.min(timelineScroll)
+				reactFlow.setViewport({ x: -scroll, y: 0, zoom: 1 })
 			}),
 		[reactFlow, editorStore, lineHeight, semiquaverWidth],
 	)
@@ -308,7 +309,10 @@ function musicKeyToNode(
 		draggable: false, // TODO: implement note drag
 		// NOTE: reactflow places node components inside its div,
 		// so we can't add pointer-events-none in MusicKeyNode
-		style: { pointerEvents: isOnCurrentLayer ? 'auto' : 'none' },
+		style: {
+			pointerEvents: isOnCurrentLayer ? 'auto' : 'none',
+			zIndex: isOnCurrentLayer ? 0 : -10,
+		},
 		height: lineHeight,
 		width: duration * semiquaverWidth,
 		position: {

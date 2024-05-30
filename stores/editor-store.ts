@@ -113,6 +113,9 @@ export function createEditorStore(initialState: EditorState) {
 			const newSelection = applySelection(operation, oldSelection, ids)
 			if (newSelection != oldSelection) {
 				set({ musicKeySelection: newSelection })
+
+				// TODO: pressing delete to remove keys also deletes nodes
+				get().selectAudioNodes('replace', [])
 			}
 		},
 
