@@ -64,6 +64,9 @@ const selectionSelector = ({
 	musicKeySelection,
 }: EditorStore) => ({ musicLayerId: selectedMusicLayerId, musicKeySelection })
 
+const playbackInstrumentSelector = ({ playbackInstrumentId }: EditorStore) =>
+	playbackInstrumentId
+
 const timelineScrollSelector = ({ timelineScroll }: EditorStore) =>
 	timelineScroll
 
@@ -121,19 +124,19 @@ function MusicFlow({ noteWidth = 120, lineHeight = 24, ...props }: Props) {
 		)
 
 		if (existingPreview && event.buttons === 1) {
-			const [startTime, note] = existingPreview
-			setMusicKeyPreview([
-				startTime,
+			const { time: startTime, note } = existingPreview
+			setMusicKeyPreview({
+				time: startTime,
 				note,
-				Math.max(timeStep, time - startTime + timeStep),
-			])
+				duration: Math.max(timeStep, time - startTime + timeStep),
+			})
 		} else {
 			const note = clampLeft(
 				MAX_MUSIC_NOTE - Math.floor(y / lineHeight),
 				0,
 				MAX_MUSIC_NOTE,
 			)
-			setMusicKeyPreview([time, note, DEFAULT_NOTE_DURATION])
+			setMusicKeyPreview({ time, note, duration: DEFAULT_NOTE_DURATION })
 		}
 	}
 
@@ -141,6 +144,67 @@ function MusicFlow({ noteWidth = 120, lineHeight = 24, ...props }: Props) {
 		const { setMusicKeyPreview } = editorStore.getState()
 		setMusicKeyPreview(null)
 	}
+
+	const onPaneMouseClick = () => {
+		const {
+			musicKeyPreview,
+			playbackInstrumentId: instrumentId,
+			applyChange,
+		} = editorStore.getState()
+		if (!musicKeyPreview || !instrumentId || !musicLayerId) {
+			return
+		}
+
+		const { createMusicKey } = compositionStore.getState()
+		const { time, note, duration } = musicKeyPreview
+
+		const newKey = createMusicKey(musicLayerId, instrumentId, {
+			time,
+			note,
+			duration,
+		})
+		if (!newKey) {
+			return
+		}
+
+		const { id: keyId } = newKey
+		applyChange({
+			type: 'music-key-add',
+			id: keyId,
+			layerId: musicLayerId,
+			instrumentId,
+			time,
+			note,
+			duration,
+			velocity: 1,
+		})
+	}
+
+	useEffect(
+		() =>
+			editorStore.subscribe(playbackInstrumentSelector, instrumentId => {
+				if (!instrumentId) {
+					return
+				}
+
+				const { setMusicKeyInstrument } = compositionStore.getState()
+				const { musicKeySelection, applyChange } =
+					editorStore.getState()
+
+				const musicKeyIds = [...musicKeySelection]
+				if (setMusicKeyInstrument(musicKeyIds, instrumentId)) {
+					musicKeyIds.forEach(id =>
+						applyChange({
+							type: 'music-key-update',
+							id,
+							instrumentId,
+						}),
+					)
+				}
+			}),
+
+		[compositionStore, editorStore],
+	)
 
 	const nodes = useMemo(
 		() =>
@@ -200,6 +264,7 @@ function MusicFlow({ noteWidth = 120, lineHeight = 24, ...props }: Props) {
 			onWheel={onWheel}
 			onPaneMouseMove={onPaneMouseMove}
 			onPaneMouseLeave={onPaneMouseLeave}
+			onPaneClick={onPaneMouseClick}
 			onNodeMouseEnter={() => (isNodeHovered.current = true)}
 			onNodeMouseLeave={() => (isNodeHovered.current = false)}
 			onDragStart={console.log}
@@ -238,9 +303,9 @@ function musicKeyToNode(
 		id,
 		selected: musicKeySelection.has(musicKey.id),
 		selectable: isOnCurrentLayer,
-		draggable: isOnCurrentLayer,
 		focusable: isOnCurrentLayer,
 		deletable: isOnCurrentLayer,
+		draggable: false, // TODO: implement note drag
 		// NOTE: reactflow places node components inside its div,
 		// so we can't add pointer-events-none in MusicKeyNode
 		style: { pointerEvents: isOnCurrentLayer ? 'auto' : 'none' },

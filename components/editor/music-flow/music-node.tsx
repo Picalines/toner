@@ -1,5 +1,6 @@
 import { Node, NodeTypes } from '@xyflow/react'
 import { NodeProps } from '@xyflow/react'
+import { VolumeXIcon } from 'lucide-react'
 import { AudioNodeId } from '@/lib/schemas/audio-node'
 import { MusicKey } from '@/lib/schemas/music'
 import { cn } from '@/lib/utils'
@@ -36,11 +37,14 @@ function MusicKeyNode({
 		instrumentNameSelector(instrumentId),
 	)
 
+	const instrumentExists = instrumentName !== undefined
+
 	return (
 		<Card
 			style={{ width: width + 'px', height: height + 'px' }}
 			className={cn(
-				'group flex items-center rounded-sm border-2 border-black border-opacity-30 bg-red-500 transition-all',
+				'group flex items-center rounded-sm border-2 border-black border-opacity-30 pl-[2px] transition-all',
+				instrumentExists ? 'bg-red-500' : 'bg-neutral-500',
 				selected &&
 					'border-blue-400 border-opacity-100 dark:border-white',
 				// TODO: add blur when some 'solo' option is set
@@ -49,7 +53,7 @@ function MusicKeyNode({
 		>
 			{isOnCurrentLayer ? (
 				<span className="truncate opacity-25 transition group-hover:opacity-100">
-					{instrumentName}
+					{instrumentName ?? <VolumeXIcon className="h-5 w-5" />}
 				</span>
 			) : null}
 		</Card>

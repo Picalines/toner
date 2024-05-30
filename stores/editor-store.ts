@@ -11,6 +11,8 @@ export type EditorModal = 'composition-info' | 'composition-delete' | 'node-add'
 
 export type EditorPanelLayout = 'horizontal' | 'vertical'
 
+export type MusicKeyPreview = { time: number; note: number; duration: number }
+
 type SelectionOperation = 'add' | 'remove' | 'replace'
 
 export type EditorState = {
@@ -19,7 +21,7 @@ export type EditorState = {
 	panelLayout: EditorPanelLayout
 
 	nodeCursor: [x: number, y: number]
-	musicKeyPreview: [time: number, note: number, duration: number] | null
+	musicKeyPreview: MusicKeyPreview | null
 	timelineScroll: number
 
 	audioNodeSelection: Set<AudioNodeId>
@@ -41,9 +43,7 @@ export type EditorActions = {
 	setPanelLayout: (layout: EditorPanelLayout) => void
 
 	setNodeCursor: (x: number, y: number) => void
-	setMusicKeyPreview: (
-		preview: [time: number, note: number, duration: number] | null,
-	) => void
+	setMusicKeyPreview: (preview: MusicKeyPreview | null) => void
 	scrollTimeline: (dx: number) => void
 
 	selectAudioNodes: (

@@ -21,7 +21,7 @@ export default function MusicKeyPreview({
 		return null
 	}
 
-	const [time, note, duration] = preview
+	const { time, note, duration } = preview
 
 	const { symbol, octave } = musicNoteInfo(note)
 

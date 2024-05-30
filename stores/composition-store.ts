@@ -22,7 +22,7 @@ import {
 	MusicLayerId,
 	musicSchemas,
 } from '@/lib/schemas/music'
-import { capitalize, safeParseOr, someIter } from '@/lib/utils'
+import { capitalize, safeParseOr, someIter, zodIs } from '@/lib/utils'
 
 export type CompositionState = {
 	id: CompositionId
@@ -41,15 +41,15 @@ export type CompositionActions = {
 	setName: (name: string) => void
 	setDescription: (description: string) => void
 
-	getAudioNodeById: (id: AudioNodeId) => AudioNode | null
-	getAudioEdgeById: (id: AudioEdgeId) => AudioEdge | null
-	getMusicLayerById: (id: MusicLayerId) => MusicLayer | null
-	getMusicKeyById: (id: MusicKeyId) => MusicKey | null
+	getAudioNodeById: (id: AudioNodeId) => Readonly<AudioNode> | null
+	getAudioEdgeById: (id: AudioEdgeId) => Readonly<AudioEdge> | null
+	getMusicLayerById: (id: MusicLayerId) => Readonly<MusicLayer> | null
+	getMusicKeyById: (id: MusicKeyId) => Readonly<MusicKey> | null
 
 	createAudioNode: (
 		type: AudioNodeType,
 		position: [number, number],
-	) => AudioNode
+	) => Readonly<AudioNode>
 	renameAudioNode: (id: AudioNodeId, label: string) => boolean
 	moveAudioNode: (
 		id: AudioNodeId,
@@ -64,10 +64,21 @@ export type CompositionActions = {
 	connectAudioNodes: (
 		source: [AudioNodeId, AudioSocketId],
 		target: [AudioNodeId, AudioSocketId],
-	) => AudioEdge | null
+	) => Readonly<AudioEdge> | null
 
-	createMusicLayer: (name: string) => MusicLayer | null
+	createMusicLayer: (name: string) => Readonly<MusicLayer> | null
 	renameMusicLayer: (id: MusicLayerId, name: string) => void
+
+	createMusicKey: (
+		layerId: MusicLayerId,
+		instrumentId: AudioNodeId,
+		note: Pick<MusicKey, 'time' | 'note' | 'duration'>,
+	) => Readonly<MusicKey> | null
+	moveMusicKey: (id: MusicKeyId, time: number, note: number) => boolean
+	setMusicKeyInstrument: (
+		keyIds: MusicKeyId[],
+		instrumentId: AudioNodeId,
+	) => boolean
 
 	removeAudioNode: (id: AudioNodeId) => boolean
 	removeAudioEdge: (id: AudioEdgeId) => boolean
@@ -139,7 +150,7 @@ export function createCompositionStore(initialState: CompositionState) {
 			},
 
 			renameAudioNode: (id, label) => {
-				const node = get().getAudioNodeById(id)
+				const node = get().audioNodes.get(id)
 				if (!node) {
 					return false
 				}
@@ -156,7 +167,7 @@ export function createCompositionStore(initialState: CompositionState) {
 			},
 
 			moveAudioNode: (id, [x, y]) => {
-				const node = get().getAudioNodeById(id)
+				const node = get().audioNodes.get(id)
 				if (!node) {
 					return false
 				}
@@ -258,6 +269,81 @@ export function createCompositionStore(initialState: CompositionState) {
 					musicLayer.name = name
 					set({ musicLayers: new Map(musicLayers) })
 				}
+			},
+
+			createMusicKey: (
+				layerId,
+				instrumentId,
+				{ time, note, duration },
+			) => {
+				if (
+					!zodIs(musicSchemas.keyTime, time) ||
+					!zodIs(musicSchemas.keyNote, note) ||
+					!zodIs(musicSchemas.keyDuration, duration)
+				) {
+					return null
+				}
+
+				const { musicLayers, audioNodes } = get()
+				if (
+					!musicLayers.has(layerId) ||
+					!audioNodes.has(instrumentId)
+				) {
+					return null
+				}
+
+				const newKey: MusicKey = {
+					id: nanoid(),
+					layerId,
+					instrumentId,
+					note,
+					time,
+					duration,
+					velocity: 1, // TODO: workout velocity stuff
+				}
+
+				const musicKeys = new Map(get().musicKeys)
+				musicKeys.set(newKey.id, newKey)
+				set({ musicKeys })
+
+				return newKey
+			},
+
+			moveMusicKey: (id, time, note) => {
+				if (
+					!zodIs(musicSchemas.keyTime, time) ||
+					!zodIs(musicSchemas.keyNote, note)
+				) {
+					return false
+				}
+
+				const musicKey = get().musicKeys.get(id)
+				if (!musicKey) {
+					return false
+				}
+
+				musicKey.time = time
+				musicKey.note = note
+
+				set({ musicKeys: new Map(get().musicKeys) })
+				return true
+			},
+
+			setMusicKeyInstrument: (keyIds, instrumentId) => {
+				const { musicKeys, audioNodes } = get()
+				if (
+					!audioNodes.has(instrumentId) ||
+					keyIds.some(id => !musicKeys.has(id))
+				) {
+					return false
+				}
+
+				for (const keyId of keyIds) {
+					musicKeys.get(keyId)!.instrumentId = instrumentId
+				}
+
+				set({ musicKeys: new Map(musicKeys) })
+				return true
 			},
 
 			removeAudioNode: id => {

@@ -14,6 +14,7 @@ import {
 	EditorPanelLayout,
 	EditorStore,
 	EditorStoreApi,
+	MusicKeyPreview,
 	createEditorStore,
 } from '@/stores/editor-store'
 import { useCompositionStoreApi } from './composition-store-provider'
@@ -24,7 +25,7 @@ type Props = PropsWithChildren<
 	Readonly<{
 		panelLayout?: EditorPanelLayout
 		nodeCursor?: [x: number, y: number]
-		musicKeyPreview?: [time: number, note: number, duration: number] | null
+		musicKeyPreview?: MusicKeyPreview | null
 		timelineScroll?: number
 		nodeSelection?: AudioNodeId[]
 		edgeSelection?: AudioEdgeId[]
