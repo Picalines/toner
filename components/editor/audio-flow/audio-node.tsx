@@ -13,14 +13,12 @@ import {
 	audioNodeDefinitions,
 } from '@/lib/schemas/audio-node'
 import { cn, tw } from '@/lib/utils'
-import { useEditorStore } from '@/components/providers/editor-store-provider'
 import { Card } from '@/components/ui/card'
-import { EditorStore } from '@/stores/editor-store'
 
 export const audioFlowNodeType = 'audio'
 
 export type AudioFlowNode = Node<
-	Pick<AudioNode, 'type' | 'label'>,
+	Pick<AudioNode, 'type' | 'label'> & { isPlaybackInstrument: boolean },
 	typeof audioFlowNodeType
 >
 
@@ -37,21 +35,12 @@ const nodeGroupClassNames: Record<AudioNodeGroup, string> = {
 	component: tw`bg-cyan-500`,
 }
 
-const instrumentSelector = ({ playbackInstrumentId }: EditorStore) =>
-	playbackInstrumentId
-
 function AudioNodeDisplay({
-	id: nodeId,
 	selected,
 	width,
 	height,
-	data: { type, label },
+	data: { type, label, isPlaybackInstrument },
 }: NodeProps<AudioFlowNode>) {
-	// TODO: move playback indicator to AudioFlowNode data.
-	// reason: whole flow is rerendered as is, so we can gather
-	// data once when composition store changes, and then just display it
-	const selectedInstrumentId = useEditorStore(instrumentSelector)
-
 	const { group, inputs, outputs } = audioNodeDefinitions[type]
 
 	return (
@@ -84,7 +73,7 @@ function AudioNodeDisplay({
 			))}
 			<div className="absolute inset-1 left-2 flex flex-row gap-1">
 				<span className="flex-grow text-sm text-white">{label}</span>
-				{selectedInstrumentId == nodeId ? (
+				{isPlaybackInstrument ? (
 					<KeyboardMusicIcon className="h-4 w-4 text-white animate-in zoom-in" />
 				) : null}
 			</div>

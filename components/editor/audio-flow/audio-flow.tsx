@@ -54,9 +54,11 @@ const flowSelector = ({ audioNodes, audioEdges }: CompositionStore) => ({
 const selectionSelector = ({
 	audioNodeSelection: nodeSelection,
 	audioEdgeSelection: edgeSelection,
+	playbackInstrumentId,
 }: EditorStore) => ({
 	nodeSelection,
 	edgeSelection,
+	playbackInstrumentId,
 })
 
 function AudioReactFlow(props: ReactFlowProps<AudioFlowNode, AudioFlowEdge>) {
@@ -72,7 +74,7 @@ function AudioReactFlow(props: ReactFlowProps<AudioFlowNode, AudioFlowEdge>) {
 		compositionStore,
 		useShallow(flowSelector),
 	)
-	const { nodeSelection, edgeSelection } = useStore(
+	const { nodeSelection, edgeSelection, playbackInstrumentId } = useStore(
 		editorStore,
 		useShallow(selectionSelector),
 	)
@@ -89,10 +91,14 @@ function AudioReactFlow(props: ReactFlowProps<AudioFlowNode, AudioFlowEdge>) {
 		() =>
 			Array.from(
 				mapIter(audioNodes.values(), node =>
-					audioNodeToFlowNode(node, nodeSelection),
+					audioNodeToFlowNode(
+						node,
+						nodeSelection,
+						playbackInstrumentId,
+					),
 				),
 			),
-		[audioNodes, nodeSelection],
+		[audioNodes, nodeSelection, playbackInstrumentId],
 	)
 
 	const edges = useMemo(
@@ -165,7 +171,8 @@ function AudioReactFlow(props: ReactFlowProps<AudioFlowNode, AudioFlowEdge>) {
 
 function audioNodeToFlowNode(
 	audioNode: AudioNode,
-	nodeSelection: Set<AudioNodeId>,
+	nodeSelection: ReadonlySet<AudioNodeId>,
+	playbackInstrumentId: AudioNodeId | null,
 ): AudioFlowNode {
 	const {
 		id,
@@ -181,8 +188,12 @@ function audioNodeToFlowNode(
 		deletable: type != 'output',
 		width: 96,
 		height: 64,
-		data: { label, type },
 		selected: nodeSelection.has(id),
+		data: {
+			label,
+			type,
+			isPlaybackInstrument: id === playbackInstrumentId,
+		},
 	}
 }
 
