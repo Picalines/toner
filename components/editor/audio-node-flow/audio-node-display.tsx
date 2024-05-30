@@ -36,7 +36,8 @@ export default function AudioNodeDisplay({
 			className={cn(
 				'border-2 border-black border-opacity-30 p-2 transition-all',
 				nodeGroupClassNames[group],
-				selected && 'border-white border-opacity-100',
+				selected &&
+					'border-blue-400 border-opacity-100 dark:border-white',
 			)}
 			style={{ width: width + 'px', height: height + 'px' }}
 		>

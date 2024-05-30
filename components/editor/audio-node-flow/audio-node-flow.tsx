@@ -68,12 +68,6 @@ function AudioReactFlow(props: ReactFlowProps<AudioFlowNode, AudioFlowEdge>) {
 	const flowId = useId()
 	const backgroundId = useId()
 
-	const { theme } = useTheme()
-	const isMounted = useIsMountedState()
-
-	const colorMode: ColorMode =
-		(isMounted ? (theme as ColorMode) : null) ?? 'light'
-
 	const { audioNodes, audioEdges } = useStore(
 		compositionStore,
 		useShallow(flowSelector),
@@ -110,6 +104,12 @@ function AudioReactFlow(props: ReactFlowProps<AudioFlowNode, AudioFlowEdge>) {
 			),
 		[audioEdges, edgeSelection],
 	)
+
+	// TODO: color mode isn't applied after hydration
+	const { theme } = useTheme()
+	const isMounted = useIsMountedState()
+	const colorMode: ColorMode =
+		(isMounted ? (theme as ColorMode) : null) ?? 'light'
 
 	return (
 		<ReactFlow

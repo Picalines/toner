@@ -26,7 +26,8 @@ export default function MusicKeyDisplay({
 			style={{ width: width + 'px', height: height + 'px' }}
 			className={cn(
 				'group flex items-center rounded-sm border-2 border-black border-opacity-30 bg-red-500 transition-all',
-				selected && 'border-white border-opacity-100',
+				selected &&
+					'border-blue-400 border-opacity-100 dark:border-white',
 			)}
 		>
 			<span className="truncate opacity-25 transition group-hover:opacity-100">

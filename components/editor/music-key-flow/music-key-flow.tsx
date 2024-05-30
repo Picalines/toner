@@ -1,5 +1,6 @@
 import '@xyflow/react/dist/style.css'
 import {
+	ColorMode,
 	EdgeTypes,
 	ReactFlow,
 	ReactFlowProps,
@@ -7,10 +8,12 @@ import {
 	SelectionMode,
 	useReactFlow,
 } from '@xyflow/react'
+import { useTheme } from 'next-themes'
 import { WheelEvent, useEffect, useId, useMemo } from 'react'
 import { useStore } from 'zustand'
 import { useShallow } from 'zustand/react/shallow'
 import { applyFlowNodeChanges } from '@/lib/editor'
+import { useIsMountedState } from '@/lib/hooks'
 import { MAX_MUSIC_NOTE, MusicKey, MusicKeyId } from '@/lib/schemas/music'
 import { filterIter, mapIter } from '@/lib/utils'
 import { useCompositionStoreApi } from '@/components/providers/composition-store-provider'
@@ -107,6 +110,12 @@ function MusicFlow({ noteWidth = 120, lineHeight = 24, ...props }: Props) {
 		musicLayerId,
 	])
 
+	// TODO: color mode isn't applied after hydration
+	const { theme } = useTheme()
+	const isMounted = useIsMountedState()
+	const colorMode: ColorMode =
+		(isMounted ? (theme as ColorMode) : null) ?? 'light'
+
 	return (
 		<ReactFlow
 			id={flowId}
@@ -128,6 +137,7 @@ function MusicFlow({ noteWidth = 120, lineHeight = 24, ...props }: Props) {
 			selectionMode={SelectionMode.Partial}
 			panOnDrag={false}
 			onWheel={onWheel}
+			colorMode={colorMode}
 			{...props}
 		>
 			<MusicKeyBackground
