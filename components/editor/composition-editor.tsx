@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useRef } from 'react'
+import { useEffect, useId, useRef } from 'react'
 import { EditorChangeSummary } from '@/lib/schemas/editor'
 import { cn } from '@/lib/utils'
 import EditorStoreProvider, {
@@ -74,6 +74,8 @@ function CompositionEditorPanels({
 	const nodeEditorDirection =
 		panelLayout == 'vertical' ? 'horizontal' : 'vertical'
 
+	const reverseAudioGroup = panelLayout == 'horizontal'
+
 	return (
 		<ResizablePanelGroup
 			direction={panelLayout}
@@ -84,12 +86,23 @@ function CompositionEditorPanels({
 			</ResizablePanel>
 			<ResizableHandle withHandle />
 			<ResizablePanel defaultSize={50}>
-				<ResizablePanelGroup direction={nodeEditorDirection}>
-					<ResizablePanel defaultSize={30}>
+				<ResizablePanelGroup
+					direction={nodeEditorDirection}
+					className={cn(reverseAudioGroup && '!flex-col-reverse')}
+				>
+					<ResizablePanel
+						id={useId()}
+						order={reverseAudioGroup ? 2 : 1}
+						defaultSize={30}
+					>
 						<NodePropertiesEditor className="h-full" />
 					</ResizablePanel>
 					<ResizableHandle />
-					<ResizablePanel defaultSize={70}>
+					<ResizablePanel
+						id={useId()}
+						order={reverseAudioGroup ? 1 : 2}
+						defaultSize={70}
+					>
 						<AudioFlow />
 					</ResizablePanel>
 				</ResizablePanelGroup>
