@@ -17,7 +17,7 @@ import AudioFlow from './audio-flow'
 import CompositionEditorHeader from './composition-editor-header'
 import CompositionInfoModal from './composition-info-modal'
 import CreateNodeModal from './create-node-modal'
-import MusicKeyEditor from './music-key-editor'
+import MusicEditor from './music-editor'
 import NodePropertiesEditor from './node-properties-editor'
 import { useCompositionChangeWatcher } from './use-composition-change-watcher'
 import { useToneEditorWatcher } from './use-tone-editor-watcher'
@@ -111,7 +111,7 @@ function MusicKeyEditorPanel() {
 
 	return (
 		<ScrollArea viewportRef={keyPanelViewport} className="h-full">
-			<MusicKeyEditor />
+			<MusicEditor />
 			<ScrollBar orientation="vertical" />
 		</ScrollArea>
 	)

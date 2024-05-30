@@ -13,7 +13,7 @@ import {
 	ResizablePanelGroup,
 } from '../ui/resizable'
 import EditorTimeline from './editor-timeline'
-import MusicKeyFlow from './music-key-flow'
+import MusicFlow from './music-flow'
 import MusicLayerSelector from './music-layer-selector'
 
 type Props = Readonly<{
@@ -25,7 +25,7 @@ const DEFAULT_NOTE_WIDTH = 120
 
 const NOTE_LINE_HEIGHT = 24
 
-export default function MusicKeyEditor({ className }: Props) {
+export default function MusicEditor({ className }: Props) {
 	const editorStore = useEditorStoreApi()
 	const toneStore = useToneStoreApi()
 
@@ -91,7 +91,7 @@ export default function MusicKeyEditor({ className }: Props) {
 					className="sticky top-0 z-10 h-6 border-b"
 					columnWidth={DEFAULT_NOTE_WIDTH}
 				/>
-				<MusicKeyFlow
+				<MusicFlow
 					className="w-full"
 					noteWidth={DEFAULT_NOTE_WIDTH}
 					lineHeight={NOTE_LINE_HEIGHT}

@@ -10,7 +10,7 @@ type Props = PropsWithoutChildren<ComponentProps<'div'>> &
 		accidentalClassName?: string
 	}>
 
-function MusicKeyBackground({
+function MusicFlowBackground({
 	lineHeight = 16,
 	numberOfLines = 12,
 	naturalClassName = tw`fill-white dark:fill-neutral-900`,
@@ -74,4 +74,4 @@ function MusicKeyBackground({
 	)
 }
 
-export default memo(MusicKeyBackground)
+export default memo(MusicFlowBackground)

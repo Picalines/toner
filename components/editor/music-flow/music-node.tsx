@@ -1,17 +1,29 @@
+import { Node, NodeTypes } from '@xyflow/react'
 import { NodeProps } from '@xyflow/react'
 import { AudioNodeId } from '@/lib/schemas/audio-node'
+import { MusicKey } from '@/lib/schemas/music'
 import { cn } from '@/lib/utils'
 import { useCompositionStore } from '@/components/providers/composition-store-provider'
 import { Card } from '@/components/ui/card'
 import { CompositionStore } from '@/stores/composition-store'
-import { MusicKeyNode } from './music-key-node'
+
+export const musicFlowNodeType = 'music-key'
+
+export type MusicKeyNode = Node<
+	Pick<MusicKey, 'instrumentId' | 'velocity'>,
+	typeof musicFlowNodeType
+>
+
+export const musicNodeTypes = {
+	[musicFlowNodeType]: MusicKeyDisplay,
+} satisfies NodeTypes
 
 const instrumentNameSelector =
 	(instrumentId: AudioNodeId) =>
 	({ getAudioNodeById: getNodeById }: CompositionStore) =>
 		getNodeById(instrumentId)?.label
 
-export default function MusicKeyDisplay({
+function MusicKeyDisplay({
 	width,
 	height,
 	selected,

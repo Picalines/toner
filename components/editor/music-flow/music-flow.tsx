@@ -20,8 +20,8 @@ import { useCompositionStoreApi } from '@/components/providers/composition-store
 import { useEditorStoreApi } from '@/components/providers/editor-store-provider'
 import { CompositionStore } from '@/stores/composition-store'
 import { EditorStore } from '@/stores/editor-store'
-import MusicKeyBackground from './music-key-background'
-import { MusicKeyNode, musicNodeTypes } from './music-key-node'
+import MusicFlowBackground from './music-flow-background'
+import { MusicKeyNode, musicNodeTypes } from './music-node'
 
 type Props = ReactFlowProps &
 	Readonly<{
@@ -140,7 +140,7 @@ function MusicFlow({ noteWidth = 120, lineHeight = 24, ...props }: Props) {
 			colorMode={colorMode}
 			{...props}
 		>
-			<MusicKeyBackground
+			<MusicFlowBackground
 				className="absolute left-0 top-0 w-full"
 				lineHeight={lineHeight}
 				numberOfLines={MAX_MUSIC_NOTE}
