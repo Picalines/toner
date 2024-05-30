@@ -199,7 +199,7 @@ function NodePropertySlider<T extends AudioNodeType>({
 	return (
 		<div
 			className={cn(
-				'relative h-min cursor-ew-resize text-nowrap p-1 px-2 shadow-[0_0_2px_rgba(0,0,0,0.2)]',
+				'relative h-min cursor-ew-resize select-none text-nowrap p-1 px-2 shadow-[0_0_2px_rgba(0,0,0,0.2)]',
 				className,
 			)}
 		>
