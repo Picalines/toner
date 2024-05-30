@@ -253,10 +253,11 @@ export async function updateComposition(changeSummary: EditorChangeSummary) {
 				}
 
 				case 'update': {
-					const { note, time, duration, velocity } = keyUpdate
+					const { instrumentId, note, time, duration, velocity } =
+						keyUpdate
 					await tx
 						.update(musicKeyTable)
-						.set({ note, time, duration, velocity })
+						.set({ instrumentId, note, time, duration, velocity })
 						.where(
 							and(
 								eq(musicKeyTable.compositionId, compositionId),
