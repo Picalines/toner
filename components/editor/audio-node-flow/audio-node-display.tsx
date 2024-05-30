@@ -47,6 +47,7 @@ export default function AudioNodeDisplay({
 					type="target"
 					id={String(i)}
 					position={Position.Left}
+					className="!h-2 !w-2"
 				/>
 			))}
 			{outputs.map((_, i) => (
@@ -55,6 +56,7 @@ export default function AudioNodeDisplay({
 					type="source"
 					id={String(i)}
 					position={Position.Right}
+					className="!h-2 !w-2"
 				/>
 			))}
 			<div className="absolute inset-1 left-2 flex flex-row gap-1">
