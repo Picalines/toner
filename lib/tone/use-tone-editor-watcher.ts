@@ -5,6 +5,7 @@ import { createToneNode, setToneNodeProperty } from '@/lib/tone'
 import { useCompositionStoreApi } from '@/components/providers/composition-store-provider'
 import { useEditorStoreApi } from '@/components/providers/editor-store-provider'
 import { useToneStoreApi } from '@/components/providers/tone-store-provider'
+import { musicKeyToToneEvent } from './music-key-to-event'
 
 export function useToneEditorWatcher() {
 	const compositionStore = useCompositionStoreApi()
@@ -16,13 +17,16 @@ export function useToneEditorWatcher() {
 			editorStore.subscribe(
 				editor => editor.changeHistory,
 				changeHistory => {
-					const { getAudioNodeById } = compositionStore.getState()
+					const { getAudioNodeById, getMusicKeyById } =
+						compositionStore.getState()
 					const {
-						getToneNodeById: getToneNodeById,
-						addNode: addToneNode,
+						addToneNode,
+						getToneNodeById,
+						addToneEvent,
 						connect,
 						disconnect,
 						disposeNode,
+						disposeEvent,
 					} = toneStore.getState()
 
 					const change = changeHistory[changeHistory.length - 1]
@@ -70,6 +74,34 @@ export function useToneEditorWatcher() {
 
 						case 'edge-remove': {
 							disconnect(change.id)
+							break
+						}
+
+						case 'music-key-add': {
+							const { id: musicKeyId } = change
+							const event = musicKeyToToneEvent(change, toneStore)
+							addToneEvent(event, musicKeyId)
+							break
+						}
+
+						case 'music-key-update': {
+							const { id: musicKeyId } = change
+							disposeEvent(musicKeyId)
+
+							const musicKey = getMusicKeyById(musicKeyId)
+							if (musicKey) {
+								const event = musicKeyToToneEvent(
+									musicKey,
+									toneStore,
+								)
+								addToneEvent(event, musicKeyId)
+							}
+							break
+						}
+
+						case 'music-key-remove': {
+							const { id: musicKeyId } = change
+							disposeEvent(musicKeyId)
 							break
 						}
 					}

@@ -5,6 +5,7 @@ import { useCompositionStoreApi } from '@/components/providers/composition-store
 import { useToneStoreApi } from '@/components/providers/tone-store-provider'
 import { ToneStore } from '../stores'
 import { createToneNode } from './create-node'
+import { musicKeyToToneEvent } from './music-key-to-event'
 
 const audioInitSelector = ({ isAudioAvailable }: ToneStore) => isAudioAvailable
 
@@ -35,6 +36,11 @@ export function useToneCompositionInitializer() {
 						[edge.target, edge.targetSocket],
 						edgeId,
 					)
+				}
+
+				for (const [musicKeyId, musicKey] of musicKeys) {
+					const event = musicKeyToToneEvent(musicKey, toneStore)
+					addToneEvent(event, musicKeyId)
 				}
 			}),
 		[compositionStore, toneStore],
