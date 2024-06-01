@@ -1,4 +1,17 @@
-import * as Tone from 'tone'
+import {
+	Compressor,
+	Gain,
+	Panner,
+	PolySynth,
+	Reverb,
+	Synth,
+	type ToneAudioNode,
+	type Param as ToneParam,
+	type Signal as ToneSignal,
+	type Unit as ToneUnit,
+	Vibrato,
+	getDestination as getToneDestination,
+} from 'tone'
 import {
 	AudioNodeDefinition,
 	AudioNodeProperties,
@@ -8,7 +21,7 @@ import {
 import { KeyOfUnion } from '@/lib/utils'
 
 type MappedToneNode = {
-	toneNode: Tone.ToneAudioNode
+	toneNode: ToneAudioNode
 	setProperty: (key: string, value: number) => void
 }
 
@@ -36,7 +49,7 @@ export function createToneNode<T extends AudioNodeType>(
 }
 
 type ToneNodeMapping<T extends AudioNodeType> = {
-	toneNode: Tone.ToneAudioNode
+	toneNode: ToneAudioNode
 	setters: {
 		[P in keyof AudioNodeProperties<T>]: (value: number) => void
 	}
@@ -48,7 +61,7 @@ type ToneNodeMappings = {
 
 const TONE_NODE_MAPPINGS: ToneNodeMappings = {
 	output: () => {
-		const toneNode = Tone.getDestination()
+		const toneNode = getToneDestination()
 		return {
 			toneNode,
 			setters: {
@@ -58,8 +71,10 @@ const TONE_NODE_MAPPINGS: ToneNodeMappings = {
 	},
 
 	synth: synthDef => {
-		const synth = new Tone.PolySynth(Tone.Synth)
+		const synth = new PolySynth(Synth)
+
 		const oscType = labelGetter(synthDef, 'osc.type')
+
 		return {
 			toneNode: synth,
 			setters: {
@@ -76,7 +91,7 @@ const TONE_NODE_MAPPINGS: ToneNodeMappings = {
 	},
 
 	gain: () => {
-		const gain = new Tone.Gain(undefined, 'decibels')
+		const gain = new Gain(undefined, 'decibels')
 		return {
 			toneNode: gain,
 			setters: {
@@ -86,7 +101,7 @@ const TONE_NODE_MAPPINGS: ToneNodeMappings = {
 	},
 
 	reverb: () => {
-		const reverb = new Tone.Reverb()
+		const reverb = new Reverb()
 		return {
 			toneNode: reverb,
 			setters: {
@@ -97,7 +112,7 @@ const TONE_NODE_MAPPINGS: ToneNodeMappings = {
 	},
 
 	vibrato: vibratoDef => {
-		const vibrato = new Tone.Vibrato()
+		const vibrato = new Vibrato()
 		const type = labelGetter(vibratoDef, 'type')
 		return {
 			toneNode: vibrato,
@@ -112,7 +127,7 @@ const TONE_NODE_MAPPINGS: ToneNodeMappings = {
 	},
 
 	compressor: () => {
-		const compressor = new Tone.Compressor()
+		const compressor = new Compressor()
 		return {
 			toneNode: compressor,
 			setters: {
@@ -126,7 +141,7 @@ const TONE_NODE_MAPPINGS: ToneNodeMappings = {
 	},
 
 	panner: () => {
-		const panner = new Tone.Panner()
+		const panner = new Panner()
 		return {
 			toneNode: panner,
 			setters: {
@@ -136,20 +151,11 @@ const TONE_NODE_MAPPINGS: ToneNodeMappings = {
 	},
 }
 
-// TODO: Tone.Unit is not exported
-type ToneUnit =
-	| 'audioRange'
-	| 'decibels'
-	| 'frequency'
-	| 'normalRange'
-	| 'positive'
-	| 'time'
-
-function paramSetter<U extends ToneUnit>(param: Tone.Param<U>) {
+function paramSetter<U extends ToneUnit.UnitName>(param: ToneParam<U>) {
 	return (value: number) => (param.value = value)
 }
 
-function signalSetter<U extends ToneUnit>(signal: Tone.Signal<U>) {
+function signalSetter<U extends ToneUnit.UnitName>(signal: ToneSignal<U>) {
 	return (value: number) => (signal.value = value)
 }
 
