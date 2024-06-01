@@ -1,7 +1,7 @@
 import { musicNoteInfo } from '@/lib/music'
 import { MAX_MUSIC_NOTE } from '@/lib/schemas/music'
 import { EditorStore } from '@/lib/stores'
-import { useEditorStore } from '@/components/providers'
+import { useEditorStore } from '@/components/providers/editor-store-provider'
 import { Card } from '@/components/ui/card'
 
 type Props = Readonly<{

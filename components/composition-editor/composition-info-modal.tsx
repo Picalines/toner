@@ -10,11 +10,6 @@ import { useConstant } from '@/lib/hooks'
 import { compositionSchemas } from '@/lib/schemas/composition'
 import { CompositionStore, EditorStore } from '@/lib/stores'
 import {
-	useCompositionStoreApi,
-	useEditorStore,
-	useEditorStoreApi,
-} from '@/components/providers'
-import {
 	Dialog,
 	DialogContent,
 	DialogHeader,
@@ -30,6 +25,11 @@ import {
 } from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
 import { TextArea } from '@/components/ui/text-area'
+import { useCompositionStoreApi } from '../providers/composition-store-provider'
+import {
+	useEditorStore,
+	useEditorStoreApi,
+} from '../providers/editor-store-provider'
 
 const modalSelector = ({ openedModal, closeModal }: EditorStore) => ({
 	openedModal,

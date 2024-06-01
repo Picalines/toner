@@ -5,7 +5,7 @@ import { AudioNodeId } from '@/lib/schemas/audio-node'
 import { MusicKey } from '@/lib/schemas/music'
 import { CompositionStore } from '@/lib/stores'
 import { cn } from '@/lib/utils'
-import { useCompositionStore } from '@/components/providers'
+import { useCompositionStore } from '@/components/providers/composition-store-provider'
 import { Card } from '@/components/ui/card'
 
 export const musicFlowNodeType = 'music-key'

@@ -4,7 +4,8 @@ import { useCallback } from 'react'
 import * as Tone from 'tone'
 import { musicNoteInfo } from '@/lib/music'
 import { cn } from '@/lib/utils'
-import { useEditorStoreApi, useToneStoreApi } from '../providers'
+import { useEditorStoreApi } from '../providers/editor-store-provider'
+import { useToneStoreApi } from '../providers/tone-store-provider'
 import {
 	ResizableHandle,
 	ResizablePanel,

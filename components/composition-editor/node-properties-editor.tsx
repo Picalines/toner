@@ -23,9 +23,11 @@ import {
 import {
 	useCompositionStore,
 	useCompositionStoreApi,
+} from '../providers/composition-store-provider'
+import {
 	useEditorStore,
 	useEditorStoreApi,
-} from '../providers'
+} from '../providers/editor-store-provider'
 import { Input } from '../ui/input'
 import { ScrollArea, ScrollBar } from '../ui/scroll-area'
 import { Slider } from '../ui/slider'

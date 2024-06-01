@@ -3,10 +3,8 @@ import { useDebouncedCallback } from 'use-debounce'
 import { applyEditorChangeToSummary } from '@/lib/editor/apply-to-summary'
 import { EditorChangeSummary } from '@/lib/schemas/editor'
 import { EditorStore } from '@/lib/stores'
-import {
-	useCompositionStoreApi,
-	useEditorStoreApi,
-} from '@/components/providers'
+import { useCompositionStoreApi } from '../providers/composition-store-provider'
+import { useEditorStoreApi } from '../providers/editor-store-provider'
 
 const changeSelector = ({ changeHistory }: EditorStore) => changeHistory
 

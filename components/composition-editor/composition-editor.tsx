@@ -5,13 +5,15 @@ import { EditorChangeSummary } from '@/lib/schemas/editor'
 import { EditorPanelLayout, EditorStore } from '@/lib/stores'
 import { useToneCompositionInitializer, useToneEditorWatcher } from '@/lib/tone'
 import { cn } from '@/lib/utils'
-import { EditorStoreProvider, useEditorStore } from '@/components/providers'
 import {
 	ResizableHandle,
 	ResizablePanel,
 	ResizablePanelGroup,
 } from '@/components/ui/resizable'
 import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area'
+import EditorStoreProvider, {
+	useEditorStore,
+} from '../providers/editor-store-provider'
 import AudioFlow from './audio-flow'
 import CompositionEditorHeader from './composition-editor-header'
 import CompositionInfoModal from './composition-info-modal'

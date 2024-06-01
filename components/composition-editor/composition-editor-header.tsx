@@ -9,9 +9,11 @@ import {
 } from 'lucide-react'
 import Link from 'next/link'
 import { PropsWithChildren } from 'react'
+import { CompositionStore, EditorStore } from '@/lib/stores'
 import { cn } from '@/lib/utils'
 import BackButton from '@/components/back-button'
-import { useCompositionStore, useEditorStore } from '@/components/providers'
+import { useCompositionStore } from '@/components/providers/composition-store-provider'
+import { useEditorStore } from '@/components/providers/editor-store-provider'
 import ThemeToggle from '@/components/theme-toggle'
 import { Button } from '@/components/ui/button'
 import {
@@ -34,10 +36,13 @@ type Props = Readonly<{
 	className?: string
 }>
 
-export default function CompositionEditorHeader({ className }: Props) {
-	const compositionName = useCompositionStore(composition => composition.name)
+const compositionNameSelector = ({ name }: CompositionStore) => name
 
-	const dirtyState = useEditorStore(editor => editor.dirtyState)
+const dirtyStateSelector = ({ dirtyState }: EditorStore) => dirtyState
+
+export default function CompositionEditorHeader({ className }: Props) {
+	const compositionName = useCompositionStore(compositionNameSelector)
+	const dirtyState = useEditorStore(dirtyStateSelector)
 
 	return (
 		<div

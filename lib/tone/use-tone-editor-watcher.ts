@@ -2,11 +2,9 @@
 
 import { useEffect } from 'react'
 import { createToneNode, setToneNodeProperty } from '@/lib/tone'
-import {
-	useCompositionStoreApi,
-	useEditorStoreApi,
-	useToneStoreApi,
-} from '@/components/providers'
+import { useCompositionStoreApi } from '@/components/providers/composition-store-provider'
+import { useEditorStoreApi } from '@/components/providers/editor-store-provider'
+import { useToneStoreApi } from '@/components/providers/tone-store-provider'
 
 export function useToneEditorWatcher() {
 	const compositionStore = useCompositionStoreApi()

@@ -30,10 +30,8 @@ import {
 } from '@/lib/schemas/music'
 import { CompositionStore, EditorStore } from '@/lib/stores'
 import { clampLeft, mapIter, step } from '@/lib/utils'
-import {
-	useCompositionStoreApi,
-	useEditorStoreApi,
-} from '@/components/providers'
+import { useCompositionStoreApi } from '@/components/providers/composition-store-provider'
+import { useEditorStoreApi } from '@/components/providers/editor-store-provider'
 import MusicFlowBackground from './music-flow-background'
 import MusicKeyPreview from './music-key-preview'
 import { MusicKeyNode, musicNodeTypes } from './music-node'

@@ -8,7 +8,7 @@ import {
 import { ComponentProps, FunctionComponent, memo } from 'react'
 import { EditorStore } from '@/lib/stores'
 import { cn } from '@/lib/utils'
-import { useEditorStore } from '@/components/providers'
+import { useEditorStore } from '@/components/providers/editor-store-provider'
 import { Button } from '@/components/ui/button'
 import {
 	Tooltip,

@@ -1,7 +1,8 @@
 'use client'
 
 import { useEffect } from 'react'
-import { useCompositionStoreApi, useToneStoreApi } from '@/components/providers'
+import { useCompositionStoreApi } from '@/components/providers/composition-store-provider'
+import { useToneStoreApi } from '@/components/providers/tone-store-provider'
 import { ToneStore } from '../stores'
 import { createToneNode } from './create-node'
 
