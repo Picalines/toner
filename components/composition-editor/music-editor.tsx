@@ -4,7 +4,6 @@ import { useCallback } from 'react'
 import * as Tone from 'tone'
 import { musicNoteInfo } from '@/lib/music'
 import { cn } from '@/lib/utils'
-import PianoRoll, { KeyEvent } from '@/components/editor/piano-roll'
 import { useEditorStoreApi } from '../providers/editor-store-provider'
 import { useToneStoreApi } from '../providers/tone-store-provider'
 import {
@@ -15,6 +14,7 @@ import {
 import EditorTimeline from './editor-timeline'
 import MusicFlow from './music-flow'
 import MusicLayerSelector from './music-layer-selector'
+import PianoRoll, { KeyEvent } from './piano-roll'
 
 type Props = Readonly<{
 	className?: string
