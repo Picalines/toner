@@ -134,7 +134,6 @@ export function useToneEditorWatcher() {
 			toneUnsubscribe()
 
 			edges.current?.clear()
-			toneStore.getState().disposeAll()
 		}
 	}, [compositionStore, editorStore, toneStore])
 }
