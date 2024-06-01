@@ -12,7 +12,7 @@ type Props = Readonly<{
 	noteClassName?: string
 }>
 
-// TODO: ui mockup, add functionality
+const TIMELINE_DIVISIONS = 4
 
 const timelineScrollSelector = ({ timelineScroll }: EditorStore) =>
 	timelineScroll
@@ -33,26 +33,22 @@ export default function EditorTimeline({
 				<pattern
 					id={patternId}
 					viewBox="0 0 1 1"
+					x={-timelineScroll}
 					width={columnWidth}
 					height={1}
 					patternUnits="userSpaceOnUse"
 					preserveAspectRatio="xMaxYMin meet"
 				>
-					{/* TODO: more divisions */}
-					<rect
-						x={-columnWidth / 2}
-						y={0}
-						width={1}
-						height={1}
-						className={cn('opacity-50', noteClassName)}
-					/>
-					<rect
-						x={0}
-						y={0}
-						width={1}
-						height={1}
-						className={noteClassName}
-					/>
+					{Array.from({ length: TIMELINE_DIVISIONS }).map((_, i) => (
+						<rect
+							key={i}
+							x={(-columnWidth / TIMELINE_DIVISIONS) * i}
+							y={0}
+							width={1}
+							height={1}
+							className={cn(i > 0 && 'opacity-50', noteClassName)}
+						/>
+					))}
 				</pattern>
 				<rect
 					x={0}
@@ -67,7 +63,6 @@ export default function EditorTimeline({
 					y={0}
 					width="100%"
 					height="100%"
-					transform={`translate(${-timelineScroll})`}
 				/>
 			</svg>
 		</div>
