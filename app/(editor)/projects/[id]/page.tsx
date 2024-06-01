@@ -2,8 +2,10 @@ import { authenticateOrRedirect } from '@/lib/auth'
 import { audioNodeSchemas } from '@/lib/schemas/audio-node'
 import { DeepReadonly, capitalize } from '@/lib/utils'
 import CompositionEditor from '@/components/composition-editor'
-import CompositionStoreProvider from '@/components/providers/composition-store-provider'
-import ToneStoreProvider from '@/components/providers/tone-store-provider'
+import {
+	CompositionStoreProvider,
+	ToneStoreProvider,
+} from '@/components/providers'
 import { fetchComposition } from './fetch-composition'
 import { parseProjectId } from './parse-project-id'
 import { updateComposition } from './update-composition'

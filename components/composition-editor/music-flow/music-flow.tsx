@@ -28,11 +28,12 @@ import {
 	MusicKeyId,
 	MusicLayerId,
 } from '@/lib/schemas/music'
+import { CompositionStore, EditorStore } from '@/lib/stores'
 import { clampLeft, mapIter, step } from '@/lib/utils'
-import { useCompositionStoreApi } from '@/components/providers/composition-store-provider'
-import { useEditorStoreApi } from '@/components/providers/editor-store-provider'
-import { CompositionStore } from '@/stores/composition-store'
-import { EditorStore } from '@/stores/editor-store'
+import {
+	useCompositionStoreApi,
+	useEditorStoreApi,
+} from '@/components/providers'
 import MusicFlowBackground from './music-flow-background'
 import MusicKeyPreview from './music-key-preview'
 import { MusicKeyNode, musicNodeTypes } from './music-node'

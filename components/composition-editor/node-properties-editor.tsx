@@ -11,6 +11,7 @@ import {
 	AudioNodeType,
 	audioNodeDefinitions,
 } from '@/lib/schemas/audio-node'
+import { CompositionStore, EditorStore } from '@/lib/stores'
 import {
 	KeyOfUnion,
 	cn,
@@ -19,16 +20,12 @@ import {
 	trimFraction,
 	tw,
 } from '@/lib/utils'
-import { CompositionStore } from '@/stores/composition-store'
-import { EditorStore } from '@/stores/editor-store'
 import {
 	useCompositionStore,
 	useCompositionStoreApi,
-} from '../providers/composition-store-provider'
-import {
 	useEditorStore,
 	useEditorStoreApi,
-} from '../providers/editor-store-provider'
+} from '../providers'
 import { Input } from '../ui/input'
 import { ScrollArea, ScrollBar } from '../ui/scroll-area'
 import { Slider } from '../ui/slider'

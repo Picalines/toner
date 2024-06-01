@@ -1,7 +1,6 @@
 import { Connection, EdgeChange, NodeChange } from '@xyflow/react'
-import { CompositionStoreApi } from '@/stores/composition-store'
-import { EditorStoreApi } from '@/stores/editor-store'
 import { audioNodeDefinitions, audioNodeSchemas } from '../schemas/audio-node'
+import { CompositionStoreApi, EditorStoreApi } from '../stores'
 import { safeParseOr } from '../utils'
 
 export function applyFlowNodeChanges(

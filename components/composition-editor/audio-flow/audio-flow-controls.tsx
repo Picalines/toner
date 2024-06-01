@@ -6,8 +6,9 @@ import {
 	ZoomOutIcon,
 } from 'lucide-react'
 import { ComponentProps, FunctionComponent, memo } from 'react'
+import { EditorStore } from '@/lib/stores'
 import { cn } from '@/lib/utils'
-import { useEditorStore } from '@/components/providers/editor-store-provider'
+import { useEditorStore } from '@/components/providers'
 import { Button } from '@/components/ui/button'
 import {
 	Tooltip,
@@ -15,7 +16,6 @@ import {
 	TooltipContent,
 	TooltipTrigger,
 } from '@/components/ui/tooltip'
-import { EditorStore } from '@/stores/editor-store'
 
 const modalSelector = ({ openModal }: EditorStore) => openModal
 

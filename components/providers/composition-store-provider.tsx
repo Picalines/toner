@@ -9,7 +9,7 @@ import {
 	CompositionStore,
 	CompositionStoreApi,
 	createCompositionStore,
-} from '@/stores/composition-store'
+} from '@/lib/stores'
 
 const CompositionStoreContext = createContext<CompositionStoreApi | null>(null)
 

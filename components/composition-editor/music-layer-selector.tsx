@@ -9,11 +9,10 @@ import {
 import { useState } from 'react'
 import { useStore } from 'zustand'
 import { MusicLayerId } from '@/lib/schemas/music'
+import { CompositionStore } from '@/lib/stores'
+import { EditorStore } from '@/lib/stores'
 import { cn, takeFirst, takeWhile } from '@/lib/utils'
-import { CompositionStore } from '@/stores/composition-store'
-import { EditorStore } from '@/stores/editor-store'
-import { useCompositionStoreApi } from '../providers/composition-store-provider'
-import { useEditorStoreApi } from '../providers/editor-store-provider'
+import { useCompositionStoreApi, useEditorStoreApi } from '../providers'
 import { Button } from '../ui/button'
 import {
 	Command,

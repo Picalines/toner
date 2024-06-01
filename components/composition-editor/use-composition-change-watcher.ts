@@ -2,9 +2,11 @@ import { useEffect, useRef } from 'react'
 import { useDebouncedCallback } from 'use-debounce'
 import { applyEditorChangeToSummary } from '@/lib/editor/apply-to-summary'
 import { EditorChangeSummary } from '@/lib/schemas/editor'
-import { useCompositionStoreApi } from '@/components/providers/composition-store-provider'
-import { useEditorStoreApi } from '@/components/providers/editor-store-provider'
-import { EditorStore } from '@/stores/editor-store'
+import { EditorStore } from '@/lib/stores'
+import {
+	useCompositionStoreApi,
+	useEditorStoreApi,
+} from '@/components/providers'
 
 const changeSelector = ({ changeHistory }: EditorStore) => changeHistory
 

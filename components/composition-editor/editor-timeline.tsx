@@ -1,9 +1,9 @@
 'use client'
 
 import { useId } from 'react'
+import { EditorStore } from '@/lib/stores'
 import { cn, tw } from '@/lib/utils'
-import { EditorStore } from '@/stores/editor-store'
-import { useEditorStore } from '../providers/editor-store-provider'
+import { useEditorStore } from '../providers'
 
 type Props = Readonly<{
 	columnWidth?: number

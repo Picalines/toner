@@ -1,8 +1,8 @@
 import { musicNoteInfo } from '@/lib/music'
 import { MAX_MUSIC_NOTE } from '@/lib/schemas/music'
-import { useEditorStore } from '@/components/providers/editor-store-provider'
+import { EditorStore } from '@/lib/stores'
+import { useEditorStore } from '@/components/providers'
 import { Card } from '@/components/ui/card'
-import { EditorStore } from '@/stores/editor-store'
 
 type Props = Readonly<{
 	lineHeight: number

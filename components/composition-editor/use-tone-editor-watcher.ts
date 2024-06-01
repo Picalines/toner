@@ -3,9 +3,11 @@
 import { useEffect, useRef } from 'react'
 import { AudioEdgeId, AudioNodeId } from '@/lib/schemas/audio-node'
 import { createToneNode, setToneNodeProperty } from '@/lib/tone'
-import { useCompositionStoreApi } from '../providers/composition-store-provider'
-import { useEditorStoreApi } from '../providers/editor-store-provider'
-import { useToneStoreApi } from '../providers/tone-store-provider'
+import {
+	useCompositionStoreApi,
+	useEditorStoreApi,
+	useToneStoreApi,
+} from '../providers'
 
 // TODO: separate this thing in to parts:
 //  - one that creates initial nodes from compositionStore

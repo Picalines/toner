@@ -29,11 +29,12 @@ import {
 	AudioNode,
 	AudioNodeId,
 } from '@/lib/schemas/audio-node'
+import { CompositionStore, EditorStore } from '@/lib/stores'
 import { mapIter } from '@/lib/utils'
-import { useCompositionStoreApi } from '@/components/providers/composition-store-provider'
-import { useEditorStoreApi } from '@/components/providers/editor-store-provider'
-import { CompositionStore } from '@/stores/composition-store'
-import { EditorStore } from '@/stores/editor-store'
+import {
+	useCompositionStoreApi,
+	useEditorStoreApi,
+} from '@/components/providers'
 import AudioFlowControls from './audio-flow-controls'
 import { AudioFlowEdge, AudioFlowNode, audioNodeTypes } from './audio-node'
 import NodeCursor from './node-cursor'

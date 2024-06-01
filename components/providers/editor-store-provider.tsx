@@ -9,14 +9,14 @@ import {
 	audioNodeDefinitions,
 } from '@/lib/schemas/audio-node'
 import { MusicKeyId, MusicLayerId } from '@/lib/schemas/music'
-import { takeFirst } from '@/lib/utils'
 import {
 	EditorPanelLayout,
 	EditorStore,
 	EditorStoreApi,
 	MusicKeyPreview,
 	createEditorStore,
-} from '@/stores/editor-store'
+} from '@/lib/stores'
+import { takeFirst } from '@/lib/utils'
 import { useCompositionStoreApi } from './composition-store-provider'
 
 const EditorStoreContext = createContext<EditorStoreApi | null>(null)
