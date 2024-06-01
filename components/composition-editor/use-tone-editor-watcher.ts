@@ -1,8 +1,8 @@
 'use client'
 
 import { useEffect, useRef } from 'react'
-import * as Tone from 'tone'
-import { createToneNode } from '@/lib/tone'
+import { AudioEdgeId, AudioNodeId } from '@/lib/schemas/audio-node'
+import { createToneNode, setToneNodeProperty } from '@/lib/tone'
 import { useCompositionStoreApi } from '../providers/composition-store-provider'
 import { useEditorStoreApi } from '../providers/editor-store-provider'
 import { useToneStoreApi } from '../providers/tone-store-provider'
@@ -16,33 +16,38 @@ export function useToneEditorWatcher() {
 	const editorStore = useEditorStoreApi()
 	const toneStore = useToneStoreApi()
 
-	const toneSetters =
+	const edges =
 		useRef<
-			WeakMap<Tone.ToneAudioNode, (prop: string, value: number) => void>
+			Map<
+				AudioEdgeId,
+				{ source: [AudioNodeId, number]; target: [AudioNodeId, number] }
+			>
 		>()
 
-	const edgeDisconnects = useRef<Map<string, () => void>>()
-
-	toneSetters.current ??= new WeakMap()
-	edgeDisconnects.current ??= new Map()
+	edges.current ??= new Map()
 
 	useEffect(() => {
 		const editorUnsubscribe = editorStore.subscribe(
 			editor => editor.changeHistory,
 			changeHistory => {
-				const { getNodeById, addNode, connect, disposeNode } =
-					toneStore.getState()
+				const { getAudioNodeById } = compositionStore.getState()
+				const {
+					getToneNodeById: getToneNodeById,
+					addNode: addToneNode,
+					connect,
+					disconnect,
+					disposeNode,
+				} = toneStore.getState()
 
 				const change = changeHistory[changeHistory.length - 1]
 
 				switch (change?.type) {
 					case 'node-add': {
-						const { toneNode, setProperty } = createToneNode(
+						const toneNode = createToneNode(
 							change.nodeType,
 							change.properties,
 						)
-						addNode(change.id, toneNode)
-						toneSetters.current!.set(toneNode, setProperty)
+						addToneNode(change.id, toneNode)
 						break
 					}
 
@@ -52,16 +57,20 @@ export function useToneEditorWatcher() {
 					}
 
 					case 'node-update': {
-						const node = getNodeById(change.id)
-						const setProperty = node
-							? toneSetters.current!.get(node)
-							: null
+						const toneNode = getToneNodeById(change.id)
+						const audioNode = getAudioNodeById(change.id)
 
-						if (node && change.properties && setProperty) {
+						if (toneNode && audioNode && change.properties) {
 							for (const [property, value] of Object.entries(
 								change.properties,
 							)) {
-								setProperty(property, value)
+								setToneNodeProperty(
+									audioNode.type,
+									toneNode,
+									// @ts-expect-error Object.entries is not typed
+									property,
+									value,
+								)
 							}
 						}
 						break
@@ -69,16 +78,19 @@ export function useToneEditorWatcher() {
 
 					case 'edge-add': {
 						const { source, target } = change
-						const disconnect = connect(source, target)
-						if (disconnect) {
-							edgeDisconnects.current?.set(change.id, disconnect)
-						}
+						connect(source, target)
+						edges.current!.set(change.id, {
+							source,
+							target,
+						})
 						break
 					}
 
 					case 'edge-remove': {
-						edgeDisconnects.current?.get(change.id)?.()
-						edgeDisconnects.current?.delete(change.id)
+						const edge = edges.current!.get(change.id)
+						if (edge) {
+							disconnect(edge.source, edge.target)
+						}
 						break
 					}
 				}
@@ -94,26 +106,25 @@ export function useToneEditorWatcher() {
 
 				const { addNode, connect } = toneStore.getState()
 
-				const { audioNodes: nodes, audioEdges: edges } =
+				const { audioNodes: nodes, audioEdges } =
 					compositionStore.getState()
 
 				for (const [nodeId, node] of nodes) {
-					const { toneNode, setProperty } = createToneNode(
-						node.type,
-						node.properties,
-					)
+					const toneNode = createToneNode(node.type, node.properties)
 					addNode(nodeId, toneNode)
-					toneSetters.current!.set(toneNode, setProperty)
 				}
 
-				for (const [edgeId, edge] of edges) {
-					const disconnect = connect(
-						[edge.source, edge.sourceSocket],
-						[edge.target, edge.targetSocket],
-					)
-					if (disconnect) {
-						edgeDisconnects.current?.set(edgeId, disconnect)
-					}
+				for (const [edgeId, edge] of audioEdges) {
+					const source: [string, number] = [
+						edge.source,
+						edge.sourceSocket,
+					]
+					const target: [string, number] = [
+						edge.target,
+						edge.targetSocket,
+					]
+					connect(source, target)
+					edges.current!.set(edgeId, { source, target })
 				}
 			},
 		)
@@ -122,7 +133,7 @@ export function useToneEditorWatcher() {
 			editorUnsubscribe()
 			toneUnsubscribe()
 
-			edgeDisconnects.current?.clear()
+			edges.current?.clear()
 			toneStore.getState().disposeAll()
 		}
 	}, [compositionStore, editorStore, toneStore])

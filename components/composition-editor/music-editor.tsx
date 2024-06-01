@@ -33,12 +33,14 @@ export default function MusicEditor({ className }: Props) {
 		async ({ note }: KeyEvent) => {
 			const { playbackInstrumentId: instrumentId } =
 				editorStore.getState()
-			const { resumeContext, getNodeById: getToneNode } =
-				toneStore.getState()
+			const { resumeContext, getToneNodeById } = toneStore.getState()
 
 			await resumeContext()
 
-			const synthNode = instrumentId ? getToneNode(instrumentId) : null
+			const synthNode = instrumentId
+				? getToneNodeById(instrumentId)
+				: null
+
 			if (!(synthNode instanceof Tone.PolySynth) || synthNode.disposed) {
 				return
 			}
@@ -52,9 +54,11 @@ export default function MusicEditor({ className }: Props) {
 		({ note }: KeyEvent) => {
 			const { playbackInstrumentId: instrumentId } =
 				editorStore.getState()
-			const { getNodeById: getToneNode } = toneStore.getState()
+			const { getToneNodeById } = toneStore.getState()
+			const synthNode = instrumentId
+				? getToneNodeById(instrumentId)
+				: null
 
-			const synthNode = instrumentId ? getToneNode(instrumentId) : null
 			if (!(synthNode instanceof Tone.PolySynth) || synthNode.disposed) {
 				return
 			}

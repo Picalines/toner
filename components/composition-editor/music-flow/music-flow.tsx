@@ -268,7 +268,6 @@ function MusicFlow({ noteWidth = 120, lineHeight = 24, ...props }: Props) {
 			onPaneClick={onPaneMouseClick}
 			onNodeMouseEnter={() => (isNodeHovered.current = true)}
 			onNodeMouseLeave={() => (isNodeHovered.current = false)}
-			onDragStart={console.log}
 			colorMode={colorMode}
 			{...props}
 		>

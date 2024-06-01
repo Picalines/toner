@@ -20,7 +20,7 @@ export default function ToneStoreProvider({ children }: PropsWithChildren) {
 		toneStoreRef.current = createToneStore({
 			context: Tone.getContext(),
 			isAudioAvailable: false,
-			nodes: new Map(),
+			toneNodes: new Map(),
 		})
 	}
 

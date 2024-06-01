@@ -6,171 +6,122 @@ import {
 	Reverb,
 	Synth,
 	type ToneAudioNode,
-	type Param as ToneParam,
-	type Signal as ToneSignal,
 	type Unit as ToneUnit,
 	Vibrato,
 	getDestination as getToneDestination,
 } from 'tone'
+import type { AbstractParam as ToneAbstractParam } from 'tone/build/esm/core/context/AbstractParam'
 import {
-	AudioNodeDefinition,
 	AudioNodeProperties,
 	AudioNodeType,
 	audioNodeDefinitions as nodeDefs,
 } from '@/lib/schemas/audio-node'
-import { KeyOfUnion } from '@/lib/utils'
-
-type MappedToneNode = {
-	toneNode: ToneAudioNode
-	setProperty: (key: string, value: number) => void
-}
 
 export function createToneNode<T extends AudioNodeType>(
 	nodeType: T,
 	properties: Record<string, number>,
-): MappedToneNode {
-	const { toneNode, setters } = TONE_NODE_MAPPINGS[nodeType](
-		nodeDefs[nodeType],
-	)
-
-	const settersRecord = setters as Partial<
-		Record<string, (value: number) => void>
-	>
-
-	const setProperty = (key: string, value: number) => {
-		settersRecord[key]?.(value)
-	}
+): ToneAudioNode {
+	const toneNode = TONE_CONSTRUCTORS[nodeType]()
 
 	for (const [property, defaultValue] of Object.entries(properties)) {
-		setProperty(property, defaultValue)
-	}
-
-	return { toneNode, setProperty }
-}
-
-type ToneNodeMapping<T extends AudioNodeType> = {
-	toneNode: ToneAudioNode
-	setters: {
-		[P in keyof AudioNodeProperties<T>]: (value: number) => void
-	}
-}
-
-type ToneNodeMappings = {
-	[T in AudioNodeType]: (def: AudioNodeDefinition<T>) => ToneNodeMapping<T>
-}
-
-const TONE_NODE_MAPPINGS: ToneNodeMappings = {
-	output: () => {
-		const toneNode = getToneDestination()
-		return {
+		setToneNodeProperty(
+			nodeType,
 			toneNode,
-			setters: {
-				volume: paramSetter(toneNode.volume),
-			},
-		}
+			property as keyof AudioNodeProperties<T>,
+			defaultValue,
+		)
+	}
+
+	return toneNode
+}
+
+export function setToneNodeProperty<T extends AudioNodeType>(
+	audioNodeType: T,
+	toneNode: ToneAudioNode,
+	property: keyof AudioNodeProperties<T>,
+	value: number,
+) {
+	const setters = TONE_PROPERTY_SETTERS[audioNodeType]
+
+	setters[property](
+		toneNode as ReturnType<(typeof TONE_CONSTRUCTORS)[T]>,
+		value,
+	)
+}
+
+type ToneConstructors = { [T in AudioNodeType]: () => ToneAudioNode }
+
+type TonePropertySetters<Constructors extends ToneConstructors> = {
+	[T in keyof ToneConstructors]: Record<
+		keyof AudioNodeProperties<T>,
+		(node: ReturnType<Constructors[T]>, value: number) => void
+	>
+}
+
+const TONE_CONSTRUCTORS = {
+	output: () => getToneDestination(),
+	synth: () => new PolySynth(Synth),
+	gain: () => new Gain(undefined, 'decibels'),
+	reverb: () => new Reverb(),
+	vibrato: () => new Vibrato(),
+	compressor: () => new Compressor(),
+	panner: () => new Panner(),
+} satisfies ToneConstructors
+
+const TONE_PROPERTY_SETTERS: TonePropertySetters<typeof TONE_CONSTRUCTORS> = {
+	output: {
+		volume: paramSetter('volume'),
 	},
-
-	synth: synthDef => {
-		const synth = new PolySynth(Synth)
-
-		const oscType = labelGetter(synthDef, 'osc.type')
-
-		return {
-			toneNode: synth,
-			setters: {
-				volume: paramSetter(synth.volume),
-				'osc.type': t =>
+	synth: {
+		volume: paramSetter('volume'),
+		'osc.type': (synth, t) =>
+			synth.set({
+				oscillator: {
 					// @ts-expect-error TODO: figure out Tone.js typing
-					synth.set({ oscillator: { type: oscType(t) } }),
-				'env.attack': a => synth.set({ envelope: { attack: a } }),
-				'env.decay': d => synth.set({ envelope: { decay: d } }),
-				'env.sustain': s => synth.set({ envelope: { sustain: s } }),
-				'env.release': r => synth.set({ envelope: { release: r } }),
-			},
-		}
+					type: nodeDefs.synth.properties['osc.type'].valueLabels![t],
+				},
+			}),
+		'env.attack': (synth, a) => synth.set({ envelope: { attack: a } }),
+		'env.decay': (synth, d) => synth.set({ envelope: { decay: d } }),
+		'env.sustain': (synth, s) => synth.set({ envelope: { sustain: s } }),
+		'env.release': (synth, r) => synth.set({ envelope: { release: r } }),
 	},
-
-	gain: () => {
-		const gain = new Gain(undefined, 'decibels')
-		return {
-			toneNode: gain,
-			setters: {
-				gain: paramSetter(gain.gain),
-			},
-		}
+	gain: {
+		gain: paramSetter('gain'),
 	},
-
-	reverb: () => {
-		const reverb = new Reverb()
-		return {
-			toneNode: reverb,
-			setters: {
-				wet: signalSetter(reverb.wet),
-				decay: d => (reverb.decay = d),
-			},
-		}
+	reverb: {
+		decay: (reverb, d) => (reverb.decay = d),
+		wet: paramSetter('wet'),
 	},
-
-	vibrato: vibratoDef => {
-		const vibrato = new Vibrato()
-		const type = labelGetter(vibratoDef, 'type')
-		return {
-			toneNode: vibrato,
-			setters: {
-				wet: signalSetter(vibrato.wet),
-				frequency: signalSetter(vibrato.frequency),
-				// @ts-expect-error TODO: figure out Tone.js typing
-				type: t => (vibrato.type = type(t)),
-				depth: paramSetter(vibrato.depth),
-			},
-		}
+	vibrato: {
+		wet: paramSetter('wet'),
+		frequency: paramSetter('frequency'),
+		type: (vibrato, t) =>
+			// @ts-expect-error TODO
+			(vibrato.type =
+				nodeDefs.vibrato.properties['type'].valueLabels![t]),
+		depth: paramSetter('depth'),
 	},
-
-	compressor: () => {
-		const compressor = new Compressor()
-		return {
-			toneNode: compressor,
-			setters: {
-				threshold: paramSetter(compressor.threshold),
-				attack: paramSetter(compressor.attack),
-				release: paramSetter(compressor.release),
-				knee: paramSetter(compressor.knee),
-				ratio: paramSetter(compressor.ratio),
-			},
-		}
+	compressor: {
+		attack: paramSetter('attack'),
+		release: paramSetter('release'),
+		threshold: paramSetter('threshold'),
+		knee: paramSetter('knee'),
+		ratio: paramSetter('ratio'),
 	},
-
-	panner: () => {
-		const panner = new Panner()
-		return {
-			toneNode: panner,
-			setters: {
-				pan: paramSetter(panner.pan),
-			},
-		}
+	panner: {
+		pan: paramSetter('pan'),
 	},
 }
 
-function paramSetter<U extends ToneUnit.UnitName>(param: ToneParam<U>) {
-	return (value: number) => (param.value = value)
-}
-
-function signalSetter<U extends ToneUnit.UnitName>(signal: ToneSignal<U>) {
-	return (value: number) => (signal.value = value)
-}
-
-function labelGetter<
-	T extends AudioNodeType,
-	D extends AudioNodeDefinition<T>,
-	P extends KeyOfUnion<D['properties']> & string,
->(nodeDefinition: D, property: P): (value: number) => string {
-	const { valueLabels } =
-		nodeDefinition.properties[
-			property as keyof typeof nodeDefinition.properties
-		]
-
-	const defaultKey = Object.keys(valueLabels)[0]
-
-	return value =>
-		value in valueLabels ? valueLabels[value] : valueLabels[defaultKey]
+function paramSetter<
+	ToneNode extends ToneAudioNode,
+	P extends keyof {
+		[P in keyof ToneNode as ToneNode[P] extends ToneAbstractParam<ToneUnit.UnitName>
+			? P
+			: never]: 0
+	},
+>(nodeKey: P) {
+	// @ts-expect-error TODO: add better check
+	return (node: ToneNode, value: number) => (node[nodeKey].value = value)
 }

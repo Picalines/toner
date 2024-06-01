@@ -8,18 +8,22 @@ export type ToneState = {
 	context: BaseToneContext
 	isAudioAvailable: boolean
 
-	nodes: Map<ToneNodeId, ToneAudioNode>
+	toneNodes: Map<ToneNodeId, ToneAudioNode>
 }
 
 export type ToneActions = {
 	resumeContext: () => Promise<void>
 
-	getNodeById: (id: ToneNodeId) => ToneAudioNode | null
+	getToneNodeById: (id: ToneNodeId) => ToneAudioNode | null
 	addNode: (id: ToneNodeId, node: ToneAudioNode) => void
 	connect: (
 		source: [ToneNodeId, number],
 		target: [ToneNodeId, number],
-	) => (() => void) | null
+	) => boolean
+	disconnect: (
+		source: [ToneNodeId, number],
+		target: [ToneNodeId, number],
+	) => boolean
 	disposeNode: (id: string) => void
 
 	disposeAll: () => void
@@ -41,32 +45,43 @@ export function createToneStore(initialState: ToneState) {
 			set({ isAudioAvailable: true })
 		},
 
-		getNodeById: id => get().nodes.get(id) ?? null,
+		getToneNodeById: id => get().toneNodes.get(id) ?? null,
 
 		addNode: (id, node) => {
-			get().getNodeById(id)?.dispose()
+			get().getToneNodeById(id)?.dispose()
 
-			const nodes = new Map(get().nodes)
+			const nodes = new Map(get().toneNodes)
 			nodes.set(id, node)
 
-			set({ nodes })
+			set({ toneNodes: nodes })
 		},
 
 		connect: ([sourceId, sourceSocket], [targetId, targetSocket]) => {
-			const { getNodeById } = get()
+			const { getToneNodeById: getNodeById } = get()
 			const source = getNodeById(sourceId)
 			const target = getNodeById(targetId)
-
 			if (!source || !target) {
-				return null
+				return false
 			}
 
 			source.connect(target, sourceSocket, targetSocket)
-			return () => source.disconnect(target, sourceSocket, targetSocket)
+			return true
+		},
+
+		disconnect: ([sourceId, sourceSocket], [targetId, targetSocket]) => {
+			const { getToneNodeById: getNodeById } = get()
+			const source = getNodeById(sourceId)
+			const target = getNodeById(targetId)
+			if (!source || !target) {
+				return false
+			}
+
+			source.disconnect(target, sourceSocket, targetSocket)
+			return true
 		},
 
 		disposeNode: id => {
-			const node = get().getNodeById(id)
+			const node = get().getToneNodeById(id)
 			if (node === null) {
 				return
 			}
@@ -77,20 +92,20 @@ export function createToneStore(initialState: ToneState) {
 				node.dispose()
 			}
 
-			const nodes = new Map(get().nodes)
+			const nodes = new Map(get().toneNodes)
 			nodes.delete(id)
 
-			set({ nodes })
+			set({ toneNodes: nodes })
 		},
 
 		disposeAll: () => {
-			for (const node of get().nodes.values()) {
+			for (const node of get().toneNodes.values()) {
 				if (node.name != 'Destination') {
 					node.dispose()
 				}
 			}
 
-			set({ nodes: new Map() })
+			set({ toneNodes: new Map() })
 		},
 	})
 
