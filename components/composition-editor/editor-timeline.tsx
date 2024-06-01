@@ -6,7 +6,7 @@ import { cn, tw } from '@/lib/utils'
 import { useEditorStore } from '../providers/editor-store-provider'
 
 type Props = Readonly<{
-	columnWidth?: number
+	noteWidth?: number
 	className?: string
 	backgroundClassName?: string
 	noteClassName?: string
@@ -18,7 +18,7 @@ const timelineScrollSelector = ({ timelineScroll }: EditorStore) =>
 	timelineScroll
 
 export default function EditorTimeline({
-	columnWidth = 40,
+	noteWidth = 40,
 	className,
 	backgroundClassName = tw`fill-background`,
 	noteClassName = tw`fill-border`,
@@ -34,7 +34,7 @@ export default function EditorTimeline({
 					id={patternId}
 					viewBox="0 0 1 1"
 					x={-timelineScroll}
-					width={columnWidth}
+					width={noteWidth}
 					height={1}
 					patternUnits="userSpaceOnUse"
 					preserveAspectRatio="xMaxYMin meet"
@@ -42,7 +42,7 @@ export default function EditorTimeline({
 					{Array.from({ length: TIMELINE_DIVISIONS }).map((_, i) => (
 						<rect
 							key={i}
-							x={(-columnWidth / TIMELINE_DIVISIONS) * i}
+							x={(-noteWidth / TIMELINE_DIVISIONS) * i}
 							y={0}
 							width={1}
 							height={1}

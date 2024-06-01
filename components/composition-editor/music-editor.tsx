@@ -11,6 +11,7 @@ import {
 	ResizablePanel,
 	ResizablePanelGroup,
 } from '../ui/resizable'
+import EditorPlaybackLine from './editor-playback-line'
 import EditorTimeline from './editor-timeline'
 import MusicFlow from './music-flow'
 import MusicLayerSelector from './music-layer-selector'
@@ -90,15 +91,22 @@ export default function MusicEditor({ className }: Props) {
 				/>
 			</ResizablePanel>
 			<ResizableHandle />
-			<ResizablePanel defaultSize={80} className="!overflow-clip">
+			<ResizablePanel
+				defaultSize={80}
+				className="relative !overflow-clip"
+			>
 				<EditorTimeline
 					className="sticky top-0 z-10 h-6 border-b"
-					columnWidth={DEFAULT_NOTE_WIDTH}
+					noteWidth={DEFAULT_NOTE_WIDTH}
 				/>
 				<MusicFlow
 					className="w-full"
 					noteWidth={DEFAULT_NOTE_WIDTH}
 					lineHeight={NOTE_LINE_HEIGHT}
+				/>
+				<EditorPlaybackLine
+					className="absolute inset-0 z-20"
+					noteWidth={DEFAULT_NOTE_WIDTH}
 				/>
 			</ResizablePanel>
 		</ResizablePanelGroup>
