@@ -19,6 +19,7 @@ export default function ToneStoreProvider({ children }: PropsWithChildren) {
 	if (!toneStoreRef.current) {
 		toneStoreRef.current = createToneStore({
 			context: Tone.getContext(),
+			transport: Tone.getTransport(),
 			isAudioAvailable: false,
 			toneNodes: new Map(),
 			toneConnections: new Map(),

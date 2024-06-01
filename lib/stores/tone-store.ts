@@ -4,6 +4,7 @@ import type {
 	ToneAudioNode,
 	ToneEvent,
 } from 'tone'
+import type { TransportClass as ToneTransport } from 'tone/build/esm/core/clock/Transport'
 import { StoreApi, create } from 'zustand'
 import { subscribeWithSelector } from 'zustand/middleware'
 
@@ -21,6 +22,7 @@ type ToneConnection = {
 
 export type ToneState = {
 	context: BaseToneContext
+	transport: ToneTransport
 	isAudioAvailable: boolean
 
 	toneNodes: Map<ToneNodeId, ToneAudioNode>
@@ -187,9 +189,12 @@ export function createToneStore(initialState: ToneState) {
 
 		disposeEvent: id => {
 			const { getToneEventById } = get()
-			if (!getToneEventById(id)) {
+			const event = getToneEventById(id)
+			if (!event) {
 				return
 			}
+
+			event.dispose()
 
 			const toneEvents = new Map(get().toneEvents)
 			toneEvents.delete(id)
