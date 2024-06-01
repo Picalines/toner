@@ -1,29 +1,39 @@
+import { nanoid } from 'nanoid'
 import type { BaseContext as BaseToneContext, ToneAudioNode } from 'tone'
 import { StoreApi, create } from 'zustand'
 import { subscribeWithSelector } from 'zustand/middleware'
 
 export type ToneNodeId = string
 
+export type ToneConnectionId = string
+
+type ToneConnection = {
+	id: ToneConnectionId
+	source: [ToneNodeId, number]
+	target: [ToneNodeId, number]
+}
+
 export type ToneState = {
 	context: BaseToneContext
 	isAudioAvailable: boolean
 
 	toneNodes: Map<ToneNodeId, ToneAudioNode>
+	toneConnections: Map<ToneConnectionId, ToneConnection>
 }
 
 export type ToneActions = {
 	resumeContext: () => Promise<void>
 
 	getToneNodeById: (id: ToneNodeId) => ToneAudioNode | null
-	addNode: (id: ToneNodeId, node: ToneAudioNode) => void
+	getToneConnectionById: (id: ToneNodeId) => ToneConnection | null
+
+	addNode: (node: ToneAudioNode, id?: ToneNodeId) => ToneNodeId | null
 	connect: (
 		source: [ToneNodeId, number],
 		target: [ToneNodeId, number],
-	) => boolean
-	disconnect: (
-		source: [ToneNodeId, number],
-		target: [ToneNodeId, number],
-	) => boolean
+		id?: ToneConnectionId,
+	) => ToneConnectionId | null
+	disconnect: (id: ToneConnectionId) => boolean
 	disposeNode: (id: string) => void
 
 	disposeAll: () => void
@@ -47,36 +57,70 @@ export function createToneStore(initialState: ToneState) {
 
 		getToneNodeById: id => get().toneNodes.get(id) ?? null,
 
-		addNode: (id, node) => {
-			get().getToneNodeById(id)?.dispose()
+		getToneConnectionById: id => get().toneConnections.get(id) ?? null,
 
-			const nodes = new Map(get().toneNodes)
-			nodes.set(id, node)
+		addNode: (node, id) => {
+			const { getToneNodeById } = get()
+			id ??= nanoid()
 
-			set({ toneNodes: nodes })
+			if (getToneNodeById(id)) {
+				return null
+			}
+
+			const toneNodes = new Map(get().toneNodes)
+			toneNodes.set(id, node)
+
+			set({ toneNodes })
+			return id
 		},
 
-		connect: ([sourceId, sourceSocket], [targetId, targetSocket]) => {
-			const { getToneNodeById: getNodeById } = get()
-			const source = getNodeById(sourceId)
-			const target = getNodeById(targetId)
+		connect: ([sourceId, sourceSocket], [targetId, targetSocket], id) => {
+			const { getToneNodeById, getToneConnectionById } = get()
+			const source = getToneNodeById(sourceId)
+			const target = getToneNodeById(targetId)
 			if (!source || !target) {
-				return false
+				return null
+			}
+
+			id ??= nanoid()
+			if (getToneConnectionById(id)) {
+				return null
 			}
 
 			source.connect(target, sourceSocket, targetSocket)
-			return true
+
+			const toneConnections = new Map(get().toneConnections)
+			toneConnections.set(id, {
+				id,
+				source: [sourceId, sourceSocket],
+				target: [targetId, targetSocket],
+			})
+
+			set({ toneConnections })
+			return id
 		},
 
-		disconnect: ([sourceId, sourceSocket], [targetId, targetSocket]) => {
-			const { getToneNodeById: getNodeById } = get()
-			const source = getNodeById(sourceId)
-			const target = getNodeById(targetId)
-			if (!source || !target) {
+		disconnect: id => {
+			const { getToneConnectionById, getToneNodeById } = get()
+			const connection = getToneConnectionById(id)
+			if (!connection) {
 				return false
 			}
 
-			source.disconnect(target, sourceSocket, targetSocket)
+			const {
+				source: [sourceId, sourceSocket],
+				target: [targetId, targetSocket],
+			} = connection
+
+			const source = getToneNodeById(sourceId)
+			const target = getToneNodeById(targetId)
+			if (source && target) {
+				source.disconnect(target, sourceSocket, targetSocket)
+			}
+
+			const toneConnections = new Map(get().toneConnections)
+			toneConnections.delete(id)
+			set({ toneConnections })
 			return true
 		},
 
@@ -92,10 +136,25 @@ export function createToneStore(initialState: ToneState) {
 				node.dispose()
 			}
 
-			const nodes = new Map(get().toneNodes)
-			nodes.delete(id)
+			const toneNodes = new Map(get().toneNodes)
+			const toneConnections = new Map(get().toneConnections)
+			toneNodes.delete(id)
 
-			set({ toneNodes: nodes })
+			for (const oldConnection of get().toneConnections) {
+				const [
+					connectionId,
+					{
+						source: [sourceId],
+						target: [targetId],
+					},
+				] = oldConnection
+
+				if (sourceId === id || targetId === id) {
+					toneConnections.delete(connectionId)
+				}
+			}
+
+			set({ toneNodes, toneConnections })
 		},
 
 		disposeAll: () => {
@@ -105,7 +164,7 @@ export function createToneStore(initialState: ToneState) {
 				}
 			}
 
-			set({ toneNodes: new Map() })
+			set({ toneNodes: new Map(), toneConnections: new Map() })
 		},
 	})
 

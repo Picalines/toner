@@ -3,6 +3,7 @@
 import { useEffect, useId, useRef } from 'react'
 import { EditorChangeSummary } from '@/lib/schemas/editor'
 import { EditorPanelLayout, EditorStore } from '@/lib/stores'
+import { useToneCompositionInitializer, useToneEditorWatcher } from '@/lib/tone'
 import { cn } from '@/lib/utils'
 import { EditorStoreProvider, useEditorStore } from '@/components/providers'
 import {
@@ -18,7 +19,6 @@ import CreateNodeModal from './create-node-modal'
 import MusicEditor from './music-editor'
 import NodePropertiesEditor from './node-properties-editor'
 import { useCompositionChangeWatcher } from './use-composition-change-watcher'
-import { useToneEditorWatcher } from './use-tone-editor-watcher'
 
 type Props = Readonly<{
 	submitDelay?: number
@@ -65,6 +65,7 @@ function CompositionEditorPanels({
 	onCompositionUpdate,
 }: EditorPanelsProps) {
 	useCompositionChangeWatcher({ submitDelay, onCompositionUpdate })
+	useToneCompositionInitializer()
 	useToneEditorWatcher()
 
 	const panelLayout = useEditorStore(panelLayoutSelector)

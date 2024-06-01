@@ -21,6 +21,7 @@ export default function ToneStoreProvider({ children }: PropsWithChildren) {
 			context: Tone.getContext(),
 			isAudioAvailable: false,
 			toneNodes: new Map(),
+			toneConnections: new Map(),
 		})
 	}
 
