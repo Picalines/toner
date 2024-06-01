@@ -13,6 +13,8 @@ export type EditorPanelLayout = 'horizontal' | 'vertical'
 
 export type MusicKeyPreview = { time: number; note: number; duration: number }
 
+export type EditorPlaybackState = 'idle' | 'initializing' | 'playing' | 'paused'
+
 type SelectionOperation = 'add' | 'remove' | 'replace'
 
 export type EditorState = {
@@ -30,6 +32,7 @@ export type EditorState = {
 	selectedMusicLayerId: MusicLayerId | null
 
 	playbackInstrumentId: AudioNodeId | null
+	playbackState: EditorPlaybackState
 
 	changeHistory: EditorChange[]
 }
@@ -61,6 +64,8 @@ export type EditorActions = {
 
 	applyChange: (change: EditorChange) => void
 	saveChanges: () => void
+
+	setPlaybackState: (playbackState: EditorPlaybackState) => void
 }
 
 export type EditorStore = EditorState & EditorActions
@@ -127,6 +132,8 @@ export function createEditorStore(initialState: EditorState) {
 			}),
 
 		saveChanges: () => get().applyChange({ type: 'save-changes' }),
+
+		setPlaybackState: playbackState => set({ playbackState }),
 	})
 
 	return create(

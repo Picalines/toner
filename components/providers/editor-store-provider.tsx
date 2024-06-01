@@ -74,6 +74,7 @@ export default function EditorStoreProvider({
 			audioEdgeSelection: new Set(edgeSelection),
 			musicKeySelection: new Set(musicKeySelection),
 			playbackInstrumentId: selectedInstrumentId,
+			playbackState: 'idle',
 			selectedMusicLayerId,
 			changeHistory: [],
 		})
