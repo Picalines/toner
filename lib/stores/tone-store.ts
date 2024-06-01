@@ -1,11 +1,17 @@
 import { nanoid } from 'nanoid'
-import type { BaseContext as BaseToneContext, ToneAudioNode } from 'tone'
+import type {
+	BaseContext as BaseToneContext,
+	ToneAudioNode,
+	ToneEvent,
+} from 'tone'
 import { StoreApi, create } from 'zustand'
 import { subscribeWithSelector } from 'zustand/middleware'
 
 export type ToneNodeId = string
 
 export type ToneConnectionId = string
+
+export type ToneEventId = string
 
 type ToneConnection = {
 	id: ToneConnectionId
@@ -19,23 +25,29 @@ export type ToneState = {
 
 	toneNodes: Map<ToneNodeId, ToneAudioNode>
 	toneConnections: Map<ToneConnectionId, ToneConnection>
+	toneEvents: Map<ToneEventId, ToneEvent>
 }
 
 export type ToneActions = {
 	resumeContext: () => Promise<void>
 
 	getToneNodeById: (id: ToneNodeId) => ToneAudioNode | null
-	getToneConnectionById: (id: ToneNodeId) => ToneConnection | null
+	getToneConnectionById: (id: ToneNodeId) => Readonly<ToneConnection> | null
+	getToneEventById: (id: ToneEventId) => ToneEvent | null
 
-	addNode: (node: ToneAudioNode, id?: ToneNodeId) => ToneNodeId | null
+	addToneNode: (node: ToneAudioNode, id?: ToneNodeId) => ToneNodeId | null
+
 	connect: (
 		source: [ToneNodeId, number],
 		target: [ToneNodeId, number],
 		id?: ToneConnectionId,
 	) => ToneConnectionId | null
 	disconnect: (id: ToneConnectionId) => boolean
-	disposeNode: (id: string) => void
 
+	addToneEvent: (event: ToneEvent, id?: string) => ToneEventId | null
+
+	disposeNode: (id: ToneNodeId) => void
+	disposeEvent: (id: ToneEventId) => void
 	disposeAll: () => void
 }
 
@@ -59,7 +71,9 @@ export function createToneStore(initialState: ToneState) {
 
 		getToneConnectionById: id => get().toneConnections.get(id) ?? null,
 
-		addNode: (node, id) => {
+		getToneEventById: id => get().toneEvents.get(id) ?? null,
+
+		addToneNode: (node, id) => {
 			const { getToneNodeById } = get()
 			id ??= nanoid()
 
@@ -124,6 +138,20 @@ export function createToneStore(initialState: ToneState) {
 			return true
 		},
 
+		addToneEvent: (event, id) => {
+			const { getToneEventById } = get()
+			id ??= nanoid()
+			if (getToneEventById(id)) {
+				return null
+			}
+
+			const toneEvents = new Map(get().toneEvents)
+			toneEvents.set(id, event)
+			set({ toneEvents })
+
+			return id
+		},
+
 		disposeNode: id => {
 			const node = get().getToneNodeById(id)
 			if (node === null) {
@@ -157,6 +185,17 @@ export function createToneStore(initialState: ToneState) {
 			set({ toneNodes, toneConnections })
 		},
 
+		disposeEvent: id => {
+			const { getToneEventById } = get()
+			if (!getToneEventById(id)) {
+				return
+			}
+
+			const toneEvents = new Map(get().toneEvents)
+			toneEvents.delete(id)
+			set({ toneEvents })
+		},
+
 		disposeAll: () => {
 			for (const node of get().toneNodes.values()) {
 				if (node.name != 'Destination') {
@@ -164,7 +203,15 @@ export function createToneStore(initialState: ToneState) {
 				}
 			}
 
-			set({ toneNodes: new Map(), toneConnections: new Map() })
+			for (const event of get().toneEvents.values()) {
+				event.dispose()
+			}
+
+			set({
+				toneNodes: new Map(),
+				toneConnections: new Map(),
+				toneEvents: new Map(),
+			})
 		},
 	})
 

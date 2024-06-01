@@ -19,12 +19,14 @@ export function useToneCompositionInitializer() {
 					return
 				}
 
-				const { addNode, connect } = toneStore.getState()
-				const { audioNodes, audioEdges } = compositionStore.getState()
+				const { addToneNode, connect, addToneEvent } =
+					toneStore.getState()
+				const { audioNodes, audioEdges, musicKeys } =
+					compositionStore.getState()
 
 				for (const [nodeId, node] of audioNodes) {
 					const toneNode = createToneNode(node.type, node.properties)
-					addNode(toneNode, nodeId)
+					addToneNode(toneNode, nodeId)
 				}
 
 				for (const [edgeId, edge] of audioEdges) {
