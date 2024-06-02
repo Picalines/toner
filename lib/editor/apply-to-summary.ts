@@ -1,4 +1,4 @@
-import { EditorChange, EditorChangeSummary } from '../schemas/editor'
+import type { EditorChange, EditorChangeSummary } from '../schemas/editor'
 import { assertUnreachable } from '../utils'
 
 export function applyEditorChangeToSummary(

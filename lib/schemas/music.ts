@@ -1,5 +1,5 @@
 import { z } from 'zod'
-import { IntRange } from '@/lib/utils'
+import type { IntRange } from '@/lib/utils'
 import { audioNodeSchemas } from './audio-node'
 
 export const MUSIC_NATURAL_NOTES = 7

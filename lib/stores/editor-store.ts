@@ -1,9 +1,9 @@
-import { StoreApi, create } from 'zustand'
+import { type StoreApi, create } from 'zustand'
 import { persist, subscribeWithSelector } from 'zustand/middleware'
 import { mergeEditorChange } from '@/lib/editor'
-import { AudioEdgeId, AudioNodeId } from '@/lib/schemas/audio-node'
-import { EditorChange } from '@/lib/schemas/editor'
-import { MusicKeyId, MusicLayerId } from '@/lib/schemas/music'
+import type { AudioEdgeId, AudioNodeId } from '@/lib/schemas/audio-node'
+import type { EditorChange } from '@/lib/schemas/editor'
+import type { MusicKeyId, MusicLayerId } from '@/lib/schemas/music'
 
 export type EditorDirtyState = 'clean' | 'waiting' | 'saving'
 

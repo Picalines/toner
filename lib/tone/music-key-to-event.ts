@@ -1,7 +1,7 @@
 import { PolySynth, ToneEvent } from 'tone'
 import { musicNoteInfo } from '../music'
-import { MusicKey } from '../schemas/music'
-import { ToneStoreApi } from '../stores/tone-store'
+import type { MusicKey } from '../schemas/music'
+import type { ToneStoreApi } from '../stores/tone-store'
 
 export function musicKeyToToneEvent(
 	musicKey: MusicKey,

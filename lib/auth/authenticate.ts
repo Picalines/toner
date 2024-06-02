@@ -1,4 +1,4 @@
-import { Cookie, Session, User } from 'lucia'
+import type { Cookie, Session, User } from 'lucia'
 import { cookies } from 'next/headers'
 import { redirect } from 'next/navigation'
 import { cache } from 'react'

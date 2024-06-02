@@ -1,6 +1,6 @@
 'use client'
 
-import { RefObject, useEffect, useRef } from 'react'
+import { type RefObject, useEffect, useRef } from 'react'
 
 export function useIsMountedRef(): RefObject<boolean> {
 	const isMounted = useRef(false)

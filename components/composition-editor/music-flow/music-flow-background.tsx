@@ -1,5 +1,5 @@
-import { ComponentProps, memo, useId } from 'react'
-import { PropsWithoutChildren, cn, tw } from '@/lib/utils'
+import { type ComponentProps, memo, useId } from 'react'
+import { type PropsWithoutChildren, cn, tw } from '@/lib/utils'
 
 type Props = PropsWithoutChildren<ComponentProps<'div'>> &
 	Readonly<{

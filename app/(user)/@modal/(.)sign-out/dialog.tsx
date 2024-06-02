@@ -1,6 +1,6 @@
 'use client'
 
-import { ComponentProps, MouseEventHandler, useCallback } from 'react'
+import { type ComponentProps, type MouseEventHandler, useCallback } from 'react'
 import {
 	AlertDialog,
 	AlertDialogAction,

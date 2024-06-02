@@ -9,9 +9,9 @@ import {
 } from 'lucide-react'
 import Link from 'next/link'
 import {
-	ComponentProps,
-	ComponentType,
-	PropsWithChildren,
+	type ComponentProps,
+	type ComponentType,
+	type PropsWithChildren,
 	Suspense,
 } from 'react'
 import { authenticate } from '@/lib/auth'

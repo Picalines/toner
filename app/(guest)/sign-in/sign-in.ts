@@ -4,7 +4,7 @@ import { eq } from 'drizzle-orm'
 import { cookies } from 'next/headers'
 import { lucia, scrypt } from '@/lib/auth'
 import { accountTable, database } from '@/lib/db'
-import { SignInFormData, signInFormSchema } from './schemas'
+import { type SignInFormData, signInFormSchema } from './schemas'
 
 export type SignInActionResult = {
 	errors: { field: keyof SignInFormData; message: string }[]

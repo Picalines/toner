@@ -1,5 +1,5 @@
 import { Loader2 } from 'lucide-react'
-import React, { PropsWithChildren, ReactNode, Suspense } from 'react'
+import React, { type PropsWithChildren, type ReactNode, Suspense } from 'react'
 import ActivitySidebar from '@/components/activity-sidebar'
 import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area'
 import { TooltipProvider } from '@/components/ui/tooltip'

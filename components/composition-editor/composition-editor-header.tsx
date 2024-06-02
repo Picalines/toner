@@ -8,7 +8,7 @@ import {
 	UploadIcon,
 } from 'lucide-react'
 import Link from 'next/link'
-import { PropsWithChildren } from 'react'
+import type { PropsWithChildren } from 'react'
 import type { CompositionStore } from '@/lib/stores/composition-store'
 import type { EditorStore } from '@/lib/stores/editor-store'
 import { cn } from '@/lib/utils'

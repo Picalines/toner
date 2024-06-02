@@ -3,8 +3,8 @@
 import { ArrowLeftIcon } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 import { useCallback } from 'react'
-import { PropsWithoutChildren, cn } from '@/lib/utils'
-import { Button, ButtonProps } from './ui/button'
+import { type PropsWithoutChildren, cn } from '@/lib/utils'
+import { Button, type ButtonProps } from './ui/button'
 
 type Props = PropsWithoutChildren<ButtonProps> &
 	Readonly<{

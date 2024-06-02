@@ -2,7 +2,7 @@
 
 import { zodResolver } from '@hookform/resolvers/zod'
 import { Loader2 } from 'lucide-react'
-import { ComponentProps } from 'react'
+import type { ComponentProps } from 'react'
 import { useForm } from 'react-hook-form'
 import { Button } from '@/components/ui/button'
 import {
@@ -21,7 +21,7 @@ import {
 	FormMessage,
 } from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
-import { SignupFormData, signupFormSchema } from './schemas'
+import { type SignupFormData, signupFormSchema } from './schemas'
 import { signup } from './sign-up'
 
 export default function SignUpForm(cardProps: ComponentProps<typeof Card>) {

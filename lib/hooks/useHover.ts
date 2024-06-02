@@ -1,6 +1,6 @@
 'use client'
 
-import { RefObject, useEffect, useState } from 'react'
+import { type RefObject, useEffect, useState } from 'react'
 
 export function useHover<T extends HTMLElement = HTMLElement>(
 	elementRef: RefObject<T>,

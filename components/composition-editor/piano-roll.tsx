@@ -1,4 +1,4 @@
-import { MouseEvent, MouseEventHandler, memo } from 'react'
+import { type MouseEvent, type MouseEventHandler, memo } from 'react'
 import { musicNoteInfo } from '@/lib/music'
 import { MAX_MUSIC_OCTAVE, MUSIC_OCTAVE_LENGTH } from '@/lib/schemas/music'
 import { cn, range, tw } from '@/lib/utils'

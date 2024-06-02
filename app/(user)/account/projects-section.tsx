@@ -1,5 +1,5 @@
 import { desc, eq, sql } from 'drizzle-orm'
-import { User } from 'lucia'
+import type { User } from 'lucia'
 import { Loader2Icon, PlusCircleIcon } from 'lucide-react'
 import { Suspense } from 'react'
 import { compositionTable, database } from '@/lib/db'

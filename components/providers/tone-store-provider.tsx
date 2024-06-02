@@ -1,7 +1,7 @@
 'use client'
 
 import {
-	PropsWithChildren,
+	type PropsWithChildren,
 	createContext,
 	useContext,
 	useEffect,
@@ -10,8 +10,8 @@ import {
 import * as Tone from 'tone'
 import { useStore } from 'zustand'
 import {
-	ToneStore,
-	ToneStoreApi,
+	type ToneStore,
+	type ToneStoreApi,
 	createToneStore,
 } from '@/lib/stores/tone-store'
 

@@ -15,7 +15,7 @@ import EditorPlaybackLine from './editor-playback-line'
 import EditorTimeline from './editor-timeline'
 import MusicFlow from './music-flow'
 import MusicLayerSelector from './music-layer-selector'
-import PianoRoll, { KeyEvent } from './piano-roll'
+import PianoRoll, { type KeyEvent } from './piano-roll'
 
 type Props = Readonly<{
 	className?: string

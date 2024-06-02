@@ -1,4 +1,4 @@
-import { Connection, EdgeChange, NodeChange } from '@xyflow/react'
+import type { Connection, EdgeChange, NodeChange } from '@xyflow/react'
 import { audioNodeDefinitions, audioNodeSchemas } from '../schemas/audio-node'
 import type { CompositionStoreApi } from '../stores/composition-store'
 import type { EditorStoreApi } from '../stores/editor-store'

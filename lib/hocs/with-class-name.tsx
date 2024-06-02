@@ -1,4 +1,4 @@
-import { ElementRef, FunctionComponent, forwardRef } from 'react'
+import { type ElementRef, type FunctionComponent, forwardRef } from 'react'
 import { cn } from '../utils'
 
 export function withClassName<P extends { className?: string } = {}>(

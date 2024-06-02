@@ -1,9 +1,9 @@
 import '@xyflow/react/dist/style.css'
 import {
-	ColorMode,
-	EdgeTypes,
+	type ColorMode,
+	type EdgeTypes,
 	ReactFlow,
-	ReactFlowProps,
+	type ReactFlowProps,
 	ReactFlowProvider,
 	SelectionMode,
 	ViewportPortal,
@@ -11,8 +11,8 @@ import {
 } from '@xyflow/react'
 import { useTheme } from 'next-themes'
 import {
-	MouseEvent,
-	WheelEvent,
+	type MouseEvent,
+	type WheelEvent,
 	useEffect,
 	useId,
 	useMemo,
@@ -24,9 +24,9 @@ import { applyFlowNodeChanges } from '@/lib/editor'
 import { useIsMountedState } from '@/lib/hooks'
 import {
 	MAX_MUSIC_NOTE,
-	MusicKey,
-	MusicKeyId,
-	MusicLayerId,
+	type MusicKey,
+	type MusicKeyId,
+	type MusicLayerId,
 } from '@/lib/schemas/music'
 import type { CompositionStore } from '@/lib/stores/composition-store'
 import type { EditorStore } from '@/lib/stores/editor-store'
@@ -35,7 +35,7 @@ import { useCompositionStoreApi } from '@/components/providers/composition-store
 import { useEditorStoreApi } from '@/components/providers/editor-store-provider'
 import MusicFlowBackground from './music-flow-background'
 import MusicKeyPreview from './music-key-preview'
-import { MusicKeyNode, musicNodeTypes } from './music-node'
+import { type MusicKeyNode, musicNodeTypes } from './music-node'
 
 type Props = ReactFlowProps &
 	Readonly<{

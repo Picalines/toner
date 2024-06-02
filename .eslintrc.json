@@ -19,6 +19,14 @@
 		"index/only-import-export": "error",
 		"index/forbid": "off",
 
+		"@typescript-eslint/consistent-type-imports": [
+			"error",
+			{
+				"prefer": "type-imports",
+				"fixStyle": "inline-type-imports"
+			}
+		],
+		"@typescript-eslint/no-import-type-side-effects": "error",
 		"@typescript-eslint/ban-types": [
 			"error",
 			{

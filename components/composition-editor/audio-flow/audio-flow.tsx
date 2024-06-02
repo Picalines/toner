@@ -4,9 +4,9 @@ import '@xyflow/react/dist/style.css'
 import {
 	Background,
 	BackgroundVariant,
-	ColorMode,
+	type ColorMode,
 	ReactFlow,
-	ReactFlowProps,
+	type ReactFlowProps,
 	ReactFlowProvider,
 	SelectionMode,
 	ViewportPortal,
@@ -14,7 +14,7 @@ import {
 } from '@xyflow/react'
 import { Loader2Icon } from 'lucide-react'
 import { useTheme } from 'next-themes'
-import { MouseEvent, useId, useMemo } from 'react'
+import { type MouseEvent, useId, useMemo } from 'react'
 import { useStore } from 'zustand'
 import { useShallow } from 'zustand/react/shallow'
 import {
@@ -23,7 +23,7 @@ import {
 	connectFlowNodes,
 } from '@/lib/editor'
 import { useIsMountedState } from '@/lib/hooks'
-import {
+import type {
 	AudioEdge,
 	AudioEdgeId,
 	AudioNode,
@@ -35,7 +35,11 @@ import { mapIter } from '@/lib/utils'
 import { useCompositionStoreApi } from '@/components/providers/composition-store-provider'
 import { useEditorStoreApi } from '@/components/providers/editor-store-provider'
 import AudioFlowControls from './audio-flow-controls'
-import { AudioFlowEdge, AudioFlowNode, audioNodeTypes } from './audio-node'
+import {
+	type AudioFlowEdge,
+	type AudioFlowNode,
+	audioNodeTypes,
+} from './audio-node'
 import NodeCursor from './node-cursor'
 
 export default function AudioFlow() {

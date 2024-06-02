@@ -2,7 +2,7 @@
 
 import {
 	Loader2Icon,
-	LucideIcon,
+	type LucideIcon,
 	PauseIcon,
 	PlayIcon,
 	RepeatIcon,

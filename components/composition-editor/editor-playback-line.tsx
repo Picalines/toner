@@ -1,7 +1,7 @@
 'use client'
 
 import { useAnimationFrame } from 'framer-motion'
-import { ElementRef, useRef } from 'react'
+import { type ElementRef, useRef } from 'react'
 import { useStore } from 'zustand'
 import type {
 	EditorPlaybackState,

@@ -4,7 +4,7 @@ import { Moon, Sun } from 'lucide-react'
 import { useTheme } from 'next-themes'
 import { useIsMountedState } from '@/lib/hooks'
 import { capitalize, cn } from '@/lib/utils'
-import { Button, ButtonProps } from './ui/button'
+import { Button, type ButtonProps } from './ui/button'
 import { Skeleton } from './ui/skeleton'
 
 type Props = Omit<ButtonProps, 'children' | 'onClick'> &

@@ -5,7 +5,7 @@ import type {
 	ToneEvent,
 } from 'tone'
 import type { TransportClass as ToneTransport } from 'tone/build/esm/core/clock/Transport'
-import { StoreApi, create } from 'zustand'
+import { type StoreApi, create } from 'zustand'
 import { subscribeWithSelector } from 'zustand/middleware'
 
 export type ToneNodeId = string

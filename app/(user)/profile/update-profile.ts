@@ -3,7 +3,7 @@
 import { eq } from 'drizzle-orm'
 import { authenticateOrRedirect } from '@/lib/auth'
 import { accountTable, database } from '@/lib/db'
-import { UpdateProfileFormData, profileUpdateSchema } from './schemas'
+import { type UpdateProfileFormData, profileUpdateSchema } from './schemas'
 
 export type UpdateProfileActionResult = {
 	errors: { field: keyof UpdateProfileFormData; message: string }[]

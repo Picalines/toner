@@ -10,8 +10,8 @@ import {
 	musicLayerTable,
 	audioNodeTable as nodeTable,
 } from '@/lib/db'
-import { AudioNodeId, audioNodeSchemas } from '@/lib/schemas/audio-node'
-import { MusicLayerId } from '@/lib/schemas/music'
+import { type AudioNodeId, audioNodeSchemas } from '@/lib/schemas/audio-node'
+import type { MusicLayerId } from '@/lib/schemas/music'
 import { zodIs } from '@/lib/utils'
 
 type FetchedAudioNode = {

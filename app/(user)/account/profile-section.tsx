@@ -5,7 +5,7 @@ import {
 	PencilIcon,
 } from 'lucide-react'
 import Link from 'next/link'
-import { PropsWithChildren } from 'react'
+import type { PropsWithChildren } from 'react'
 import { cn, tw } from '@/lib/utils'
 import { Button } from '@/components/ui/button'
 import {

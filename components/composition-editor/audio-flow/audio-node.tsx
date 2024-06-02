@@ -1,15 +1,15 @@
 import {
-	Edge,
+	type Edge,
 	Handle,
-	Node,
-	NodeProps,
-	NodeTypes,
+	type Node,
+	type NodeProps,
+	type NodeTypes,
 	Position,
 } from '@xyflow/react'
 import { KeyboardMusicIcon } from 'lucide-react'
 import {
-	AudioNode,
-	AudioNodeGroup,
+	type AudioNode,
+	type AudioNodeGroup,
 	audioNodeDefinitions,
 } from '@/lib/schemas/audio-node'
 import { cn, tw } from '@/lib/utils'

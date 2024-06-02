@@ -1,13 +1,18 @@
 'use client'
 
-import { PropsWithChildren, createContext, useContext, useRef } from 'react'
-import { useStore } from 'zustand'
-import { AudioEdge, AudioNode } from '@/lib/schemas/audio-node'
-import { MusicKey, MusicLayer } from '@/lib/schemas/music'
 import {
-	CompositionState,
-	CompositionStore,
-	CompositionStoreApi,
+	type PropsWithChildren,
+	createContext,
+	useContext,
+	useRef,
+} from 'react'
+import { useStore } from 'zustand'
+import type { AudioEdge, AudioNode } from '@/lib/schemas/audio-node'
+import type { MusicKey, MusicLayer } from '@/lib/schemas/music'
+import {
+	type CompositionState,
+	type CompositionStore,
+	type CompositionStoreApi,
 	createCompositionStore,
 } from '@/lib/stores/composition-store'
 

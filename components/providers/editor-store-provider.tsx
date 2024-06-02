@@ -1,19 +1,24 @@
 'use client'
 
-import { PropsWithChildren, createContext, useContext, useRef } from 'react'
+import {
+	type PropsWithChildren,
+	createContext,
+	useContext,
+	useRef,
+} from 'react'
 import { useStore } from 'zustand'
 import {
-	AudioEdgeId,
-	AudioNode,
-	AudioNodeId,
+	type AudioEdgeId,
+	type AudioNode,
+	type AudioNodeId,
 	audioNodeDefinitions,
 } from '@/lib/schemas/audio-node'
-import { MusicKeyId, MusicLayerId } from '@/lib/schemas/music'
+import type { MusicKeyId, MusicLayerId } from '@/lib/schemas/music'
 import {
-	EditorPanelLayout,
-	EditorStore,
-	EditorStoreApi,
-	MusicKeyPreview,
+	type EditorPanelLayout,
+	type EditorStore,
+	type EditorStoreApi,
+	type MusicKeyPreview,
 	createEditorStore,
 } from '@/lib/stores/editor-store'
 import { takeFirst } from '@/lib/utils'

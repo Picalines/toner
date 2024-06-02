@@ -2,8 +2,8 @@ import {
 	MAX_MUSIC_NOTE,
 	MUSIC_NOTE_SYMBOLS,
 	MUSIC_OCTAVE_LENGTH,
-	MusicKeyString,
-	MusicNoteSymbol,
+	type MusicKeyString,
+	type MusicNoteSymbol,
 	musicSchemas,
 } from '@/lib/schemas/music'
 import { zodIs } from '../utils'

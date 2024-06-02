@@ -12,8 +12,8 @@ import {
 } from 'tone'
 import type { AbstractParam as ToneAbstractParam } from 'tone/build/esm/core/context/AbstractParam'
 import {
-	AudioNodeProperties,
-	AudioNodeType,
+	type AudioNodeProperties,
+	type AudioNodeType,
 	audioNodeDefinitions as nodeDefs,
 } from '@/lib/schemas/audio-node'
 

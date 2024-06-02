@@ -12,8 +12,8 @@ import {
 	musicKeyTable,
 	musicLayerTable,
 } from '@/lib/db'
-import { EditorChangeSummary, editorSchemas } from '@/lib/schemas/editor'
-import { MusicLayerId } from '@/lib/schemas/music'
+import { type EditorChangeSummary, editorSchemas } from '@/lib/schemas/editor'
+import type { MusicLayerId } from '@/lib/schemas/music'
 import { assertUnreachable, zodIs } from '@/lib/utils'
 
 export async function updateComposition(changeSummary: EditorChangeSummary) {

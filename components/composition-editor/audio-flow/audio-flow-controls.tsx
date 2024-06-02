@@ -5,7 +5,7 @@ import {
 	ZoomInIcon,
 	ZoomOutIcon,
 } from 'lucide-react'
-import { ComponentProps, FunctionComponent, memo } from 'react'
+import { type ComponentProps, type FunctionComponent, memo } from 'react'
 import type { EditorStore } from '@/lib/stores/editor-store'
 import { cn } from '@/lib/utils'
 import { useEditorStore } from '@/components/providers/editor-store-provider'

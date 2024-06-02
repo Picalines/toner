@@ -1,7 +1,7 @@
 import { shallow } from 'zustand/shallow'
 import {
-	EditorChange,
-	EditorChangeType,
+	type EditorChange,
+	type EditorChangeType,
 	MAX_HISTORY_LENGTH,
 	editorSchemas,
 } from '@/lib/schemas/editor'

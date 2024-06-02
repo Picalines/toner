@@ -1,4 +1,4 @@
-import { ZodSchema, ZodTypeDef } from 'zod'
+import type { ZodSchema, ZodTypeDef } from 'zod'
 
 export function safeParseOr<I, O, D extends ZodTypeDef>(
 	schema: ZodSchema<O, D, I>,

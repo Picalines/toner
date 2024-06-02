@@ -5,7 +5,7 @@ import { revalidatePath } from 'next/cache'
 import { cookies } from 'next/headers'
 import { lucia, scrypt } from '@/lib/auth'
 import { accountTable, authorTable, database, listenerTable } from '@/lib/db'
-import { SignupFormData, signupFormSchema } from './schemas'
+import { type SignupFormData, signupFormSchema } from './schemas'
 
 export type SignupActionResult = {
 	errors: { field: keyof SignupFormData; message: string }[]

@@ -1,6 +1,6 @@
 'use client'
 
-import { Variants, motion } from 'framer-motion'
+import { type Variants, motion } from 'framer-motion'
 import { cn } from '@/lib/utils'
 
 export type Props = Readonly<{

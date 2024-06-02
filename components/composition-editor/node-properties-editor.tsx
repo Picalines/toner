@@ -1,20 +1,20 @@
 'use client'
 
 import { MousePointerClickIcon } from 'lucide-react'
-import { ChangeEvent, useState } from 'react'
+import { type ChangeEvent, useState } from 'react'
 import { useShallow } from 'zustand/react/shallow'
 import {
-	AudioNodeGroup,
-	AudioNodeId,
-	AudioNodeProperties,
-	AudioNodePropertySchema,
-	AudioNodeType,
+	type AudioNodeGroup,
+	type AudioNodeId,
+	type AudioNodeProperties,
+	type AudioNodePropertySchema,
+	type AudioNodeType,
 	audioNodeDefinitions,
 } from '@/lib/schemas/audio-node'
 import type { CompositionStore } from '@/lib/stores/composition-store'
 import type { EditorStore } from '@/lib/stores/editor-store'
 import {
-	KeyOfUnion,
+	type KeyOfUnion,
 	cn,
 	mapRange,
 	takeFirst,
