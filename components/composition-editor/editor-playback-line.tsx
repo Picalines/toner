@@ -20,6 +20,7 @@ const playbackStateSelector = ({ playbackState }: EditorStore) => playbackState
 
 const playbackLineClassNames: { [T in EditorPlaybackState]?: string } = {
 	idle: tw`fill-transparent`,
+	initializing: tw`animate-pulse fill-neutral-500 opacity-50`,
 	playing: tw`fill-green-500`,
 	paused: tw`animate-pulse fill-green-600`,
 }
