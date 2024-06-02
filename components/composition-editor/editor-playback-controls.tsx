@@ -42,6 +42,16 @@ export default function EditorPlaybackControls({ className }: Props) {
 
 	const playbackState = useStore(editorStore, playbackStateSelector)
 
+	const stopAllInstruments = () => {
+		const { toneNodes } = toneStore.getState()
+
+		for (const toneNode of toneNodes.values()) {
+			if (toneNode instanceof PolySynth) {
+				toneNode.releaseAll()
+			}
+		}
+	}
+
 	const onPlayClick = async () => {
 		const { setPlaybackState } = editorStore.getState()
 		const { resumeContext, transport } = toneStore.getState()
@@ -57,13 +67,14 @@ export default function EditorPlaybackControls({ className }: Props) {
 
 			case 'playing': {
 				transport.pause()
+				stopAllInstruments()
 				setPlaybackState('paused')
 				break
 			}
 
 			case 'paused': {
 				// TODO: doesn't work actually, need to investigate
-				transport.start()
+				transport.start(undefined, transport.ticks + 'i')
 				setPlaybackState('playing')
 				break
 			}
@@ -72,16 +83,12 @@ export default function EditorPlaybackControls({ className }: Props) {
 
 	const onStopClick = () => {
 		const { setPlaybackState } = editorStore.getState()
-		const { transport, toneNodes } = toneStore.getState()
+		const { transport } = toneStore.getState()
 
 		transport.stop(transport.immediate())
-		setPlaybackState('idle')
+		stopAllInstruments()
 
-		for (const toneNode of toneNodes.values()) {
-			if (toneNode instanceof PolySynth) {
-				toneNode.releaseAll()
-			}
-		}
+		setPlaybackState('idle')
 	}
 
 	const PlayButtonIcon = playButtonIcons[playbackState]
