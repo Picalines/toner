@@ -89,11 +89,11 @@ export default function EditorPlaybackControls({ className }: Props) {
 	const noFocusRing = tw`focus-visible:ring-transparent focus-visible:ring-offset-transparent`
 
 	return (
-		<div className={cn('flex w-min flex-row rounded-md border', className)}>
+		<div className={cn('flex w-min flex-row rounded-lg border', className)}>
 			<Button
 				variant="ghost"
 				className={cn(
-					'aspect-square p-2',
+					'aspect-square  rounded-r-none p-2',
 					noFocusRing,
 					playbackState != 'idle' && 'bg-accent/50',
 				)}
@@ -103,7 +103,7 @@ export default function EditorPlaybackControls({ className }: Props) {
 			</Button>
 			<Button
 				variant="ghost"
-				className={cn('aspect-square p-2', noFocusRing)}
+				className={cn('aspect-square rounded-none p-2', noFocusRing)}
 				onClick={onStopClick}
 			>
 				<SquareIcon
@@ -117,7 +117,7 @@ export default function EditorPlaybackControls({ className }: Props) {
 			</Button>
 			<Button
 				variant="ghost"
-				className={cn('aspect-square p-2', noFocusRing)}
+				className={cn('aspect-square rounded-l-none p-2', noFocusRing)}
 			>
 				<RepeatIcon className="h-4 w-4 text-blue-500 dark:text-blue-400" />
 			</Button>
