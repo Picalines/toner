@@ -1,8 +1,9 @@
 import type { Connection, EdgeChange, NodeChange } from '@xyflow/react'
 import { audioNodeDefinitions, audioNodeSchemas } from '../schemas/audio-node'
+import { MAX_MUSIC_NOTE } from '../schemas/music'
 import type { CompositionStoreApi } from '../stores/composition-store'
 import type { EditorStoreApi } from '../stores/editor-store'
-import { safeParseOr } from '../utils'
+import { safeParseOr, step } from '../utils'
 
 export function applyFlowNodeChanges(
 	compositionStore: CompositionStoreApi,
@@ -13,33 +14,53 @@ export function applyFlowNodeChanges(
 		getAudioNodeById,
 		getMusicKeyById,
 		moveAudioNode,
+		moveMusicKey,
 		removeAudioNode,
 		removeMusicKey,
 	} = compositionStore.getState()
 
 	const {
+		timelineNoteWidth,
+		noteLineHeight,
+		playbackInstrumentId,
+		timeStep,
 		applyChange,
 		selectAudioNodes,
 		selectMusicKeys,
 		selectInstrument,
-		playbackInstrumentId,
 	} = editorStore.getState()
 
 	for (const change of changes) {
 		switch (change.type) {
 			case 'position': {
-				const { id: nodeId, position } = change
+				const { id: itemId, position } = change
 				if (!position) {
 					break
 				}
 
 				const { x, y } = position
-				if (moveAudioNode(nodeId, [x, y])) {
+				if (moveAudioNode(itemId, [x, y])) {
 					applyChange({
 						type: 'node-update',
-						id: nodeId,
+						id: itemId,
 						position: [x, y],
 					})
+				}
+
+				if (getMusicKeyById(itemId)) {
+					const semiquaverWidth = timelineNoteWidth / 16
+
+					const time = step(Math.floor(x / semiquaverWidth), timeStep)
+					const note = MAX_MUSIC_NOTE - Math.floor(y / noteLineHeight)
+
+					if (moveMusicKey(itemId, time, note)) {
+						applyChange({
+							type: 'music-key-update',
+							id: itemId,
+							time,
+							note,
+						})
+					}
 				}
 				break
 			}

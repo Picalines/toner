@@ -40,7 +40,6 @@ import { type MusicKeyNode, musicNodeTypes } from './music-node'
 
 type Props = ReactFlowProps &
 	Readonly<{
-		lineHeight?: number
 		className?: string
 	}>
 
@@ -68,21 +67,24 @@ const selectionSelector = ({
 const playbackInstrumentSelector = ({ playbackInstrumentId }: EditorStore) =>
 	playbackInstrumentId
 
-const timelineNoteWidthSelector = ({ timelineNoteWidth }: EditorStore) =>
-	timelineNoteWidth
+const dimensionsSelector = ({
+	timelineNoteWidth,
+	noteLineHeight,
+}: EditorStore) => ({ timelineNoteWidth, noteLineHeight })
 
 const timelineScrollSelector = ({ timelineScroll }: EditorStore) =>
 	timelineScroll
 
-function MusicFlow({ lineHeight = 24, ...props }: Props) {
-	// NOTE: without unique id the viewport is shared between providers
-	const flowId = useId()
-
+function MusicFlow(flowProps: Props) {
 	const reactFlow = useReactFlow()
 	const compositionStore = useCompositionStoreApi()
 	const editorStore = useEditorStoreApi()
 
-	const noteWidth = useStore(editorStore, timelineNoteWidthSelector)
+	const { timelineNoteWidth: noteWidth, noteLineHeight } = useStore(
+		editorStore,
+		useShallow(dimensionsSelector),
+	)
+
 	const semiquaverWidth = noteWidth / 16
 
 	const { musicLayerId, musicKeySelection } = useStore(
@@ -134,7 +136,7 @@ function MusicFlow({ lineHeight = 24, ...props }: Props) {
 			})
 		} else {
 			const note = clampLeft(
-				MAX_MUSIC_NOTE - Math.floor(y / lineHeight),
+				MAX_MUSIC_NOTE - Math.floor(y / noteLineHeight),
 				0,
 				MAX_MUSIC_NOTE,
 			)
@@ -218,7 +220,7 @@ function MusicFlow({ lineHeight = 24, ...props }: Props) {
 						musicLayerId,
 						musicKeySelection,
 						semiquaverWidth,
-						lineHeight,
+						noteLineHeight,
 					),
 				),
 			),
@@ -227,7 +229,7 @@ function MusicFlow({ lineHeight = 24, ...props }: Props) {
 			musicLayerId,
 			musicKeySelection,
 			semiquaverWidth,
-			lineHeight,
+			noteLineHeight,
 		],
 	)
 
@@ -262,6 +264,9 @@ function MusicFlow({ lineHeight = 24, ...props }: Props) {
 	const colorMode: ColorMode =
 		(isMounted ? (theme as ColorMode) : null) ?? 'light'
 
+	// NOTE: without unique id the viewport is shared between providers
+	const flowId = useId()
+
 	return (
 		<ReactFlow
 			id={flowId}
@@ -288,18 +293,15 @@ function MusicFlow({ lineHeight = 24, ...props }: Props) {
 			onNodeMouseEnter={() => (isNodeHovered.current = true)}
 			onNodeMouseLeave={() => (isNodeHovered.current = false)}
 			colorMode={colorMode}
-			{...props}
+			{...flowProps}
 		>
 			<MusicFlowBackground
 				className="absolute left-0 top-0 w-full"
-				lineHeight={lineHeight}
+				lineHeight={noteLineHeight}
 				numberOfLines={MAX_MUSIC_NOTE}
 			/>
 			<ViewportPortal>
-				<MusicKeyPreview
-					lineHeight={lineHeight}
-					semiquaverWidth={semiquaverWidth}
-				/>
+				<MusicKeyPreview />
 			</ViewportPortal>
 		</ReactFlow>
 	)

@@ -1,10 +1,15 @@
 'use client'
 
-import { useCallback } from 'react'
+import { type ComponentProps, useCallback } from 'react'
 import * as Tone from 'tone'
 import { musicNoteInfo } from '@/lib/music'
+import type { EditorStore } from '@/lib/stores/editor-store'
 import { cn } from '@/lib/utils'
-import { useEditorStoreApi } from '../providers/editor-store-provider'
+import PianoRoll, { type KeyEvent } from '../piano-roll'
+import {
+	useEditorStore,
+	useEditorStoreApi,
+} from '../providers/editor-store-provider'
 import { useToneStoreApi } from '../providers/tone-store-provider'
 import {
 	ResizableHandle,
@@ -15,13 +20,10 @@ import EditorPlaybackLine from './editor-playback-line'
 import EditorTimeline from './editor-timeline'
 import MusicFlow from './music-flow'
 import MusicLayerSelector from './music-layer-selector'
-import PianoRoll, { type KeyEvent } from './piano-roll'
 
 type Props = Readonly<{
 	className?: string
 }>
-
-const NOTE_LINE_HEIGHT = 24
 
 export default function MusicEditor({ className }: Props) {
 	const editorStore = useEditorStoreApi()
@@ -80,9 +82,8 @@ export default function MusicEditor({ className }: Props) {
 				className="!overflow-clip"
 			>
 				<MusicLayerSelector className="sticky top-0 z-10 h-6 w-full border-b" />
-				<PianoRoll
+				<EditorPianoRoll
 					className="w-full"
-					lineHeight={NOTE_LINE_HEIGHT}
 					onKeyDown={onKeyDown}
 					onKeyUp={onKeyUp}
 				/>
@@ -93,9 +94,20 @@ export default function MusicEditor({ className }: Props) {
 				className="relative !overflow-clip"
 			>
 				<EditorTimeline className="sticky top-0 z-10 h-6 border-b" />
-				<MusicFlow className="w-full" lineHeight={NOTE_LINE_HEIGHT} />
+				<MusicFlow className="w-full" />
 				<EditorPlaybackLine className="absolute inset-0 z-20" />
 			</ResizablePanel>
 		</ResizablePanelGroup>
 	)
+}
+
+type EditorPianoRollProps = Omit<ComponentProps<typeof PianoRoll>, 'lineHeight'>
+
+const noteLineHeightSelector = ({ noteLineHeight }: EditorStore) =>
+	noteLineHeight
+
+function EditorPianoRoll(props: EditorPianoRollProps) {
+	const lineHeight = useEditorStore(noteLineHeightSelector)
+
+	return <PianoRoll {...props} lineHeight={lineHeight} />
 }

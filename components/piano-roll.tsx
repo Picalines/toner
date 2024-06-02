@@ -111,6 +111,9 @@ function PianoRollOctave({
 		;(event.target as HTMLElement).classList.remove('down')
 	}
 
+	// TODO: accidental notes have wrong height, fix when there'll
+	// be way to set note line height from the UI
+
 	return (
 		<div
 			className="relative flex flex-col-reverse"

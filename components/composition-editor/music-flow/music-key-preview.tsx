@@ -1,25 +1,26 @@
+import { useShallow } from 'zustand/react/shallow'
 import { musicNoteInfo } from '@/lib/music'
 import { MAX_MUSIC_NOTE } from '@/lib/schemas/music'
 import type { EditorStore } from '@/lib/stores/editor-store'
 import { useEditorStore } from '@/components/providers/editor-store-provider'
 import { Card } from '@/components/ui/card'
 
-type Props = Readonly<{
-	lineHeight: number
-	semiquaverWidth: number
-}>
+const previewSelector = ({
+	musicKeyPreview: preview,
+	noteLineHeight: lineHeight,
+	timelineNoteWidth: noteWidth,
+}: EditorStore) => ({ preview, lineHeight, noteWidth })
 
-const previewSelector = ({ musicKeyPreview }: EditorStore) => musicKeyPreview
-
-export default function MusicKeyPreview({
-	lineHeight,
-	semiquaverWidth,
-}: Props) {
-	const preview = useEditorStore(previewSelector)
+export default function MusicKeyPreview() {
+	const { preview, lineHeight, noteWidth } = useEditorStore(
+		useShallow(previewSelector),
+	)
 
 	if (!preview) {
 		return null
 	}
+
+	const semiquaverWidth = noteWidth / 16
 
 	const { time, note, duration } = preview
 

@@ -32,6 +32,7 @@ export type EditorState = {
 	timeStep: number
 	timelineNoteWidth: number
 	timelineScroll: number
+	noteLineHeight: number
 
 	audioNodeSelection: Set<AudioNodeId>
 	audioEdgeSelection: Set<AudioEdgeId>
@@ -57,6 +58,7 @@ export type EditorActions = {
 	setTimeStep: (timeStep: number) => void
 	zoomTimeline: (factor: number) => void
 	scrollTimeline: (dx: number) => void
+	setNoteLineHeight: (height: number) => void
 
 	selectAudioNodes: (
 		operation: SelectionOperation,
@@ -117,6 +119,8 @@ export function createEditorStore(initialState: EditorState) {
 		},
 		scrollTimeline: dx =>
 			set({ timelineScroll: Math.max(0, get().timelineScroll + dx) }),
+		setNoteLineHeight: height =>
+			set({ noteLineHeight: Math.max(1, height) }),
 
 		selectAudioNodes: (operation, ids) => {
 			const { audioNodeSelection: oldSelection } = get()
