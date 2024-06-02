@@ -318,7 +318,10 @@ export function createCompositionStore(initialState: CompositionState) {
 				}
 
 				const musicKey = get().musicKeys.get(id)
-				if (!musicKey) {
+				if (
+					!musicKey ||
+					(musicKey.time === time && musicKey.note === note)
+				) {
 					return false
 				}
 

@@ -290,6 +290,7 @@ function MusicFlow(flowProps: Props) {
 			panOnDrag={false}
 			minZoom={1}
 			maxZoom={1}
+			autoPanOnNodeDrag={false}
 			onWheel={onWheel}
 			onPaneMouseMove={onPaneMouseMove}
 			onPaneMouseLeave={onPaneMouseLeave}
