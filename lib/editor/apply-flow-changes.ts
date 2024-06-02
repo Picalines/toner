@@ -50,8 +50,12 @@ export function applyFlowNodeChanges(
 				if (getMusicKeyById(itemId)) {
 					const semiquaverWidth = timelineNoteWidth / 16
 
+					const musicNoteTop = y + noteLineHeight / 2
+
 					const time = step(Math.floor(x / semiquaverWidth), timeStep)
-					const note = MAX_MUSIC_NOTE - Math.floor(y / noteLineHeight)
+					const note =
+						MAX_MUSIC_NOTE -
+						Math.floor(musicNoteTop / noteLineHeight)
 
 					if (moveMusicKey(itemId, time, note)) {
 						applyChange({
