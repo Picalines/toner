@@ -6,7 +6,7 @@ import {
 	ZoomOutIcon,
 } from 'lucide-react'
 import { ComponentProps, FunctionComponent, memo } from 'react'
-import { EditorStore } from '@/lib/stores'
+import type { EditorStore } from '@/lib/stores/editor-store'
 import { cn } from '@/lib/utils'
 import { useEditorStore } from '@/components/providers/editor-store-provider'
 import { Button } from '@/components/ui/button'

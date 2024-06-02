@@ -3,7 +3,7 @@
 import { useEffect } from 'react'
 import { useCompositionStoreApi } from '@/components/providers/composition-store-provider'
 import { useToneStoreApi } from '@/components/providers/tone-store-provider'
-import { ToneStore } from '../stores'
+import { ToneStore } from '../stores/tone-store'
 import { createToneNode } from './create-node'
 import { musicKeyToToneEvent } from './music-key-to-event'
 

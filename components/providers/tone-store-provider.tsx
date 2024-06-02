@@ -9,7 +9,11 @@ import {
 } from 'react'
 import * as Tone from 'tone'
 import { useStore } from 'zustand'
-import { ToneStore, ToneStoreApi, createToneStore } from '@/lib/stores'
+import {
+	ToneStore,
+	ToneStoreApi,
+	createToneStore,
+} from '@/lib/stores/tone-store'
 
 const ToneStoreContext = createContext<ToneStoreApi | null>(null)
 

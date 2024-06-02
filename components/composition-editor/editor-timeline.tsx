@@ -1,7 +1,7 @@
 'use client'
 
 import { useId } from 'react'
-import { EditorStore } from '@/lib/stores'
+import type { EditorStore } from '@/lib/stores/editor-store'
 import { cn, tw } from '@/lib/utils'
 import { useEditorStore } from '../providers/editor-store-provider'
 

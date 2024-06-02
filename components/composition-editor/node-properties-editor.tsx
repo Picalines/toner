@@ -11,7 +11,8 @@ import {
 	AudioNodeType,
 	audioNodeDefinitions,
 } from '@/lib/schemas/audio-node'
-import { CompositionStore, EditorStore } from '@/lib/stores'
+import type { CompositionStore } from '@/lib/stores/composition-store'
+import type { EditorStore } from '@/lib/stores/editor-store'
 import {
 	KeyOfUnion,
 	cn,

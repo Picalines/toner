@@ -28,7 +28,8 @@ import {
 	MusicKeyId,
 	MusicLayerId,
 } from '@/lib/schemas/music'
-import { CompositionStore, EditorStore } from '@/lib/stores'
+import type { CompositionStore } from '@/lib/stores/composition-store'
+import type { EditorStore } from '@/lib/stores/editor-store'
 import { clampLeft, mapIter, step } from '@/lib/utils'
 import { useCompositionStoreApi } from '@/components/providers/composition-store-provider'
 import { useEditorStoreApi } from '@/components/providers/editor-store-provider'

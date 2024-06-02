@@ -1,5 +1,5 @@
 import { PlusIcon } from 'lucide-react'
-import { EditorStore } from '@/lib/stores'
+import type { EditorStore } from '@/lib/stores/editor-store'
 import { useEditorStore } from '@/components/providers/editor-store-provider'
 
 const cursorSelector = ({ nodeCursor }: EditorStore) => nodeCursor

@@ -2,7 +2,7 @@
 
 import { useEffect, useId, useRef } from 'react'
 import { EditorChangeSummary } from '@/lib/schemas/editor'
-import { EditorPanelLayout, EditorStore } from '@/lib/stores'
+import type { EditorPanelLayout, EditorStore } from '@/lib/stores/editor-store'
 import { useToneCompositionInitializer, useToneEditorWatcher } from '@/lib/tone'
 import { cn } from '@/lib/utils'
 import {

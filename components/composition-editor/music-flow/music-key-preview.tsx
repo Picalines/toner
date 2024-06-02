@@ -1,6 +1,6 @@
 import { musicNoteInfo } from '@/lib/music'
 import { MAX_MUSIC_NOTE } from '@/lib/schemas/music'
-import { EditorStore } from '@/lib/stores'
+import type { EditorStore } from '@/lib/stores/editor-store'
 import { useEditorStore } from '@/components/providers/editor-store-provider'
 import { Card } from '@/components/ui/card'
 

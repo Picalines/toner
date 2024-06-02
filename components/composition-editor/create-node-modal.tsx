@@ -1,7 +1,7 @@
 import { useStore } from 'zustand'
 import { useShallow } from 'zustand/react/shallow'
 import { AudioNodeType, audioNodeDefinitions } from '@/lib/schemas/audio-node'
-import { EditorStore } from '@/lib/stores'
+import type { EditorStore } from '@/lib/stores/editor-store'
 import { capitalize } from '@/lib/utils'
 import { useCompositionStoreApi } from '../providers/composition-store-provider'
 import { useEditorStoreApi } from '../providers/editor-store-provider'

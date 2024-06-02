@@ -3,7 +3,10 @@
 import { useAnimationFrame } from 'framer-motion'
 import { ElementRef, useRef } from 'react'
 import { useStore } from 'zustand'
-import { EditorPlaybackState, EditorStore } from '@/lib/stores'
+import type {
+	EditorPlaybackState,
+	EditorStore,
+} from '@/lib/stores/editor-store'
 import { cn, tw } from '@/lib/utils'
 import { useEditorStoreApi } from '../providers/editor-store-provider'
 import { useToneStoreApi } from '../providers/tone-store-provider'

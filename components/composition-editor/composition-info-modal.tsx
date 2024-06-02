@@ -8,7 +8,8 @@ import { useStore } from 'zustand'
 import { useShallow } from 'zustand/react/shallow'
 import { useConstant } from '@/lib/hooks'
 import { compositionSchemas } from '@/lib/schemas/composition'
-import { CompositionStore, EditorStore } from '@/lib/stores'
+import type { CompositionStore } from '@/lib/stores/composition-store'
+import type { EditorStore } from '@/lib/stores/editor-store'
 import {
 	Dialog,
 	DialogContent,

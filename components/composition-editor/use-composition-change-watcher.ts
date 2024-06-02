@@ -2,7 +2,7 @@ import { useEffect, useRef } from 'react'
 import { useDebouncedCallback } from 'use-debounce'
 import { applyEditorChangeToSummary } from '@/lib/editor/apply-to-summary'
 import { EditorChangeSummary } from '@/lib/schemas/editor'
-import { EditorStore } from '@/lib/stores'
+import type { EditorStore } from '@/lib/stores/editor-store'
 import { useCompositionStoreApi } from '../providers/composition-store-provider'
 import { useEditorStoreApi } from '../providers/editor-store-provider'
 

@@ -11,7 +11,10 @@ import {
 import { PolySynth } from 'tone'
 import { useStore } from 'zustand'
 import { withClassName } from '@/lib/hocs/with-class-name'
-import { EditorPlaybackState, EditorStore } from '@/lib/stores'
+import type {
+	EditorPlaybackState,
+	EditorStore,
+} from '@/lib/stores/editor-store'
 import { cn, tw } from '@/lib/utils'
 import { useEditorStoreApi } from '../providers/editor-store-provider'
 import { useToneStoreApi } from '../providers/tone-store-provider'

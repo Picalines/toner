@@ -15,7 +15,7 @@ import {
 	EditorStoreApi,
 	MusicKeyPreview,
 	createEditorStore,
-} from '@/lib/stores'
+} from '@/lib/stores/editor-store'
 import { takeFirst } from '@/lib/utils'
 import { useCompositionStoreApi } from './composition-store-provider'
 
