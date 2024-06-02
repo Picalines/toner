@@ -28,7 +28,7 @@ export default function MusicKeyPreview() {
 
 	return (
 		<Card
-			className="relative -z-10 rounded-sm border-2 border-dashed border-white bg-transparent pl-[2px] opacity-30"
+			className="relative -z-10 rounded-sm border-2 border-dashed border-white border-opacity-30 bg-transparent pl-[2px]"
 			style={{
 				height: lineHeight + 'px',
 				width: duration * semiquaverWidth + 'px',
@@ -36,7 +36,7 @@ export default function MusicKeyPreview() {
 				top: (MAX_MUSIC_NOTE - note) * lineHeight + 'px',
 			}}
 		>
-			{symbol[0] + octave}
+			<span className="opacity-40">{symbol[0] + octave}</span>
 		</Card>
 	)
 }
