@@ -29,7 +29,7 @@ function AudioFlowControls() {
 			<Controls position="top-right">
 				<ControlButton
 					Icon={SquareActivityIcon}
-					onClick={() => openModal('node-add')}
+					onClick={openModal.bind(null, 'node-add')}
 					tooltip="Add Node (A)"
 				/>
 			</Controls>
@@ -46,7 +46,7 @@ function AudioFlowControls() {
 				/>
 				<ControlButton
 					Icon={MaximizeIcon}
-					onClick={() => fitView()}
+					onClick={() => fitView()} // TODO: doesn't work sometimes
 					tooltip="Fit view"
 				/>
 			</Controls>
