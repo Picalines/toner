@@ -11,7 +11,7 @@ import { cn, tw } from '@/lib/utils'
 import { useEditorStoreApi } from '../providers/editor-store-provider'
 import { useToneStoreApi } from '../providers/tone-store-provider'
 
-type Props = { noteWidth?: number; className?: string }
+type Props = { className?: string }
 
 const TICKS_IN_QUARTER_NOTE = 192
 const TICKS_IN_NOTE = TICKS_IN_QUARTER_NOTE * 4
@@ -24,10 +24,7 @@ const playbackLineClassNames: { [T in EditorPlaybackState]?: string } = {
 	paused: tw`animate-pulse fill-green-600`,
 }
 
-export default function EditorPlaybackLine({
-	noteWidth = 40,
-	className,
-}: Props) {
+export default function EditorPlaybackLine({ className }: Props) {
 	const editorStore = useEditorStoreApi()
 	const toneStore = useToneStoreApi()
 
@@ -44,7 +41,7 @@ export default function EditorPlaybackLine({
 			context: { lookAhead },
 			transport,
 		} = toneStore.getState()
-		const { timelineScroll } = editorStore.getState()
+		const { timelineNoteWidth, timelineScroll } = editorStore.getState()
 
 		const notes = Math.max(
 			0,
@@ -53,7 +50,7 @@ export default function EditorPlaybackLine({
 
 		rectRef.current.setAttribute(
 			'x',
-			String(notes * noteWidth - timelineScroll),
+			String(notes * timelineNoteWidth - timelineScroll),
 		)
 	})
 

@@ -18,6 +18,7 @@ import {
 	useMemo,
 	useRef,
 } from 'react'
+import { useHotkeys } from 'react-hotkeys-hook'
 import { useStore } from 'zustand'
 import { useShallow } from 'zustand/react/shallow'
 import { applyFlowNodeChanges } from '@/lib/editor'
@@ -40,7 +41,6 @@ import { type MusicKeyNode, musicNodeTypes } from './music-node'
 type Props = ReactFlowProps &
 	Readonly<{
 		lineHeight?: number
-		noteWidth?: number
 		className?: string
 	}>
 
@@ -54,6 +54,7 @@ export default function MusicKeyFlow(props: Props) {
 
 const DEFAULT_NOTE_DURATION = 4
 const DEFAULT_TIME_STEP = 4
+const MIN_TIME_STEP = 1
 
 const edgeTypes = {} satisfies EdgeTypes
 
@@ -67,10 +68,13 @@ const selectionSelector = ({
 const playbackInstrumentSelector = ({ playbackInstrumentId }: EditorStore) =>
 	playbackInstrumentId
 
+const timelineNoteWidthSelector = ({ timelineNoteWidth }: EditorStore) =>
+	timelineNoteWidth
+
 const timelineScrollSelector = ({ timelineScroll }: EditorStore) =>
 	timelineScroll
 
-function MusicFlow({ noteWidth = 120, lineHeight = 24, ...props }: Props) {
+function MusicFlow({ lineHeight = 24, ...props }: Props) {
 	// NOTE: without unique id the viewport is shared between providers
 	const flowId = useId()
 
@@ -78,9 +82,8 @@ function MusicFlow({ noteWidth = 120, lineHeight = 24, ...props }: Props) {
 	const compositionStore = useCompositionStoreApi()
 	const editorStore = useEditorStoreApi()
 
+	const noteWidth = useStore(editorStore, timelineNoteWidthSelector)
 	const semiquaverWidth = noteWidth / 16
-
-	const musicKeys = useStore(compositionStore, musicKeysSelector)
 
 	const { musicLayerId, musicKeySelection } = useStore(
 		editorStore,
@@ -89,11 +92,10 @@ function MusicFlow({ noteWidth = 120, lineHeight = 24, ...props }: Props) {
 
 	useEffect(
 		() =>
-			editorStore.subscribe(timelineScrollSelector, timelineScroll => {
-				const scroll = Math.min(timelineScroll)
-				reactFlow.setViewport({ x: -scroll, y: 0, zoom: 1 })
-			}),
-		[reactFlow, editorStore, lineHeight, semiquaverWidth],
+			editorStore.subscribe(timelineScrollSelector, scroll =>
+				reactFlow.setViewport({ x: -scroll, y: 0, zoom: 1 }),
+			),
+		[reactFlow, editorStore],
 	)
 
 	const isNodeHovered = useRef(false)
@@ -107,7 +109,8 @@ function MusicFlow({ noteWidth = 120, lineHeight = 24, ...props }: Props) {
 			return
 		}
 
-		const { musicKeyPreview: existingPreview } = editorStore.getState()
+		const { timeStep, musicKeyPreview: existingPreview } =
+			editorStore.getState()
 
 		const { x, y } = reactFlow.screenToFlowPosition(
 			{
@@ -116,8 +119,6 @@ function MusicFlow({ noteWidth = 120, lineHeight = 24, ...props }: Props) {
 			},
 			{ snapToGrid: false },
 		)
-
-		const timeStep = event.ctrlKey ? 1 : DEFAULT_TIME_STEP
 
 		const time = step(
 			Math.max(0, Math.floor(x / semiquaverWidth)),
@@ -164,21 +165,20 @@ function MusicFlow({ noteWidth = 120, lineHeight = 24, ...props }: Props) {
 			note,
 			duration,
 		})
-		if (!newKey) {
-			return
-		}
 
-		const { id: keyId } = newKey
-		applyChange({
-			type: 'music-key-add',
-			id: keyId,
-			layerId: musicLayerId,
-			instrumentId,
-			time,
-			note,
-			duration,
-			velocity: 1,
-		})
+		if (newKey) {
+			const { id: keyId } = newKey
+			applyChange({
+				type: 'music-key-add',
+				id: keyId,
+				layerId: musicLayerId,
+				instrumentId,
+				time,
+				note,
+				duration,
+				velocity: 1,
+			})
+		}
 	}
 
 	useEffect(
@@ -207,6 +207,8 @@ function MusicFlow({ noteWidth = 120, lineHeight = 24, ...props }: Props) {
 		[compositionStore, editorStore],
 	)
 
+	const musicKeys = useStore(compositionStore, musicKeysSelector)
+
 	const nodes = useMemo(
 		() =>
 			Array.from(
@@ -229,12 +231,29 @@ function MusicFlow({ noteWidth = 120, lineHeight = 24, ...props }: Props) {
 		],
 	)
 
+	useHotkeys(
+		'ctrl',
+		event =>
+			editorStore
+				.getState()
+				.setTimeStep(event.ctrlKey ? MIN_TIME_STEP : DEFAULT_TIME_STEP),
+		{
+			keyup: true,
+			keydown: true,
+		},
+	)
+
 	const onWheel = (event: WheelEvent<HTMLDivElement>) => {
-		const { scrollTimeline } = editorStore.getState()
-		// TODO: workout how to handle horizontal scrolling for different mice
-		const scrollX = event.shiftKey ? event.deltaY : event.deltaX
-		scrollTimeline(scrollX / 2)
-		onPaneMouseMove(event)
+		const { scrollTimeline, zoomTimeline } = editorStore.getState()
+
+		if (!event.ctrlKey) {
+			// TODO: workout how to handle horizontal scrolling for different mice
+			const scrollX = event.shiftKey ? event.deltaY : event.deltaX
+			scrollTimeline(scrollX / 2)
+			onPaneMouseMove(event)
+		} else {
+			zoomTimeline(event.deltaY > 0 ? 0.9 : 1.1)
+		}
 	}
 
 	// TODO: color mode isn't applied after hydration
@@ -305,7 +324,7 @@ function musicKeyToNode(
 		selectable: isOnCurrentLayer,
 		focusable: isOnCurrentLayer,
 		deletable: isOnCurrentLayer,
-		draggable: false, // TODO: implement note drag
+		draggable: true,
 		// NOTE: reactflow places node components inside its div,
 		// so we can't add pointer-events-none in MusicKeyNode
 		style: {

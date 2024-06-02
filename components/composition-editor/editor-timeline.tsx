@@ -1,12 +1,12 @@
 'use client'
 
 import { useId } from 'react'
+import { useShallow } from 'zustand/react/shallow'
 import type { EditorStore } from '@/lib/stores/editor-store'
 import { cn, tw } from '@/lib/utils'
 import { useEditorStore } from '../providers/editor-store-provider'
 
 type Props = Readonly<{
-	noteWidth?: number
 	className?: string
 	backgroundClassName?: string
 	noteClassName?: string
@@ -14,18 +14,21 @@ type Props = Readonly<{
 
 const TIMELINE_DIVISIONS = 4
 
-const timelineScrollSelector = ({ timelineScroll }: EditorStore) =>
-	timelineScroll
+const timelineSelector = ({
+	timelineNoteWidth,
+	timelineScroll,
+}: EditorStore) => ({ timelineNoteWidth, timelineScroll })
 
 export default function EditorTimeline({
-	noteWidth = 40,
 	className,
 	backgroundClassName = tw`fill-background`,
 	noteClassName = tw`fill-border`,
 }: Props) {
 	const patternId = useId() + '-timeline'
 
-	const timelineScroll = useEditorStore(timelineScrollSelector)
+	const { timelineNoteWidth, timelineScroll } = useEditorStore(
+		useShallow(timelineSelector),
+	)
 
 	return (
 		<div className={cn('overflow-hidden', className)}>
@@ -34,7 +37,7 @@ export default function EditorTimeline({
 					id={patternId}
 					viewBox="0 0 1 1"
 					x={-timelineScroll}
-					width={noteWidth}
+					width={timelineNoteWidth}
 					height={1}
 					patternUnits="userSpaceOnUse"
 					preserveAspectRatio="xMaxYMin meet"
@@ -42,7 +45,7 @@ export default function EditorTimeline({
 					{Array.from({ length: TIMELINE_DIVISIONS }).map((_, i) => (
 						<rect
 							key={i}
-							x={(-noteWidth / TIMELINE_DIVISIONS) * i}
+							x={(-timelineNoteWidth / TIMELINE_DIVISIONS) * i}
 							y={0}
 							width={1}
 							height={1}

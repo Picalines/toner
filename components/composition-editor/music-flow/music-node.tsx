@@ -43,7 +43,7 @@ function MusicKeyNode({
 		<Card
 			style={{ width: width + 'px', height: height + 'px' }}
 			className={cn(
-				'group flex items-center rounded-sm border-2 border-black border-opacity-30 pl-[2px] transition-all',
+				'group flex items-center rounded-sm border-2 border-black border-opacity-30 pl-[2px] transition-colors',
 				instrumentExists ? 'bg-red-500' : 'bg-neutral-500',
 				selected &&
 					'border-blue-400 border-opacity-100 dark:border-white',

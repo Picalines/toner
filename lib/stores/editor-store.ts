@@ -1,9 +1,11 @@
+import { z } from 'zod'
 import { type StoreApi, create } from 'zustand'
 import { persist, subscribeWithSelector } from 'zustand/middleware'
 import { mergeEditorChange } from '@/lib/editor'
 import type { AudioEdgeId, AudioNodeId } from '@/lib/schemas/audio-node'
 import type { EditorChange } from '@/lib/schemas/editor'
 import type { MusicKeyId, MusicLayerId } from '@/lib/schemas/music'
+import { clampLeft, safeParseOr } from '../utils'
 
 export type EditorDirtyState = 'clean' | 'waiting' | 'saving'
 
@@ -17,6 +19,9 @@ export type EditorPlaybackState = 'idle' | 'initializing' | 'playing' | 'paused'
 
 type SelectionOperation = 'add' | 'remove' | 'replace'
 
+export const MIN_TIMELINE_NOTE_WIDTH = 16
+export const MAX_TIMELINE_NOTE_WIDTH = 1000
+
 export type EditorState = {
 	dirtyState: EditorDirtyState
 	openedModal: EditorModal | null
@@ -24,6 +29,8 @@ export type EditorState = {
 
 	nodeCursor: [x: number, y: number]
 	musicKeyPreview: MusicKeyPreview | null
+	timeStep: number
+	timelineNoteWidth: number
 	timelineScroll: number
 
 	audioNodeSelection: Set<AudioNodeId>
@@ -47,6 +54,8 @@ export type EditorActions = {
 
 	setNodeCursor: (x: number, y: number) => void
 	setMusicKeyPreview: (preview: MusicKeyPreview | null) => void
+	setTimeStep: (timeStep: number) => void
+	zoomTimeline: (factor: number) => void
 	scrollTimeline: (dx: number) => void
 
 	selectAudioNodes: (
@@ -73,6 +82,8 @@ export type EditorStore = EditorState & EditorActions
 export type EditorStoreApi = ReturnType<typeof createEditorStore>
 
 export function createEditorStore(initialState: EditorState) {
+	const timeStepSchema = z.number().int().min(1)
+
 	const initStore = (
 		set: StoreApi<EditorStore>['setState'],
 		get: StoreApi<EditorStore>['getState'],
@@ -88,6 +99,22 @@ export function createEditorStore(initialState: EditorState) {
 
 		setNodeCursor: (x, y) => set({ nodeCursor: [x, y] }),
 		setMusicKeyPreview: preview => set({ musicKeyPreview: preview }),
+		setTimeStep: timeStep =>
+			set({
+				timeStep: safeParseOr(timeStepSchema, timeStep, get().timeStep),
+			}),
+		zoomTimeline: factor => {
+			// TODO: zoom relative to mouse position
+			const { timelineNoteWidth, timelineScroll } = get()
+			set({
+				timelineNoteWidth: clampLeft(
+					timelineNoteWidth * factor,
+					MIN_TIMELINE_NOTE_WIDTH,
+					MAX_TIMELINE_NOTE_WIDTH,
+				),
+				timelineScroll: timelineScroll * factor,
+			})
+		},
 		scrollTimeline: dx =>
 			set({ timelineScroll: Math.max(0, get().timelineScroll + dx) }),
 

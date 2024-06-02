@@ -74,6 +74,8 @@ export default function EditorStoreProvider({
 			openedModal: null,
 			nodeCursor,
 			musicKeyPreview,
+			timeStep: 4,
+			timelineNoteWidth: 120,
 			timelineScroll,
 			audioNodeSelection: new Set(nodeSelection),
 			audioEdgeSelection: new Set(edgeSelection),

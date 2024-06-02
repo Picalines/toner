@@ -21,9 +21,6 @@ type Props = Readonly<{
 	className?: string
 }>
 
-// TODO: zoom on alt+wheel
-const DEFAULT_NOTE_WIDTH = 120
-
 const NOTE_LINE_HEIGHT = 24
 
 export default function MusicEditor({ className }: Props) {
@@ -95,19 +92,9 @@ export default function MusicEditor({ className }: Props) {
 				defaultSize={80}
 				className="relative !overflow-clip"
 			>
-				<EditorTimeline
-					className="sticky top-0 z-10 h-6 border-b"
-					noteWidth={DEFAULT_NOTE_WIDTH}
-				/>
-				<MusicFlow
-					className="w-full"
-					noteWidth={DEFAULT_NOTE_WIDTH}
-					lineHeight={NOTE_LINE_HEIGHT}
-				/>
-				<EditorPlaybackLine
-					className="absolute inset-0 z-20"
-					noteWidth={DEFAULT_NOTE_WIDTH}
-				/>
+				<EditorTimeline className="sticky top-0 z-10 h-6 border-b" />
+				<MusicFlow className="w-full" lineHeight={NOTE_LINE_HEIGHT} />
+				<EditorPlaybackLine className="absolute inset-0 z-20" />
 			</ResizablePanel>
 		</ResizablePanelGroup>
 	)
