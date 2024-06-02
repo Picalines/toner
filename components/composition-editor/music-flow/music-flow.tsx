@@ -245,6 +245,10 @@ function MusicFlow(flowProps: Props) {
 		},
 	)
 
+	useHotkeys('esc', () =>
+		editorStore.getState().selectMusicKeys('replace', []),
+	)
+
 	const onWheel = (event: WheelEvent<HTMLDivElement>) => {
 		const { scrollTimeline, zoomTimeline } = editorStore.getState()
 
