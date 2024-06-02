@@ -93,22 +93,25 @@ export default function EditorPlaybackControls({ className }: Props) {
 			<Button
 				variant="ghost"
 				className={cn(
-					'aspect-square  rounded-r-none p-2',
+					'group aspect-square rounded-r-none p-2',
 					noFocusRing,
 					playbackState != 'idle' && 'bg-accent/50',
 				)}
 				onClick={onPlayClick}
 			>
-				<PlayButtonIcon className="h-4 w-4 text-green-500 transition dark:text-green-400" />
+				<PlayButtonIcon className="h-4 w-4 text-green-500 transition group-active:scale-75 dark:text-green-400" />
 			</Button>
 			<Button
 				variant="ghost"
-				className={cn('aspect-square rounded-none p-2', noFocusRing)}
+				className={cn(
+					'group aspect-square rounded-none p-2',
+					noFocusRing,
+				)}
 				onClick={onStopClick}
 			>
 				<SquareIcon
 					className={cn(
-						'h-4 w-4 transition',
+						'h-4 w-4 transition group-active:scale-75',
 						playbackState == 'idle'
 							? 'text-neutral-500'
 							: 'text-red-500 dark:text-red-400',
@@ -117,9 +120,12 @@ export default function EditorPlaybackControls({ className }: Props) {
 			</Button>
 			<Button
 				variant="ghost"
-				className={cn('aspect-square rounded-l-none p-2', noFocusRing)}
+				className={cn(
+					'group aspect-square rounded-l-none p-2',
+					noFocusRing,
+				)}
 			>
-				<RepeatIcon className="h-4 w-4 text-blue-500 dark:text-blue-400" />
+				<RepeatIcon className="h-4 w-4 text-blue-500 transition group-active:scale-75 dark:text-blue-400" />
 			</Button>
 		</div>
 	)
