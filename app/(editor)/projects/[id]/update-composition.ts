@@ -224,6 +224,8 @@ export async function updateComposition(changeSummary: EditorChangeSummary) {
 		for (const [keyId, keyUpdate] of Object.entries(
 			changeSummary.musicKeys,
 		)) {
+			hadChanges = true
+
 			switch (keyUpdate.operation) {
 				case 'create': {
 					const {
