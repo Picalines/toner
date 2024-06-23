@@ -8,7 +8,7 @@ type AnyEditorChange = z.infer<(typeof editorSchemas)['change']>
 export type EditorChangeType = AnyEditorChange['type']
 
 export type EditorChange<T extends EditorChangeType = EditorChangeType> =
-	AnyEditorChange & { type: T }
+	T extends EditorChangeType ? AnyEditorChange & { type: T } : never
 
 export type EditorChangeSummary = z.infer<
 	(typeof editorSchemas)['changeSummary']
